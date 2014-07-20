@@ -198,7 +198,7 @@ func (l *Literal) String() string {
 			return fmt.Sprintf("%v^^%v", t, l.DataType)
 		}
 	}
-	return fmt.Sprintf("%v", l.Value)
+	return fmt.Sprintf("\"%v\"", l.Value)
 }
 
 // Eq tests a Literal's equality with other RDF terms.
