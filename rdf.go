@@ -21,6 +21,10 @@ var (
 	ErrURIInvalidCharacters = errors.New(`URI cannot contain space or any of the charaters: <>{}|\^'"`)
 )
 
+// DateFormat defines the string representation of xsd:DateTime values. You can override
+// it if you need another layout.
+var DateFormat = time.RFC3339
+
 // The XML schema built-in datatypes (xsd). See here for documentation:
 // https://dvcs.w3.org/hg/rdf/raw-file/default/rdf-concepts/index.html#xsd-datatypes
 var (
@@ -193,7 +197,7 @@ func (l *Literal) String() string {
 		case string:
 			return fmt.Sprintf("\"%v\"", t)
 		case time.Time:
-			return fmt.Sprintf("\"%v\"^^%v", t.Format(time.RFC3339), l.DataType)
+			return fmt.Sprintf("\"%v\"^^%v", t.Format(DateFormat), l.DataType)
 		default:
 			return fmt.Sprintf("%v^^%v", t, l.DataType)
 		}
