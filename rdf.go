@@ -29,22 +29,26 @@ var DateFormat = time.RFC3339
 // https://dvcs.w3.org/hg/rdf/raw-file/default/rdf-concepts/index.html#xsd-datatypes
 var (
 	// Core types:
+
 	XSDString  = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#string")
 	XSDBoolean = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#boolean")
 	XSDDecimal = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#decimal")
 	XSDInteger = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#integer")
 
 	// IEEE floating-point numbers:
+
 	XSDDouble = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#double")
 	XSDFloat  = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#float")
 
 	// Time and date:
+
 	XSDDate          = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#date")
 	XSDTime          = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#time")
 	XSDDateTime      = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#dateTime")
 	XSDDateTimeStamp = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#dateTimeStamp")
 
 	// Recurring and partial dates:
+
 	XSDYear              = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#gYear")
 	XSDMonth             = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#gMonth")
 	XSDDay               = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#gDay")
@@ -54,12 +58,15 @@ var (
 	XSDDayTimeDuration   = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#dayTimeDuration")
 
 	// Limited-range integer numbers
+
 	// TODO
 
 	// Encoded binary data
+
 	// TODO
 
 	// Miscellaneous XSD types
+
 	// TODO
 )
 
@@ -73,14 +80,15 @@ type Term interface {
 	Eq(other Term) bool
 
 	// Type returns the RDF term type.
-	Type() termType
+	Type() TermType
 }
 
-type termType int
+// TermType describes the type of RDF term: Blank node, URI or Literal
+type TermType int
 
 // Exported RDF term types.
 const (
-	TermBlank termType = iota
+	TermBlank TermType = iota
 	TermURI
 	TermLiteral
 )
@@ -103,8 +111,8 @@ func (b *Blank) Eq(other Term) bool {
 	return b.String() == other.String()
 }
 
-// Type returns the termType of a blank node.
-func (b *Blank) Type() termType {
+// Type returns the TermType of a blank node.
+func (b *Blank) Type() TermType {
 	return TermBlank
 }
 
@@ -143,8 +151,8 @@ func (u *URI) Eq(other Term) bool {
 	return u.String() == other.String()
 }
 
-// Type returns the termType of a URI.
-func (u *URI) Type() termType {
+// Type returns the TermType of a URI.
+func (u *URI) Type() TermType {
 	return TermURI
 }
 
@@ -213,8 +221,8 @@ func (l *Literal) Eq(other Term) bool {
 	return l.String() == other.String()
 }
 
-// Type returns the termType of a Literal.
-func (l *Literal) Type() termType {
+// Type returns the TermType of a Literal.
+func (l *Literal) Type() TermType {
 	return TermLiteral
 }
 
