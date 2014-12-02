@@ -76,6 +76,10 @@ type Term interface {
 	// form suitable for insertion into a SPARQL query.
 	String() string
 
+	// Value returns the typed value of a RDF term, boxed in an empty interface.
+	// For URIs and Blank nodes this would return the uri and blank label as strings.
+	Value() interface{}
+
 	// Eq tests for equality with another RDF term.
 	Eq(other Term) bool
 
@@ -96,6 +100,11 @@ const (
 // Blank represents a RDF blank node; an unqualified URI with an ID.
 type Blank struct {
 	ID string
+}
+
+// Value returns the string label of the blank node, without the prefix.
+func (b *Blank) Value() interface{} {
+	return b.ID
 }
 
 // String returns the string representation of a blank node.
@@ -143,6 +152,11 @@ func (u *URI) String() string {
 	return "<" + u.URI + ">"
 }
 
+// Value returns the URI as a string, without the enclosing <>.
+func (u *URI) Value() interface{} {
+	return u.URI
+}
+
 // Eq tests a URI's equality with other RDF terms.
 func (u *URI) Eq(other Term) bool {
 	if other.Type() != u.Type() {
@@ -182,9 +196,9 @@ func NewURIUnsafe(uri string) *URI {
 // they are not untyped anymore. This is according to the RDF1.1 spec:
 // http://www.w3.org/TR/2014/REC-rdf11-concepts-20140225/#section-Graph-Literal
 type Literal struct {
-	// Value represents the typed value of a RDF Literal, boxed in an empty interface.
+	// Val represents the typed value of a RDF Literal, boxed in an empty interface.
 	// A type assertion is needed to get the value in the corresponding Go type.
-	Value interface{}
+	Val interface{}
 
 	// Lang, if not empty, represents the language tag of a string.
 	Lang string
@@ -196,10 +210,10 @@ type Literal struct {
 // String returns the string representation of a Literal.
 func (l *Literal) String() string {
 	if l.Lang != "" {
-		return fmt.Sprintf("\"%v\"@%s", l.Value, l.Lang)
+		return fmt.Sprintf("\"%v\"@%s", l.Val, l.Lang)
 	}
 	if l.DataType != nil {
-		switch t := l.Value.(type) {
+		switch t := l.Val.(type) {
 		case bool, int, float64:
 			return fmt.Sprintf("%v", t)
 		case string:
@@ -210,7 +224,12 @@ func (l *Literal) String() string {
 			return fmt.Sprintf("%v^^%v", t, l.DataType)
 		}
 	}
-	return fmt.Sprintf("\"%v\"", l.Value)
+	return fmt.Sprintf("\"%v\"", l.Val)
+}
+
+// Value returns the string representation of an URI.
+func (l *Literal) Value() interface{} {
+	return l.Value
 }
 
 // Eq tests a Literal's equality with other RDF terms.
@@ -234,15 +253,15 @@ func (l *Literal) Type() TermType {
 func NewLiteral(v interface{}) (*Literal, error) {
 	switch t := v.(type) {
 	case bool:
-		return &Literal{Value: t, DataType: XSDBoolean}, nil
+		return &Literal{Val: t, DataType: XSDBoolean}, nil
 	case int:
-		return &Literal{Value: t, DataType: XSDInteger}, nil
+		return &Literal{Val: t, DataType: XSDInteger}, nil
 	case string:
-		return &Literal{Value: t, DataType: XSDString}, nil
+		return &Literal{Val: t, DataType: XSDString}, nil
 	case float64:
-		return &Literal{Value: t, DataType: XSDFloat}, nil
+		return &Literal{Val: t, DataType: XSDFloat}, nil
 	case time.Time:
-		return &Literal{Value: t, DataType: XSDDateTime}, nil
+		return &Literal{Val: t, DataType: XSDDateTime}, nil
 	default:
 		return &Literal{}, fmt.Errorf("cannot infer xsd:datatype from %v", t)
 	}
@@ -262,7 +281,7 @@ func NewLiteralUnsafe(v interface{}) *Literal {
 // No validation is performed to check if the language tag conforms
 // to the BCP 47 spec: http://tools.ietf.org/html/bcp47
 func NewLangLiteral(v, lang string) *Literal {
-	return &Literal{Value: v, Lang: lang, DataType: XSDString}
+	return &Literal{Val: v, Lang: lang, DataType: XSDString}
 }
 
 // Triple represents a RDF triple.

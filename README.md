@@ -16,6 +16,10 @@ type Term interface {
 	// form suitable for insertion into a SPARQL query.
 	String() string
 
+	// Value returns the typed value of a RDF term, boxed in an empty interface.
+	// For URIs and Blank nodes this would return the uri and blank label as strings.
+	Value() interface{}
+
 	// Eq tests for equality with another RDF term.
 	Eq(other Term) bool
 
@@ -31,18 +35,22 @@ The 3 term types:
 type Blank struct {
 	ID string
 }
+```
 
+```go
 // URI represents a RDF URI resource.
 type URI struct {
 	URI string
 }
+```
 
+```go
 // Literal represents a RDF literal; a value with a datatype and
 // (optionally) an associated language tag for strings.
 type Literal struct {
-	// Value represents the typed value of a RDF Literal, boxed in an empty interface.
+	// Val represents the typed value of a RDF Literal, boxed in an empty interface.
 	// A type assertion is needed to get the value in the corresponding Go type.
-	Value interface{}
+	Val interface{}
 
 	// Lang, if not empty, represents the language tag of a string.
 	Lang string
@@ -52,13 +60,16 @@ type Literal struct {
 }
 ```
 
-A RDF triple is composed of 3 terms forming the subject, predicate and object of a statement. A quad is a triple with a named graph:
+A RDF triple is composed of 3 terms forming the subject, predicate and object of a statement.
 
 ```go
 type Triple struct {
 	Subj, Pred, Obj Term
 }
+```
 
+A quad is a triple with a named graph:
+```go
 type Quad struct {
 	Graph     URI
 	Statement Triple
