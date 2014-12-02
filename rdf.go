@@ -291,6 +291,8 @@ type Triple struct {
 
 // Quad represents a RDF quad; that is, a triple with a named graph.
 type Quad struct {
-	Graph     URI
-	Statement Triple
+	Subj  Term
+	Pred  Term
+	Obj   Term
+	Graph URI
 }

@@ -71,8 +71,10 @@ type Triple struct {
 A quad is a triple with a named graph:
 ```go
 type Quad struct {
-	Graph     URI
-	Statement Triple
+	Subj  Term
+	Pred  Term
+	Obj   Term
+	Graph URI
 }
 ```
 
