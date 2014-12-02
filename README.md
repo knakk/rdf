@@ -4,6 +4,8 @@ This package introduces data structures for working with RDF in Go.
 
 The main use case is to represent data coming from or going to a triple/quad-store via the SPARQL protocol. It does not provide any means of working with the data as a graph, i.e no in-memory graph traversal or querying, as this is better handeled by a dedicated triple store.
 
+For complete documentation see [godoc](:http://godoc.org/github.com/knakk/rdf).
+
 ## Types and interfaces
 
 _Note_: What is named `URI` in this library, is actually a `IRI reference` (a generalization of `URI` supporting the full unicode range, except the characters `<>'"{}|^\`' and space). The choice was made because `URI` is so widely used.
