@@ -4,7 +4,7 @@ This package introduces data structures for working with RDF in Go.
 
 The main use case is to represent data coming from or going to a triple/quad-store via the SPARQL protocol. It does not provide any means of working with the data as a graph, i.e no in-memory graph traversal or querying, as this is better handeled by a dedicated triple store.
 
-For complete documentation see [godoc](:http://godoc.org/github.com/knakk/rdf).
+For complete documentation see [godoc](http://godoc.org/github.com/knakk/rdf).
 
 ## Types and interfaces
 
@@ -32,7 +32,7 @@ type Term interface {
 
 The 3 term types:
 
-```
+```go
 // Blank represents a RDF blank node; an unqualified URI with an ID.
 type Blank struct {
 	ID string
