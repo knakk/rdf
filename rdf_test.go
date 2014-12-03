@@ -85,7 +85,7 @@ func TestTermTypeLiteral(t *testing.T) {
 	l8 := NewLiteralUnsafe(time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))
 
 	var eqTests = []struct {
-		a, b *Literal
+		a, b Literal
 		want bool
 	}{
 		{l1, l2, false},
@@ -102,7 +102,7 @@ func TestTermTypeLiteral(t *testing.T) {
 	}
 
 	var formatTests = []struct {
-		l    *Literal
+		l    Literal
 		want string
 	}{
 		{l1, "42"},

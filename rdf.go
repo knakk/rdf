@@ -103,17 +103,17 @@ type Blank struct {
 }
 
 // Value returns the string label of the blank node, without the prefix.
-func (b *Blank) Value() interface{} {
+func (b Blank) Value() interface{} {
 	return b.ID
 }
 
 // String returns the string representation of a blank node.
-func (b *Blank) String() string {
+func (b Blank) String() string {
 	return "_:" + b.ID
 }
 
 // Eq tests a blank node's equality with other RDF terms.
-func (b *Blank) Eq(other Term) bool {
+func (b Blank) Eq(other Term) bool {
 	if other.Type() != b.Type() {
 		return false
 	}
@@ -121,22 +121,22 @@ func (b *Blank) Eq(other Term) bool {
 }
 
 // Type returns the TermType of a blank node.
-func (b *Blank) Type() TermType {
+func (b Blank) Type() TermType {
 	return TermBlank
 }
 
 // NewBlank returns a new blank node with a given ID. It returns
 // an error only if the supplied ID is blank.
-func NewBlank(id string) (*Blank, error) {
+func NewBlank(id string) (Blank, error) {
 	if len(strings.TrimSpace(id)) == 0 {
-		return nil, ErrBlankNodeMissingID
+		return Blank{}, ErrBlankNodeMissingID
 	}
-	return &Blank{ID: id}, nil
+	return Blank{ID: id}, nil
 }
 
 // NewBlankUnsafe is like NewBlank, except it doesn't fail on invalid input.
-func NewBlankUnsafe(id string) *Blank {
-	return &Blank{ID: id}
+func NewBlankUnsafe(id string) Blank {
+	return Blank{ID: id}
 }
 
 // URI represents a RDF URI resource.
@@ -148,17 +148,17 @@ type URI struct {
 }
 
 // String returns the string representation of an URI.
-func (u *URI) String() string {
+func (u URI) String() string {
 	return "<" + u.URI + ">"
 }
 
 // Value returns the URI as a string, without the enclosing <>.
-func (u *URI) Value() interface{} {
+func (u URI) Value() interface{} {
 	return u.URI
 }
 
 // Eq tests a URI's equality with other RDF terms.
-func (u *URI) Eq(other Term) bool {
+func (u URI) Eq(other Term) bool {
 	if other.Type() != u.Type() {
 		return false
 	}
@@ -166,27 +166,27 @@ func (u *URI) Eq(other Term) bool {
 }
 
 // Type returns the TermType of a URI.
-func (u *URI) Type() TermType {
+func (u URI) Type() TermType {
 	return TermURI
 }
 
 // NewURI returns a new URI, or an error if it's not valid.
-func NewURI(uri string) (*URI, error) {
+func NewURI(uri string) (URI, error) {
 	if len(strings.TrimSpace(uri)) == 0 {
-		return nil, ErrURIEmptyInput
+		return URI{}, ErrURIEmptyInput
 	}
 	for _, r := range uri {
 		switch r {
 		case '<', '>', '"', '{', '}', '|', '^', '`', '\\':
-			return nil, ErrURIInvalidCharacters
+			return URI{}, ErrURIInvalidCharacters
 		}
 	}
-	return &URI{URI: uri}, nil
+	return URI{URI: uri}, nil
 }
 
 // NewURIUnsafe returns a new URI, with no validation performed on input.
-func NewURIUnsafe(uri string) *URI {
-	return &URI{uri}
+func NewURIUnsafe(uri string) URI {
+	return URI{uri}
 }
 
 // Literal represents a RDF literal; a value with a datatype and
@@ -204,15 +204,15 @@ type Literal struct {
 	Lang string
 
 	// The datatype of the Literal.
-	DataType *URI
+	DataType URI
 }
 
 // String returns the string representation of a Literal.
-func (l *Literal) String() string {
+func (l Literal) String() string {
 	if l.Lang != "" {
 		return fmt.Sprintf("\"%v\"@%s", l.Val, l.Lang)
 	}
-	if l.DataType != nil {
+	if l.DataType.String() != "" {
 		switch t := l.Val.(type) {
 		case bool, int, float64:
 			return fmt.Sprintf("%v", t)
@@ -228,12 +228,12 @@ func (l *Literal) String() string {
 }
 
 // Value returns the string representation of an URI.
-func (l *Literal) Value() interface{} {
+func (l Literal) Value() interface{} {
 	return l.Value
 }
 
 // Eq tests a Literal's equality with other RDF terms.
-func (l *Literal) Eq(other Term) bool {
+func (l Literal) Eq(other Term) bool {
 	if other.Type() != l.Type() {
 		return false
 	}
@@ -241,7 +241,7 @@ func (l *Literal) Eq(other Term) bool {
 }
 
 // Type returns the TermType of a Literal.
-func (l *Literal) Type() TermType {
+func (l Literal) Type() TermType {
 	return TermLiteral
 }
 
@@ -250,26 +250,26 @@ func (l *Literal) Type() TermType {
 // If you need a custom datatype, you must create the literal with the normal
 // struct syntax:
 //    l := Literal{Val: "my-val", DataType: NewURIUnsafe("my uri")}
-func NewLiteral(v interface{}) (*Literal, error) {
+func NewLiteral(v interface{}) (Literal, error) {
 	switch t := v.(type) {
 	case bool:
-		return &Literal{Val: t, DataType: XSDBoolean}, nil
+		return Literal{Val: t, DataType: XSDBoolean}, nil
 	case int:
-		return &Literal{Val: t, DataType: XSDInteger}, nil
+		return Literal{Val: t, DataType: XSDInteger}, nil
 	case string:
-		return &Literal{Val: t, DataType: XSDString}, nil
+		return Literal{Val: t, DataType: XSDString}, nil
 	case float64:
-		return &Literal{Val: t, DataType: XSDFloat}, nil
+		return Literal{Val: t, DataType: XSDFloat}, nil
 	case time.Time:
-		return &Literal{Val: t, DataType: XSDDateTime}, nil
+		return Literal{Val: t, DataType: XSDDateTime}, nil
 	default:
-		return &Literal{}, fmt.Errorf("cannot infer xsd:datatype from %v", t)
+		return Literal{}, fmt.Errorf("cannot infer xsd:datatype from %v", t)
 	}
 }
 
 // NewLiteralUnsafe returns a new literal without performing any validation
 // on input. Any input on which type cannot be inferred, will be forced to xsd:string.
-func NewLiteralUnsafe(v interface{}) *Literal {
+func NewLiteralUnsafe(v interface{}) Literal {
 	l, err := NewLiteral(v)
 	if err != nil {
 		l, _ = NewLiteral(fmt.Sprintf("%v", v))
@@ -280,8 +280,8 @@ func NewLiteralUnsafe(v interface{}) *Literal {
 // NewLangLiteral creates a RDF literal with a givne language tag.
 // No validation is performed to check if the language tag conforms
 // to the BCP 47 spec: http://tools.ietf.org/html/bcp47
-func NewLangLiteral(v, lang string) *Literal {
-	return &Literal{Val: v, Lang: lang, DataType: XSDString}
+func NewLangLiteral(v, lang string) Literal {
+	return Literal{Val: v, Lang: lang, DataType: XSDString}
 }
 
 // Triple represents a RDF triple.

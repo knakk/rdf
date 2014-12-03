@@ -58,7 +58,7 @@ type Literal struct {
 	Lang string
 
 	// The datatype of the Literal.
-	DataType *URI
+	DataType URI
 }
 ```
 
