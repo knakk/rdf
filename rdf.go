@@ -289,6 +289,11 @@ type Triple struct {
 	Subj, Pred, Obj Term
 }
 
+// NT returns a string representation of the triple in N-Triples format.
+func (t Triple) NT() string {
+	return fmt.Sprintf("%v %v %v .", t.Subj, t.Pred, t.Obj)
+}
+
 // Quad represents a RDF quad; that is, a triple with a named graph.
 type Quad struct {
 	Subj  Term
