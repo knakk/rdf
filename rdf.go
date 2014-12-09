@@ -229,7 +229,7 @@ func (l Literal) String() string {
 
 // Value returns the string representation of an URI.
 func (l Literal) Value() interface{} {
-	return l.Value
+	return l.Val
 }
 
 // Eq tests a Literal's equality with other RDF terms.
