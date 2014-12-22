@@ -102,7 +102,7 @@ type Blank struct {
 	ID string
 }
 
-// Value returns the string label of the blank node, without the prefix.
+// Value returns the string label of the blank node, without the '_:' prefix.
 func (b Blank) Value() interface{} {
 	return b.ID
 }
