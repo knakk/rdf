@@ -30,32 +30,32 @@ var DateFormat = time.RFC3339
 var (
 	// Core types:
 
-	XSDString  = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#string")
-	XSDBoolean = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#boolean")
-	XSDDecimal = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#decimal")
-	XSDInteger = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#integer")
+	XSDString  = URI{URI: "http://www.w3.org/2001/XMLSchema#string"}
+	XSDBoolean = URI{URI: "http://www.w3.org/2001/XMLSchema#boolean"}
+	XSDDecimal = URI{URI: "http://www.w3.org/2001/XMLSchema#decimal"}
+	XSDInteger = URI{URI: "http://www.w3.org/2001/XMLSchema#integer"}
 
 	// IEEE floating-point numbers:
 
-	XSDDouble = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#double")
-	XSDFloat  = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#float")
+	XSDDouble = URI{URI: "http://www.w3.org/2001/XMLSchema#double"}
+	XSDFloat  = URI{URI: "http://www.w3.org/2001/XMLSchema#float"}
 
 	// Time and date:
 
-	XSDDate          = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#date")
-	XSDTime          = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#time")
-	XSDDateTime      = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#dateTime")
-	XSDDateTimeStamp = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#dateTimeStamp")
+	XSDDate          = URI{URI: "http://www.w3.org/2001/XMLSchema#date"}
+	XSDTime          = URI{URI: "http://www.w3.org/2001/XMLSchema#time"}
+	XSDDateTime      = URI{URI: "http://www.w3.org/2001/XMLSchema#dateTime"}
+	XSDDateTimeStamp = URI{URI: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
 
 	// Recurring and partial dates:
 
-	XSDYear              = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#gYear")
-	XSDMonth             = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#gMonth")
-	XSDDay               = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#gDay")
-	XSDYearMonth         = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#gYearMonth")
-	XSDDuration          = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#Duration")
-	XSDYearMonthDuration = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#yearMonthDuration")
-	XSDDayTimeDuration   = NewURIUnsafe("http://www.w3.org/2001/XMLSchema#dayTimeDuration")
+	XSDYear              = URI{URI: "http://www.w3.org/2001/XMLSchema#gYear"}
+	XSDMonth             = URI{URI: "http://www.w3.org/2001/XMLSchema#gMonth"}
+	XSDDay               = URI{URI: "http://www.w3.org/2001/XMLSchema#gDay"}
+	XSDYearMonth         = URI{URI: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
+	XSDDuration          = URI{URI: "http://www.w3.org/2001/XMLSchema#Duration"}
+	XSDYearMonthDuration = URI{URI: "http://www.w3.org/2001/XMLSchema#yearMonthDuration"}
+	XSDDayTimeDuration   = URI{URI: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
 
 	// Limited-range integer numbers
 
