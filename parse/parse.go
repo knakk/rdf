@@ -94,21 +94,27 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 	switch d.cur.typ {
 	case tokenBNode:
 		t.Obj = rdf.Blank{ID: d.cur.text}
+		d.next()
 	case tokenLiteral:
 		t.Obj = d.parseLiteral()
+		if d.cur.typ == tokenDot {
+			return t, nil
+		}
+		d.next()
 	case tokenIRI:
 		t.Obj = rdf.URI{URI: d.cur.text}
+		d.next()
 	}
 
 	// parse final dot
-	if !d.next() {
-		if d.cur.typ == tokenEOL {
-			return t, fmt.Errorf("%d:%d: unexpected end of line", d.cur.line, d.cur.col)
-		}
-		return t, fmt.Errorf("%d:%d: %s", d.cur.line, d.cur.col, d.cur.text)
-	}
 	if d.cur.typ != tokenDot {
 		return t, errors.New("missing '.' at end of triple statement")
+	}
+
+	// check for extra tokens, assert we reached end of line
+	d.next()
+	if d.cur.typ != tokenEOL {
+		return t, fmt.Errorf("found extra token after end of statement: %q", d.cur.text)
 	}
 
 	return t, nil
@@ -160,7 +166,9 @@ func (d *Decoder) parseLiteral() rdf.Literal {
 			return l
 		default:
 			// literal not follwed by language tag or datatype
-			d.backup()
+			if d.cur.typ != tokenDot {
+				d.backup()
+			}
 		}
 	}
 	return l
