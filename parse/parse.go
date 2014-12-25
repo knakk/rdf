@@ -3,6 +3,7 @@ package parse
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -55,10 +56,14 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 		// so there must me something, at least tokenError
 		return t, fmt.Errorf("%d:%d: %s", d.cur.line, d.cur.col, d.cur.text)
 	}
-	if !d.oneOf(tokenIRI) {
-		return t, fmt.Errorf("expected an IRI as subject, got %v", d.cur.typ)
+	if !d.oneOf(tokenIRI, tokenBNode) {
+		return t, fmt.Errorf("subject must be IRI or Blank node, got %v", d.cur.typ)
 	}
-	t.Subj = rdf.URI{URI: d.cur.text}
+	if d.cur.typ == tokenIRI {
+		t.Subj = rdf.URI{URI: d.cur.text}
+	} else {
+		t.Subj = rdf.Blank{ID: d.cur.text}
+	}
 
 	// parse triple predicate
 	if !d.next() {
@@ -67,10 +72,14 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 		}
 		return t, fmt.Errorf("%d:%d: %s", d.cur.line, d.cur.col, d.cur.text)
 	}
-	if !d.oneOf(tokenIRI) {
-		return t, fmt.Errorf("expected an IRI as predicate, got %v", d.cur.typ)
+	if !d.oneOf(tokenIRI, tokenBNode) {
+		return t, fmt.Errorf("predicate must be IRI or Blank node, got %v", d.cur.typ)
 	}
-	t.Pred = rdf.URI{URI: d.cur.text}
+	if d.cur.typ == tokenIRI {
+		t.Pred = rdf.URI{URI: d.cur.text}
+	} else {
+		t.Pred = rdf.Blank{ID: d.cur.text}
+	}
 
 	// parse triple object
 	if !d.next() {
@@ -79,10 +88,12 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 		}
 		return t, fmt.Errorf("%d:%d: %s", d.cur.line, d.cur.col, d.cur.text)
 	}
-	if !d.oneOf(tokenIRI, tokenLiteral) {
+	if !d.oneOf(tokenIRI, tokenLiteral, tokenBNode) {
 		return t, fmt.Errorf("expected IRI/Literal as object, got %v", d.cur.typ)
 	}
 	switch d.cur.typ {
+	case tokenBNode:
+		t.Obj = rdf.Blank{ID: d.cur.text}
 	case tokenLiteral:
 		t.Obj = d.parseLiteral()
 	case tokenIRI:
@@ -90,6 +101,15 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 	}
 
 	// parse final dot
+	if !d.next() {
+		if d.cur.typ == tokenEOL {
+			return t, fmt.Errorf("%d:%d: unexpected end of line", d.cur.line, d.cur.col)
+		}
+		return t, fmt.Errorf("%d:%d: %s", d.cur.line, d.cur.col, d.cur.text)
+	}
+	if d.cur.typ != tokenDot {
+		return t, errors.New("missing '.' at end of triple statement")
+	}
 
 	return t, nil
 }

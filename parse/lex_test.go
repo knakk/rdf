@@ -12,6 +12,7 @@ var tokenName = map[tokenType]string{
 	tokenEOF:      "EOF",
 	tokenIRI:      "IRI",
 	tokenLiteral:  "Literal",
+	tokenBNode:    "Blank node",
 	tokenLang:     "Language tag",
 	tokenDataType: "Literal data type",
 	tokenDot:      ".",
@@ -118,6 +119,10 @@ func TestTokens(t *testing.T) {
 		{`"a"^^<mydatatype>`, []testToken{
 			{tokenLiteral, "a"},
 			{tokenDataType, "mydatatype"},
+			{tokenEOL, ""}},
+		},
+		{`_:a`, []testToken{
+			{tokenBNode, "a"},
 			{tokenEOL, ""}},
 		},
 	}

@@ -265,6 +265,14 @@ func (l *lexer) errorf(format string, args ...interface{}) stateFn {
 func lexAny(l *lexer) stateFn {
 	r := l.next()
 	switch r {
+	case '_':
+		if l.peek() != ':' {
+			return l.errorf("illegal character %q in blank node identifier", l.peek())
+		}
+		// consume & ignore '_:'
+		l.next()
+		l.ignore()
+		return lexBNode
 	case '<':
 		l.ignore()
 		return lexIRI
@@ -371,7 +379,7 @@ func lexLiteral(l *lexer) stateFn {
 			esc := l.peek()
 			switch esc {
 			case 't', 'b', 'n', 'r', 'f', '"', '\'', '\\':
-				l.next() // consume '/'
+				l.next() // consume '\'
 				l.unEsc = true
 			case 'u':
 				l.next() // cosume 'u'
@@ -404,6 +412,23 @@ func lexLiteral(l *lexer) stateFn {
 	l.pos++
 	l.ignore()
 	return lexLang
+}
+
+func lexBNode(l *lexer) stateFn {
+	// TODO make this according to spec
+	r := l.next()
+	if r == eof {
+		return l.errorf("bad blank node: unexpected end of line")
+	}
+	for {
+		if r == '<' || r == '"' || r == ' ' || r == eof {
+			l.backup()
+			break
+		}
+		r = l.next()
+	}
+	l.emit(tokenBNode)
+	return lexAny
 }
 
 func lexLang(l *lexer) stateFn {
