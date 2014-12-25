@@ -81,7 +81,7 @@ func newLexer() *lexer {
 	l := lexer{
 		incoming: make(chan []byte, 1),
 		tokens:   make(chan token),
-		close:    make(chan bool),
+		close:    make(chan bool, 1),
 	}
 	go l.run()
 	return &l
