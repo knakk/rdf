@@ -28,6 +28,8 @@ const eof = -1
 
 var hex = []byte("0123456789ABCDEFabcdef")
 
+var badIRIRunes = [...]rune{' ', '<', '"', '{', '}', '|', '^', '`'}
+
 // isAlpha tests if rune is in the set [a-zA-Z]
 func isAlpha(r rune) bool {
 	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
@@ -293,9 +295,12 @@ func _lexIRI(l *lexer) stateFn {
 		if r == eof {
 			return l.errorf("bad IRI: no closing '>'")
 		}
-		if bytes.IndexRune([]byte(" <\"{}|^`"), r) >= 0 {
-			return l.errorf("bad IRI: disallowed character %q", r)
+		for _, bad := range badIRIRunes {
+			if r == bad {
+				return l.errorf("bad IRI: disallowed character %q", r)
+			}
 		}
+
 		if r == '\\' {
 			// handle numeric escape sequences for unicode points:
 			esc := l.peek()
