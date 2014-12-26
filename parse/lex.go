@@ -62,11 +62,6 @@ type stateFn func(*lexer) stateFn
 // the template lexer in Go's standard library, and is governed by a BSD licence
 // and Copyright 2011 The Go Authors.
 type lexer struct {
-	incoming chan []byte // channel of input (lines) to be scanned
-	close    chan bool   // signal termination of lexer
-
-	// scanning state
-	parked bool
 	input  []byte     // the input being scanned (should not inlcude newlines)
 	state  stateFn    // the next lexing function to enter
 	line   int        // the current line number
@@ -77,11 +72,10 @@ type lexer struct {
 	tokens chan token // channel of scanned tokens
 }
 
-func newLexer() *lexer {
+func newLexer(data []byte) *lexer {
 	l := lexer{
-		incoming: make(chan []byte, 1),
-		tokens:   make(chan token),
-		close:    make(chan bool, 1),
+		input:  data,
+		tokens: make(chan token),
 	}
 	go l.run()
 	return &l
@@ -220,32 +214,9 @@ func (l *lexer) nextToken() token {
 
 // run runs the state machine for the lexer.
 func (l *lexer) run() {
-outer:
-	for {
-		select {
-		case b := <-l.incoming:
-			l.input = b
-			l.line++
-			l.pos = 0
-			l.start = 0
-			l.parked = false
-		case <-l.close:
-			//l.emit(tokenEOF)
-			break outer
-		default:
-			if l.parked {
-				goto outer
-			}
-			for l.state = lexAny; l.state != nil; {
-				l.state = l.state(l)
-			}
-		}
+	for l.state = lexAny; l.state != nil; {
+		l.state = l.state(l)
 	}
-}
-
-// stop stops the lexer so that it will terminate run().
-func (l *lexer) stop() {
-	l.close <- true
 }
 
 // state functions:
@@ -253,7 +224,6 @@ func (l *lexer) stop() {
 // errorf returns an error token and terminates the scan by passing
 // back a nil pointer that will be the next state, terminating l.nextToken.
 func (l *lexer) errorf(format string, args ...interface{}) stateFn {
-	l.parked = true
 	l.tokens <- token{
 		tokenError,
 		l.line,
@@ -294,7 +264,6 @@ func lexAny(l *lexer) stateFn {
 	case '#', eof:
 		l.ignore()
 		l.emit(tokenEOL)
-		l.parked = true
 		return nil
 	default:
 		return l.errorf("illegal character %q", r)
