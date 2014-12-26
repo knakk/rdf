@@ -127,13 +127,15 @@ func TestTokens(t *testing.T) {
 		},
 	}
 
+	lex := newLexer()
 	for _, tt := range lexTests {
-		lex := newLexer([]byte(tt.in))
+		lex.incoming <- []byte(tt.in)
 		res := collect(lex)
 		if !equalTokens(tt.want, res) {
 			t.Errorf("lexing %v, got:\n\t%v\nexpected:\n\t%v", tt.in, res, tt.want)
 		}
 	}
+	lex.stop()
 }
 
 //func TestTokenErrors(t *testing.T) { }

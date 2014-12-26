@@ -25,6 +25,7 @@ type Decoder struct {
 // NewNTDecoder creates a N-Triples decoder
 func NewNTDecoder(r io.Reader) *Decoder {
 	return &Decoder{
+		l:      newLexer(),
 		r:      bufio.NewReader(r),
 		format: "N-Triples",
 	}
@@ -58,7 +59,7 @@ func isAbsoluteIRI(s string) bool {
 func (d *Decoder) Decode() (rdf.Triple, error) {
 	line, err := d.r.ReadBytes('\n')
 	if err != nil && len(line) == 0 {
-
+		d.l.stop() // reader drained, stop lexer
 		return rdf.Triple{}, err
 	}
 	line = bytes.TrimSpace(line)
@@ -69,7 +70,7 @@ func (d *Decoder) Decode() (rdf.Triple, error) {
 }
 
 func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
-	d.l = newLexer(line)
+	d.l.incoming <- line
 	t := rdf.Triple{}
 
 	// parse triple subject

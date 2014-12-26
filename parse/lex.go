@@ -62,6 +62,8 @@ type stateFn func(*lexer) stateFn
 // the template lexer in Go's standard library, and is governed by a BSD licence
 // and Copyright 2011 The Go Authors.
 type lexer struct {
+	incoming chan []byte
+
 	input  []byte     // the input being scanned (should not inlcude newlines)
 	state  stateFn    // the next lexing function to enter
 	line   int        // the current line number
@@ -72,10 +74,10 @@ type lexer struct {
 	tokens chan token // channel of scanned tokens
 }
 
-func newLexer(data []byte) *lexer {
+func newLexer() *lexer {
 	l := lexer{
-		input:  data,
-		tokens: make(chan token),
+		incoming: make(chan []byte),
+		tokens:   make(chan token),
 	}
 	go l.run()
 	return &l
@@ -214,9 +216,24 @@ func (l *lexer) nextToken() token {
 
 // run runs the state machine for the lexer.
 func (l *lexer) run() {
+again:
+	line := <-l.incoming
+	l.input = line
+	l.pos = 0
+	l.start = 0
+	l.line++
+	if line == nil {
+		// closed incoming channel
+		return
+	}
 	for l.state = lexAny; l.state != nil; {
 		l.state = l.state(l)
 	}
+	goto again
+}
+
+func (l *lexer) stop() {
+	close(l.incoming)
 }
 
 // state functions:
