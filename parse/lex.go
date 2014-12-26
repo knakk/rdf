@@ -174,6 +174,7 @@ func (l *lexer) emit(typ tokenType) {
 	l.tokens <- token{
 		typ:  typ,
 		line: l.line,
+		col:  l.start,
 		text: l.unescape(string(l.input[l.start:l.pos])),
 	}
 	l.start = l.pos
@@ -256,7 +257,7 @@ func (l *lexer) errorf(format string, args ...interface{}) stateFn {
 	l.tokens <- token{
 		tokenError,
 		l.line,
-		l.start,
+		l.pos,
 		fmt.Sprintf(format, args...),
 	}
 	return nil
