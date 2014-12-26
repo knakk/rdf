@@ -307,7 +307,7 @@ func _lexIRI(l *lexer) stateFn {
 		if r == eof {
 			return l.errorf("bad IRI: no closing '>'")
 		}
-		if bytes.IndexRune([]byte("<\"{}|^`"), r) >= 0 {
+		if bytes.IndexRune([]byte(" <\"{}|^`"), r) >= 0 {
 			return l.errorf("bad IRI: disallowed character %q", r)
 		}
 		if r == '\\' {
