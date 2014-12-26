@@ -14,20 +14,20 @@ func TestNTriples(t *testing.T) {
 		err  string
 		want rdf.Triple
 	}{
-		{`<s> <p> <o> .`, "",
+		{`<s:/s> <s:/p> <s:/o> .`, "",
 			rdf.Triple{
-				Subj: rdf.URI{URI: "s"},
-				Pred: rdf.URI{URI: "p"},
-				Obj:  rdf.URI{URI: "o"}}},
-		{`<s> <p> "o"^^<xyz> .`, "",
+				Subj: rdf.URI{URI: "s:/s"},
+				Pred: rdf.URI{URI: "s:/p"},
+				Obj:  rdf.URI{URI: "s:/o"}}},
+		{`<s:/s> <s:/p> "s:/o"^^<s:/xyz> .`, "",
 			rdf.Triple{
-				Subj: rdf.URI{URI: "s"},
-				Pred: rdf.URI{URI: "p"},
-				Obj:  rdf.Literal{Val: "o", DataType: rdf.URI{URI: "xyz"}}}},
-		{`<s> <p> "3.14"^^<http://www.w3.org/2001/XMLSchema#float> .`, "",
+				Subj: rdf.URI{URI: "s:/s"},
+				Pred: rdf.URI{URI: "s:/p"},
+				Obj:  rdf.Literal{Val: "s:/o", DataType: rdf.URI{URI: "s:/xyz"}}}},
+		{`<s:/s> <s:/p> "3.14"^^<http://www.w3.org/2001/XMLSchema#float> .`, "",
 			rdf.Triple{
-				Subj: rdf.URI{URI: "s"},
-				Pred: rdf.URI{URI: "p"},
+				Subj: rdf.URI{URI: "s:/s"},
+				Pred: rdf.URI{URI: "s:/p"},
 				Obj:  rdf.Literal{Val: 3.14, DataType: rdf.XSDFloat}}},
 	}
 

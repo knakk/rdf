@@ -31,6 +31,30 @@ func NewNTDecoder(r io.Reader) *Decoder {
 	}
 }
 
+// Parser helper functions
+
+// isAbsoluteIRI checks if an IRI is absolute (i.e has a scheme).
+// RFC 2396: scheme = alpha *( alpha | digit | "+" | "-" | "." )
+func isAbsoluteIRI(s string) bool {
+	iri := []rune(s)
+	i := 1
+	if isAlpha(iri[0]) {
+		for _, r := range iri[1:] {
+			if isAlphaOrDigit(r) || r == '+' || r == '-' || r == '.' {
+				i++
+				continue
+			}
+			break
+		}
+	}
+	if i >= 1 && len(iri) > i && iri[i] == ':' {
+		return true
+	}
+	return false
+}
+
+// Parser functions:
+
 // Decode returns the next valid triple, or an error
 func (d *Decoder) Decode() (rdf.Triple, error) {
 	line, err := d.r.ReadBytes('\n')
@@ -60,6 +84,9 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 		return t, fmt.Errorf("subject must be IRI or Blank node, got %v", d.cur.typ)
 	}
 	if d.cur.typ == tokenIRI {
+		if d.format == "N-Triples" && !isAbsoluteIRI(d.cur.text) {
+			return t, fmt.Errorf("%d:%d: relative IRIs not allowed", d.cur.line, d.cur.col)
+		}
 		t.Subj = rdf.URI{URI: d.cur.text}
 	} else {
 		t.Subj = rdf.Blank{ID: d.cur.text}
@@ -76,6 +103,9 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 		return t, fmt.Errorf("predicate must be IRI or Blank node, got %v", d.cur.typ)
 	}
 	if d.cur.typ == tokenIRI {
+		if d.format == "N-Triples" && !isAbsoluteIRI(d.cur.text) {
+			return t, fmt.Errorf("%d:%d: relative IRIs not allowed", d.cur.line, d.cur.col)
+		}
 		t.Pred = rdf.URI{URI: d.cur.text}
 	} else {
 		t.Pred = rdf.Blank{ID: d.cur.text}
@@ -96,12 +126,19 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 		t.Obj = rdf.Blank{ID: d.cur.text}
 		d.next()
 	case tokenLiteral:
-		t.Obj = d.parseLiteral()
+		lit, err := d.parseLiteral()
+		if err != nil {
+			return t, err
+		}
+		t.Obj = lit
 		if d.cur.typ == tokenDot {
 			return t, nil
 		}
 		d.next()
 	case tokenIRI:
+		if d.format == "N-Triples" && !isAbsoluteIRI(d.cur.text) {
+			return t, fmt.Errorf("%d:%d: relative IRIs not allowed", d.cur.line, d.cur.col)
+		}
 		t.Obj = rdf.URI{URI: d.cur.text}
 		d.next()
 	}
@@ -121,7 +158,7 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 }
 
 // parseLiteral
-func (d *Decoder) parseLiteral() rdf.Literal {
+func (d *Decoder) parseLiteral() (rdf.Literal, error) {
 	if d.cur.typ != tokenLiteral {
 		panic("interal parse error: parseLiteral() expects current token to be a tokenLiteral")
 	}
@@ -132,38 +169,41 @@ func (d *Decoder) parseLiteral() rdf.Literal {
 		switch d.cur.typ {
 		case tokenLang:
 			l.Lang = d.cur.text
-			return l
+			return l, nil
 		case tokenDataType:
+			if d.format == "N-Triples" && !isAbsoluteIRI(d.cur.text) {
+				return l, fmt.Errorf("%d:%d: relative IRIs not allowed", d.cur.line, d.cur.col)
+			}
 			l.DataType = rdf.URI{URI: d.cur.text}
 			switch d.cur.text {
 			case rdf.XSDInteger.URI:
 				i, err := strconv.Atoi(d.prev.text)
 				if err != nil {
 					//TODO set datatype to xsd:string?
-					return l
+					return l, nil
 				}
 				l.Val = i
 			case rdf.XSDFloat.URI: // TODO also XSDDouble ?
 				f, err := strconv.ParseFloat(d.prev.text, 64)
 				if err != nil {
-					return l
+					return l, nil
 				}
 				l.Val = f
 			case rdf.XSDBoolean.URI:
 				bo, err := strconv.ParseBool(d.prev.text)
 				if err != nil {
-					return l
+					return l, nil
 				}
 				l.Val = bo
 			case rdf.XSDDateTime.URI:
 				t, err := time.Parse(rdf.DateFormat, d.prev.text)
 				if err != nil {
-					return l
+					return l, nil
 				}
 				l.Val = t
 				// TODO: other xsd dataypes
 			}
-			return l
+			return l, nil
 		default:
 			// literal not follwed by language tag or datatype
 			if d.cur.typ != tokenDot {
@@ -171,7 +211,7 @@ func (d *Decoder) parseLiteral() rdf.Literal {
 			}
 		}
 	}
-	return l
+	return l, nil
 }
 
 func (d *Decoder) next() bool {
