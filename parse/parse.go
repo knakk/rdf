@@ -3,10 +3,10 @@ package parse
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/knakk/rdf"
@@ -19,7 +19,7 @@ type Decoder struct {
 	format string
 
 	cur, prev token
-	errors    []error
+	err       error
 }
 
 // NewNTDecoder creates a N-Triples decoder
@@ -74,13 +74,10 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 	t := rdf.Triple{}
 
 	// parse triple subject
-	if !d.next() {
-		// cannot be tokenEOL, given we check for len(line) and comment in line in Decode(),
-		// so there must me something, at least tokenError
-		return t, fmt.Errorf("%d:%d: %s", d.cur.line, d.cur.col, d.cur.text)
-	}
-	if !d.oneOf(tokenIRI, tokenBNode) {
-		return t, fmt.Errorf("subject must be IRI or Blank node, got %v", d.cur.typ)
+	d.next()
+	d.expect(tokenIRI, tokenBNode)
+	if d.err != nil {
+		return t, d.err
 	}
 	if d.cur.typ == tokenIRI {
 		if d.format == "N-Triples" && !isAbsoluteIRI(d.cur.text) {
@@ -92,14 +89,10 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 	}
 
 	// parse triple predicate
-	if !d.next() {
-		if d.cur.typ == tokenEOL {
-			return t, fmt.Errorf("%d:%d: unexpected end of line", d.cur.line, d.cur.col)
-		}
-		return t, fmt.Errorf("%d:%d: %s", d.cur.line, d.cur.col, d.cur.text)
-	}
-	if !d.oneOf(tokenIRI, tokenBNode) {
-		return t, fmt.Errorf("predicate must be IRI or Blank node, got %v", d.cur.typ)
+	d.next()
+	d.expect(tokenIRI, tokenBNode)
+	if d.err != nil {
+		return t, d.err
 	}
 	if d.cur.typ == tokenIRI {
 		if d.format == "N-Triples" && !isAbsoluteIRI(d.cur.text) {
@@ -111,15 +104,12 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 	}
 
 	// parse triple object
-	if !d.next() {
-		if d.cur.typ == tokenEOL {
-			return t, fmt.Errorf("%d:%d: unexpected end of line", d.cur.line, d.cur.col)
-		}
-		return t, fmt.Errorf("%d:%d: %s", d.cur.line, d.cur.col, d.cur.text)
+	d.next()
+	d.expect(tokenIRI, tokenBNode, tokenLiteral)
+	if d.err != nil {
+		return t, d.err
 	}
-	if !d.oneOf(tokenIRI, tokenLiteral, tokenBNode) {
-		return t, fmt.Errorf("expected IRI/Literal as object, got %v", d.cur.typ)
-	}
+
 	switch d.cur.typ {
 	case tokenBNode:
 		t.Obj = rdf.Blank{ID: d.cur.text}
@@ -142,9 +132,10 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 		d.next()
 	}
 
-	// parse final dot
-	if d.cur.typ != tokenDot {
-		return t, errors.New("missing '.' at end of triple statement")
+	// parse final dot (d.next() called in ojbect parse to check for langtag, datatype)
+	d.expect(tokenDot)
+	if d.err != nil {
+		return t, d.err
 	}
 
 	// check for extra tokens, assert we reached end of line
@@ -226,6 +217,31 @@ func (d *Decoder) next() bool {
 
 func (d *Decoder) backup() {
 	d.cur = d.prev
+}
+
+func (d *Decoder) expect(tt ...tokenType) {
+	if d.cur.typ == tokenEOL {
+		d.err = fmt.Errorf("%d:%d: unexpected end of line", d.cur.line, d.cur.col)
+		return
+	}
+	if d.cur.typ == tokenError {
+		d.err = fmt.Errorf("%d:%d: syntax error: %s", d.cur.line, d.cur.col, d.cur.text)
+		return
+	}
+	for i := range tt {
+		if d.cur.typ == tt[i] {
+			return
+		}
+	}
+	if len(tt) == 1 {
+		d.err = fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, tt[0], d.cur.typ)
+		return
+	}
+	var types = make([]string, len(tt))
+	for _, t := range tt {
+		types = append(types, fmt.Sprintf("%s", t))
+	}
+	d.err = fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, strings.Join(types, "|"), tt[0])
 }
 
 func (d *Decoder) oneOf(tt ...tokenType) bool {
