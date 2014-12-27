@@ -7,15 +7,17 @@ import (
 
 // Make the token types prettyprint.
 var tokenName = map[tokenType]string{
-	tokenError:    "Error",
-	tokenEOL:      "EOL",
-	tokenEOF:      "EOF",
-	tokenIRI:      "IRI",
-	tokenLiteral:  "Literal",
-	tokenBNode:    "Blank node",
-	tokenLang:     "Language tag",
-	tokenDataType: "Literal data type",
-	tokenDot:      ".",
+	tokenError:       "Error",
+	tokenEOL:         "EOL",
+	tokenEOF:         "EOF",
+	tokenIRIAbs:      "IRI (absolute)",
+	tokenIRIRel:      "IRI (relative)",
+	tokenLiteral:     "Literal",
+	tokenBNode:       "Blank node",
+	tokenLang:        "Language tag",
+	tokenDataTypeAbs: "Literal data type IRI (absolute)",
+	tokenDataTypeRel: "Literal data typ IRI (relative)",
+	tokenDot:         ".",
 }
 
 func (t tokenType) String() string {
@@ -72,24 +74,24 @@ func TestTokens(t *testing.T) {
 			{tokenEOL, ""}},
 		},
 		{"<a>", []testToken{
-			{tokenIRI, "a"},
+			{tokenIRIRel, "a"},
 			{tokenEOL, ""}},
 		},
 		{"<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>", []testToken{
-			{tokenIRI, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			{tokenIRIAbs, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
 			{tokenEOL, ""}},
 		},
 		{`  <x><y> <z>  <\u0053> `, []testToken{
-			{tokenIRI, "x"},
-			{tokenIRI, "y"},
-			{tokenIRI, "z"},
-			{tokenIRI, "S"},
+			{tokenIRIRel, "x"},
+			{tokenIRIRel, "y"},
+			{tokenIRIRel, "z"},
+			{tokenIRIRel, "S"},
 			{tokenEOL, ""}},
 		},
 		{`<s><p><o>.#comment`, []testToken{
-			{tokenIRI, "s"},
-			{tokenIRI, "p"},
-			{tokenIRI, "o"},
+			{tokenIRIRel, "s"},
+			{tokenIRIRel, "p"},
+			{tokenIRIRel, "o"},
 			{tokenDot, ""},
 			{tokenEOL, ""}},
 		},
@@ -116,9 +118,9 @@ func TestTokens(t *testing.T) {
 			{tokenLang, "en"},
 			{tokenEOL, ""}},
 		},
-		{`"a"^^<mydatatype>`, []testToken{
+		{`"a"^^<s://mydatatype>`, []testToken{
 			{tokenLiteral, "a"},
-			{tokenDataType, "mydatatype"},
+			{tokenDataTypeAbs, "s://mydatatype"},
 			{tokenEOL, ""}},
 		},
 		{`_:a`, []testToken{

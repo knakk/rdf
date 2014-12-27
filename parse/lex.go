@@ -15,12 +15,14 @@ const (
 	tokenError                  // an illegal token
 
 	// turtle tokens
-	tokenIRI      // RDF IRI reference TODO tokenIRIabs tokenIRIrel for absolute/relative IRI?
-	tokenBNode    // RDF blank node
-	tokenLiteral  // RDF literal
-	tokenLang     // literal language tag
-	tokenDataType // literal data type
-	tokenDot      // .
+	tokenIRIAbs      // RDF IRI reference (absolute)
+	tokenIRIRel      // RDF IRI reference (relative)
+	tokenBNode       // RDF blank node
+	tokenLiteral     // RDF literal
+	tokenLang        // literal language tag
+	tokenDataTypeAbs // literal data type (absolute)
+	tokenDataTypeRel // literal data type (relative)
+	tokenDot         // .
 )
 
 const eof = -1
@@ -268,15 +270,37 @@ func lexAny(l *lexer) stateFn {
 	}
 }
 
-func _lexIRI(l *lexer) stateFn {
+func hasValidScheme(l *lexer) bool {
+	// RFC 2396: scheme = alpha *( alpha | digit | "+" | "-" | "." )
+
+	// decode first rune, must be in set [a-zA-Z]
+	r, w := decodeRune(l.input[l.start:])
+	if !isAlpha(r) {
+		return false
+	}
+
+	// remaining runes must be alphanumeric or '+', '-', '.''
+	for p := l.start + w; p < l.pos-w; p = p + w {
+		r, w = decodeRune(l.input[p:])
+		if isAlphaOrDigit(r) || r == '+' || r == '-' || r == '.' {
+			continue
+		}
+		return false
+	}
+	return true
+}
+
+func _lexIRI(l *lexer) (stateFn, bool) {
+	hasScheme := false    // does it have a scheme? defines if IRI is absolute or relative
+	maybeAbsolute := true // false if we reach a non-valid scheme rune before ':'
 	for {
 		r := l.next()
 		if r == eof {
-			return l.errorf("bad IRI: no closing '>'")
+			return l.errorf("bad IRI: no closing '>'"), false
 		}
 		for _, bad := range badIRIRunes {
 			if r == bad {
-				return l.errorf("bad IRI: disallowed character %q", r)
+				return l.errorf("bad IRI: disallowed character %q", r), false
 			}
 		}
 
@@ -287,19 +311,26 @@ func _lexIRI(l *lexer) stateFn {
 			case 'u':
 				l.next() // cosume 'u'
 				if !l.acceptRunMin(hex, 4) {
-					return l.errorf("bad IRI: insufficent hex digits in unicode escape")
+					return l.errorf("bad IRI: insufficent hex digits in unicode escape"), false
 				}
 				l.unEsc = true
 			case 'U':
 				l.next() // cosume 'U'
 				if !l.acceptRunMin(hex, 8) {
-					return l.errorf("bad IRI: insufficent hex digits in unicode escape")
+					return l.errorf("bad IRI: insufficent hex digits in unicode escape"), false
 				}
 				l.unEsc = true
 			case eof:
-				return l.errorf("bad IRI: no closing '>'")
+				return l.errorf("bad IRI: no closing '>'"), false
 			default:
-				return l.errorf("bad IRI: disallowed escape character %q", esc)
+				return l.errorf("bad IRI: disallowed escape character %q", esc), false
+			}
+		}
+		if maybeAbsolute && r == ':' {
+			// Check if we have an absolute IRI
+			if l.pos != l.start && hasValidScheme(l) && l.peek() != eof {
+				hasScheme = true
+				maybeAbsolute = false // stop checking for absolute
 			}
 		}
 		if r == '>' {
@@ -308,15 +339,19 @@ func _lexIRI(l *lexer) stateFn {
 		}
 	}
 	l.backup()
-	return nil
+	return nil, hasScheme
 }
 
 func lexIRI(l *lexer) stateFn {
-	res := _lexIRI(l)
+	res, absolute := _lexIRI(l)
 	if res != nil {
 		return res
 	}
-	l.emit(tokenIRI)
+	if absolute {
+		l.emit(tokenIRIAbs)
+	} else {
+		l.emit(tokenIRIRel)
+	}
 
 	// ignore '>'
 	l.pos++
@@ -326,11 +361,15 @@ func lexIRI(l *lexer) stateFn {
 }
 
 func lexIRIDT(l *lexer) stateFn {
-	res := _lexIRI(l)
+	res, absolute := _lexIRI(l) // TODO absolute
 	if res != nil {
 		return res
 	}
-	l.emit(tokenDataType)
+	if absolute {
+		l.emit(tokenDataTypeAbs)
+	} else {
+		l.emit(tokenDataTypeRel)
+	}
 
 	// ignore '>'
 	l.pos++

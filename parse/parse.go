@@ -3,6 +3,7 @@ package parse
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -31,28 +32,6 @@ func NewNTDecoder(r io.Reader) *Decoder {
 	}
 }
 
-// Parser helper functions
-
-// isAbsoluteIRI checks if an IRI is absolute (i.e has a scheme).
-// RFC 2396: scheme = alpha *( alpha | digit | "+" | "-" | "." )
-func isAbsoluteIRI(s string) bool {
-	iri := []rune(s)
-	i := 1
-	if isAlpha(iri[0]) {
-		for _, r := range iri[1:] {
-			if isAlphaOrDigit(r) || r == '+' || r == '-' || r == '.' {
-				i++
-				continue
-			}
-			break
-		}
-	}
-	if i >= 1 && len(iri) > i && iri[i] == ':' {
-		return true
-	}
-	return false
-}
-
 // Parser functions:
 
 // Decode returns the next valid triple, or an error
@@ -75,14 +54,11 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 
 	// parse triple subject
 	d.next()
-	d.expect(tokenIRI, tokenBNode)
+	d.expect(tokenIRIAbs, tokenBNode)
 	if d.err != nil {
 		return t, d.err
 	}
-	if d.cur.typ == tokenIRI {
-		if d.format == "N-Triples" && !isAbsoluteIRI(d.cur.text) {
-			return t, fmt.Errorf("%d:%d: relative IRIs not allowed", d.cur.line, d.cur.col)
-		}
+	if d.cur.typ == tokenIRIAbs {
 		t.Subj = rdf.URI{URI: d.cur.text}
 	} else {
 		t.Subj = rdf.Blank{ID: d.cur.text}
@@ -90,14 +66,11 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 
 	// parse triple predicate
 	d.next()
-	d.expect(tokenIRI, tokenBNode)
+	d.expect(tokenIRIAbs, tokenBNode)
 	if d.err != nil {
 		return t, d.err
 	}
-	if d.cur.typ == tokenIRI {
-		if d.format == "N-Triples" && !isAbsoluteIRI(d.cur.text) {
-			return t, fmt.Errorf("%d:%d: relative IRIs not allowed", d.cur.line, d.cur.col)
-		}
+	if d.cur.typ == tokenIRIAbs {
 		t.Pred = rdf.URI{URI: d.cur.text}
 	} else {
 		t.Pred = rdf.Blank{ID: d.cur.text}
@@ -105,7 +78,7 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 
 	// parse triple object
 	d.next()
-	d.expect(tokenIRI, tokenBNode, tokenLiteral)
+	d.expect(tokenIRIAbs, tokenBNode, tokenLiteral)
 	if d.err != nil {
 		return t, d.err
 	}
@@ -115,7 +88,7 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 		t.Obj = rdf.Blank{ID: d.cur.text}
 		d.next()
 	case tokenLiteral:
-		lit, err := d.parseLiteral()
+		lit, err := d.parseLiteral(false)
 		if err != nil {
 			return t, err
 		}
@@ -124,10 +97,7 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 			return t, nil
 		}
 		d.next()
-	case tokenIRI:
-		if d.format == "N-Triples" && !isAbsoluteIRI(d.cur.text) {
-			return t, fmt.Errorf("%d:%d: relative IRIs not allowed", d.cur.line, d.cur.col)
-		}
+	case tokenIRIAbs:
 		t.Obj = rdf.URI{URI: d.cur.text}
 		d.next()
 	}
@@ -148,7 +118,7 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 }
 
 // parseLiteral
-func (d *Decoder) parseLiteral() (rdf.Literal, error) {
+func (d *Decoder) parseLiteral(relIRI bool) (rdf.Literal, error) {
 	if d.cur.typ != tokenLiteral {
 		panic("interal parse error: parseLiteral() expects current token to be a tokenLiteral")
 	}
@@ -160,10 +130,12 @@ func (d *Decoder) parseLiteral() (rdf.Literal, error) {
 		case tokenLang:
 			l.Lang = d.cur.text
 			return l, nil
-		case tokenDataType:
-			if d.format == "N-Triples" && !isAbsoluteIRI(d.cur.text) {
-				return l, fmt.Errorf("%d:%d: relative IRIs not allowed", d.cur.line, d.cur.col)
+		case tokenDataTypeRel:
+			if !relIRI {
+				return l, errors.New("Literal data type IRI must be absolute")
 			}
+			fallthrough
+		case tokenDataTypeAbs:
 			l.DataType = rdf.URI{URI: d.cur.text}
 			switch d.cur.text {
 			case rdf.XSDInteger.URI:
@@ -237,11 +209,11 @@ func (d *Decoder) expect(tt ...tokenType) {
 		d.err = fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, tt[0], d.cur.typ)
 		return
 	}
-	var types = make([]string, len(tt))
+	var types = make([]string, 0, len(tt))
 	for _, t := range tt {
 		types = append(types, fmt.Sprintf("%s", t))
 	}
-	d.err = fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, strings.Join(types, "|"), tt[0])
+	d.err = fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, strings.Join(types, " / "), tt[0])
 }
 
 func (d *Decoder) oneOf(tt ...tokenType) bool {
