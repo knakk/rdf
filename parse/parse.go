@@ -125,55 +125,58 @@ func (d *Decoder) parseLiteral(relIRI bool) (rdf.Literal, error) {
 	l := rdf.Literal{}
 	l.Val = d.cur.text
 	l.DataType = rdf.XSDString
-	if d.next() {
-		switch d.cur.typ {
-		case tokenLang:
-			l.Lang = d.cur.text
-			return l, nil
-		case tokenDataTypeRel:
-			if !relIRI {
-				return l, errors.New("Literal data type IRI must be absolute")
-			}
-			fallthrough
-		case tokenDataTypeAbs:
-			l.DataType = rdf.URI{URI: d.cur.text}
-			switch d.cur.text {
-			case rdf.XSDInteger.URI:
-				i, err := strconv.Atoi(d.prev.text)
-				if err != nil {
-					//TODO set datatype to xsd:string?
-					return l, nil
-				}
-				l.Val = i
-			case rdf.XSDFloat.URI: // TODO also XSDDouble ?
-				f, err := strconv.ParseFloat(d.prev.text, 64)
-				if err != nil {
-					return l, nil
-				}
-				l.Val = f
-			case rdf.XSDBoolean.URI:
-				bo, err := strconv.ParseBool(d.prev.text)
-				if err != nil {
-					return l, nil
-				}
-				l.Val = bo
-			case rdf.XSDDateTime.URI:
-				t, err := time.Parse(rdf.DateFormat, d.prev.text)
-				if err != nil {
-					return l, nil
-				}
-				l.Val = t
-				// TODO: other xsd dataypes
-			}
-			return l, nil
-		default:
-			// literal not follwed by language tag or datatype
-			if d.cur.typ != tokenDot {
-				d.backup()
-			}
+	d.next()
+	switch d.cur.typ {
+	case tokenLang:
+		l.Lang = d.cur.text
+		return l, nil
+	case tokenDataTypeRel:
+		if !relIRI {
+			return l, errors.New("Literal data type IRI must be absolute")
 		}
+		fallthrough
+	case tokenDataTypeAbs:
+		l.DataType = rdf.URI{URI: d.cur.text}
+		switch d.cur.text {
+		case rdf.XSDInteger.URI:
+			i, err := strconv.Atoi(d.prev.text)
+			if err != nil {
+				//TODO set datatype to xsd:string?
+				return l, nil
+			}
+			l.Val = i
+		case rdf.XSDFloat.URI: // TODO also XSDDouble ?
+			f, err := strconv.ParseFloat(d.prev.text, 64)
+			if err != nil {
+				return l, nil
+			}
+			l.Val = f
+		case rdf.XSDBoolean.URI:
+			bo, err := strconv.ParseBool(d.prev.text)
+			if err != nil {
+				return l, nil
+			}
+			l.Val = bo
+		case rdf.XSDDateTime.URI:
+			t, err := time.Parse(rdf.DateFormat, d.prev.text)
+			if err != nil {
+				return l, nil
+			}
+			l.Val = t
+			// TODO: other xsd dataypes
+		}
+		return l, nil
+	case tokenEOL:
+		return l, fmt.Errorf("%d:%d: unexpected end of line", d.cur.line, d.cur.col)
+	case tokenError:
+		return l, fmt.Errorf("%d:%d: syntax error: %s", d.cur.line, d.cur.col, d.cur.text)
+	default:
+		// literal not follwed by language tag or datatype
+		if d.cur.typ != tokenDot {
+			d.backup()
+		}
+		return l, nil
 	}
-	return l, nil
 }
 
 func (d *Decoder) next() bool {
