@@ -15,7 +15,7 @@ const (
 	tokenError                  // an illegal token
 
 	// turtle tokens
-	tokenIRI      // RDF IRI reference
+	tokenIRI      // RDF IRI reference TODO tokenIRIabs tokenIRIrel for absolute/relative IRI?
 	tokenBNode    // RDF blank node
 	tokenLiteral  // RDF literal
 	tokenLang     // literal language tag
@@ -55,7 +55,7 @@ type stateFn func(*lexer) stateFn
 // The lexer is assumed to be working on one line at a time. When end of line
 // is reached, tokenEOL is emitted, and the caller may supply more lines to
 // the incoming channel. If there are no more input to be scanned, the user
-// must call stop(), which will terminate the lexer and emit a final tokenEOF. TODO NO?
+// must call stop(), which will terminate lexing goroutine.
 //
 // Tokens for whitespace and comments are not emitted.
 //
@@ -91,10 +91,6 @@ func (l *lexer) next() rune {
 		return eof
 	}
 	r, w := decodeRune(l.input[l.pos:])
-	// TODO:
-	/*if r == runeError {
-		l.errorf("invalid utf-8 encoding")
-	}*/
 	l.width = w
 	l.pos += l.width
 	return r
@@ -203,14 +199,14 @@ func (l *lexer) nextToken() token {
 func (l *lexer) run() {
 again:
 	line := <-l.incoming
+	if line == nil {
+		// incoming channel is closed; terminate lexer
+		return
+	}
 	l.input = line
 	l.pos = 0
 	l.start = 0
 	l.line++
-	if line == nil {
-		// closed incoming channel
-		return
-	}
 	for l.state = lexAny; l.state != nil; {
 		l.state = l.state(l)
 	}
