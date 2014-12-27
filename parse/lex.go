@@ -183,22 +183,6 @@ func (l *lexer) ignore() {
 	l.start = l.pos
 }
 
-// accept consumes the next rune if it's from the valid set.
-func (l *lexer) accept(valid []byte) bool {
-	if bytes.IndexRune(valid, l.next()) >= 0 {
-		return true
-	}
-	l.backup()
-	return false
-}
-
-// acceptRun consumes a run of runes from the valid set.
-func (l *lexer) acceptRun(valid []byte) {
-	for bytes.IndexRune(valid, l.next()) >= 0 {
-	}
-	l.backup()
-}
-
 // acceptRunMin consumes a run of runes from the valid set, returning
 // true if a minimum number of runes where consumed.
 func (l *lexer) acceptRunMin(valid []byte, num int) bool {
