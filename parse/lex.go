@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
-	"unicode/utf8"
 )
 
 type tokenType int
@@ -91,9 +90,9 @@ func (l *lexer) next() rune {
 		l.width = 0
 		return eof
 	}
-	r, w := utf8.DecodeRune(l.input[l.pos:])
+	r, w := decodeRune(l.input[l.pos:])
 	// TODO:
-	/*if r == utf8.RuneError {
+	/*if r == runeError {
 		l.errorf("invalid utf-8 encoding")
 	}*/
 	l.width = w
