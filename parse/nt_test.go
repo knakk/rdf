@@ -1,7 +1,10 @@
 package parse
 
 import (
+	"bytes"
+	"io"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/knakk/rdf"
@@ -20,7 +23,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-file-01.nt> ;
 	//   .
 
-	{``, "", []rdf.Triple{}},
+	{``, "", nil},
 
 	//<#nt-syntax-file-02> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-file-02" ;
@@ -28,7 +31,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-file-02.nt> ;
 	//   .
 
-	{`#Empty file.`, "", []rdf.Triple{}},
+	{`#Empty file.`, "", nil},
 
 	//<#nt-syntax-file-03> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-file-03" ;
@@ -37,7 +40,7 @@ var testSuite = []struct {
 	//   .
 
 	{`#One comment, one empty line.
-	`, "", []rdf.Triple{}},
+	`, "", nil},
 
 	//<#nt-syntax-uri-01> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-uri-01" ;
@@ -61,7 +64,14 @@ var testSuite = []struct {
 	//   .
 
 	{`# x53 is capital S
-	<http://example/\u0053> <http://example/p> <http://example/o> .`, "", []rdf.Triple{}},
+	<http://example/\u0053> <http://example/p> <http://example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/S"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.URI{URI: "http://example/o"},
+		},
+	},
+	},
 
 	//<#nt-syntax-uri-03> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-uri-03" ;
@@ -70,7 +80,13 @@ var testSuite = []struct {
 	//   .
 
 	{`# x53 is capital S
-	<http://example/\U00000053> <http://example/p> <http://example/o> .`, "", []rdf.Triple{}},
+	<http://example/\U00000053> <http://example/p> <http://example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/S"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.URI{URI: "http://example/o"},
+		},
+	}},
 
 	//<#nt-syntax-uri-04> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-uri-04" ;
@@ -79,7 +95,13 @@ var testSuite = []struct {
 	//   .
 
 	{`# IRI with all chars in it.
-	<http://example/s> <http://example/p> <scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []rdf.Triple{}},
+	<http://example/s> <http://example/p> <scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.URI{URI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
+		},
+	}},
 
 	//<#nt-syntax-string-01> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-string-01" ;
@@ -87,7 +109,13 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-string-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "string" .`, "", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "string" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#nt-syntax-string-02> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-string-02" ;
@@ -95,7 +123,13 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-string-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "string"@en .`, "", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "string"@en .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en"},
+		},
+	}},
 
 	//<#nt-syntax-string-03> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-string-03" ;
@@ -103,7 +137,13 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-string-03.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "string"@en-uk .`, "", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "string"@en-uk .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en-uk"},
+		},
+	}},
 
 	//<#nt-syntax-str-esc-01> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-str-esc-01" ;
@@ -111,7 +151,13 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-str-esc-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "a\n" .`, "", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "a\n" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "a\n", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#nt-syntax-str-esc-02> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-str-esc-02" ;
@@ -119,7 +165,13 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-str-esc-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "a\u0020b" .`, "", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "a\u0020b" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "a b", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#nt-syntax-str-esc-03> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-str-esc-03" ;
@@ -127,7 +179,13 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-str-esc-03.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "a\U00000020b" .`, "", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "a\U00000020b" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "a b", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#nt-syntax-bnode-01> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-bnode-01" ;
@@ -135,7 +193,13 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bnode-01.nt> ;
 	//   .
 
-	{`_:a  <http://example/p> <http://example/o> .`, "", []rdf.Triple{}},
+	{`_:a  <http://example/p> <http://example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "a"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.URI{URI: "http://example/o"},
+		},
+	}},
 
 	//<#nt-syntax-bnode-02> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-bnode-02" ;
@@ -144,7 +208,18 @@ var testSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> _:a .
-	_:a  <http://example/p> <http://example/o> .`, "", []rdf.Triple{}},
+	_:a  <http://example/p> <http://example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Blank{ID: "a"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "a"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.URI{URI: "http://example/o"},
+		},
+	}},
 
 	//<#nt-syntax-bnode-03> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-bnode-03" ;
@@ -153,7 +228,18 @@ var testSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> _:1a .
-	_:1a  <http://example/p> <http://example/o> .`, "", []rdf.Triple{}},
+	_:1a  <http://example/p> <http://example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Blank{ID: "1a"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "1a"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.URI{URI: "http://example/o"},
+		},
+	}},
 
 	//<#nt-syntax-datatypes-01> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-datatypes-01" ;
@@ -161,7 +247,13 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-datatypes-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#byte> .`, "", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#byte> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "123", DataType: rdf.URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}},
+		},
+	}},
 
 	//<#nt-syntax-datatypes-02> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-datatypes-02" ;
@@ -169,7 +261,13 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-datatypes-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#string> .`, "", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#string> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "123", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#nt-syntax-bad-uri-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-01" ;
@@ -178,7 +276,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# Bad IRI : space.
-	<http://example/ space> <http://example/p> <http://example/o> .`, "Bad IRI : space (negative test)", []rdf.Triple{}},
+	<http://example/ space> <http://example/p> <http://example/o> .`, "bad IRI: disallowed character ' '", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-02" ;
@@ -187,7 +285,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# Bad IRI : bad escape
-	<http://example/\u00ZZ11> <http://example/p> <http://example/o> .`, "Bad IRI : bad escape (negative test)", []rdf.Triple{}},
+	<http://example/\u00ZZ11> <http://example/p> <http://example/o> .`, "bad IRI: insufficent hex digits in unicode escape", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-03> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-03" ;
@@ -196,7 +294,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# Bad IRI : bad escape
-	<http://example/\U00ZZ1111> <http://example/p> <http://example/o> .`, "Bad IRI : bad long escape (negative test)", []rdf.Triple{}},
+	<http://example/\U00ZZ1111> <http://example/p> <http://example/o> .`, "bad IRI: insufficent hex digits in unicode escape", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-04> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-04" ;
@@ -205,7 +303,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# Bad IRI : character escapes not allowed.
-	<http://example/\n> <http://example/p> <http://example/o> .`, "Bad IRI : character escapes not allowed (negative test)", []rdf.Triple{}},
+	<http://example/\n> <http://example/p> <http://example/o> .`, " bad IRI: disallowed escape character 'n'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-05> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-05" ;
@@ -214,7 +312,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# Bad IRI : character escapes not allowed.
-	<http://example/\/> <http://example/p> <http://example/o> .`, "Bad IRI : character escapes not allowed (2) (negative test)", []rdf.Triple{}},
+	<http://example/\/> <http://example/p> <http://example/o> .`, "bad IRI: disallowed escape character '/'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-06> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-06" ;
@@ -223,7 +321,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<s> <http://example/p> <http://example/o> .`, "Bad IRI : relative IRI not allowed in subject (negative test)", []rdf.Triple{}},
+	<s> <http://example/p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (absolute)", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-07> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-07" ;
@@ -232,7 +330,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<http://example/s> <p> <http://example/o> .`, "Bad IRI : relative IRI not allowed in predicate (negative test)", []rdf.Triple{}},
+	<http://example/s> <p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (absolute)", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-08> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-08" ;
@@ -241,7 +339,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<http://example/s> <http://example/p> <o> .`, "Bad IRI : relative IRI not allowed in object (negative test)", []rdf.Triple{}},
+	<http://example/s> <http://example/p> <o> .`, "expected IRI (absolute) / Blank node / Literal, got IRI (absolute)", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-09> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-09" ;
@@ -250,7 +348,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<http://example/s> <http://example/p> "foo"^^<dt> .`, "Bad IRI : relative IRI not allowed in datatype (negative test)", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "foo"^^<dt> .`, "Literal data type IRI must be absolute", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-prefix-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-prefix-01" ;
@@ -258,7 +356,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-prefix-01.nt> ;
 	//   .
 
-	{`@prefix : <http://example/> .`, "@prefix not allowed in n-triples (negative test)", []rdf.Triple{}},
+	{`@prefix : <http://example/> .`, "syntax error: illegal character '@'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-base-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-base-01" ;
@@ -266,7 +364,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-base-01.nt> ;
 	//   .
 
-	{`@base <http://example/> .`, "@base not allowed in N-Triples (negative test)", []rdf.Triple{}},
+	{`@base <http://example/> .`, "syntax error: illegal character '@'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-struct-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-01" ;
@@ -274,7 +372,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-struct-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> <http://example/o>, <http://example/o2> .`, "N-Triples does not have objectList (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> <http://example/o>, <http://example/o2> .`, "syntax error: illegal character ','", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-struct-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-02" ;
@@ -282,7 +380,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-struct-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> <http://example/o>; <http://example/p2>, <http://example/o2> .`, "N-Triples does not have predicateObjectList (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> <http://example/o>; <http://example/p2>, <http://example/o2> .`, "syntax error: illegal character ';'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-lang-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-lang-01" ;
@@ -291,7 +389,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# Bad lang tag
-	<http://example/s> <http://example/p> "string"@1 .`, "langString with bad lang (negative test)", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "string"@1 .`, "syntax error: bad literal: invalid language tag", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-esc-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-esc-01" ;
@@ -300,7 +398,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# Bad string escape
-	<http://example/s> <http://example/p> "a\zb" .`, "Bad string escape (negative test)", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "a\zb" .`, "syntax error: bad literal: disallowed escape character 'z'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-esc-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-esc-02" ;
@@ -309,7 +407,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# Bad string escape
-	<http://example/s> <http://example/p> "\uWXYZ" .`, "Bad string escape (negative test)", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "\uWXYZ" .`, "syntax error: bad literal: insufficent hex digits in unicode escape", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-esc-03> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-esc-03" ;
@@ -318,7 +416,7 @@ var testSuite = []struct {
 	//   .
 
 	{`# Bad string escape
-	<http://example/s> <http://example/p> "\U0000WXYZ" .`, "Bad string escape (negative test)", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "\U0000WXYZ" .`, "syntax error: bad literal: insufficent hex digits in unicode escape", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-string-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-01" ;
@@ -326,7 +424,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "abc' .`, "mismatching string literal open/close (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "abc' .`, "syntax error: bad Literal: no closing '\"'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-string-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-02" ;
@@ -334,7 +432,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0 .`, "mismatching string literal open/close (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> 1.0 .`, "syntax error: illegal character '1'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-string-03> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-03" ;
@@ -342,7 +440,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-03.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0e1 .`, "single quotes (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> 1.0e1 .`, "syntax error: illegal character '1'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-string-04> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-04" ;
@@ -350,7 +448,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-04.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> '''abc''' .`, "long single string literal (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> '''abc''' .`, "syntax error: illegal character '\\''", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-string-05> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-05" ;
@@ -358,7 +456,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-05.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> """abc""" .`, "long double string literal (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> """abc""" .`, "expected Dot, got Literal", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-string-06> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-06" ;
@@ -366,7 +464,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-06.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "abc .`, "string literal with no end (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "abc .`, "syntax error: bad Literal: no closing '\"'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-string-07> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-07" ;
@@ -374,7 +472,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-07.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> abc" .`, "string literal with no start (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> abc" .`, "syntax error: illegal character 'a'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-num-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-01" ;
@@ -382,7 +480,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-num-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1 .`, "no numbers in N-Triples (integer) (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> 1 .`, "syntax error: illegal character '1'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-num-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-02" ;
@@ -390,7 +488,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-num-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0 .`, "no numbers in N-Triples (decimal) (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> 1.0 .`, "syntax error: illegal character '1'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-num-03> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-03" ;
@@ -398,7 +496,7 @@ var testSuite = []struct {
 	//   mf:action    <nt-syntax-bad-num-03.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0e0 .`, "no numbers in N-Triples (float) (negative test)", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> 1.0e0 .`, "syntax error: illegal character '1'", []rdf.Triple{}},
 
 	//<#nt-syntax-subm-01> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-subm-01" ;
@@ -484,7 +582,158 @@ var testSuite = []struct {
 
 	# Typed Literals
 	<http://example.org/resource32> <http://example.org/property> "abc"^^<http://example.org/datatype1> .
-	# resource33 test removed 2003-08-03`, "", []rdf.Triple{}},
+	# resource33 test removed 2003-08-03`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource1"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "anon"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource2"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Blank{ID: "anon"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource3"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource4"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource5"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource6"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource7"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "simple literal", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource8"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: `backslash:\`, DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource9"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: `dquote:"`, DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource10"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "newline:\n", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource11"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "return\r", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource12"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "tab:\t", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource13"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource14"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource15"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Blank{ID: "anon"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource16"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "é", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource17"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "€", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource21"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource22"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: " ", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource23"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "x", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource23"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: `"`, DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource24"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "<a></a>", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource25"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "a <b></b>", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource26"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "a <b></b> c", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource26"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "a\n<b></b>\nc", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource27"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "chat", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource30"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "chat", Lang: "fr", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource31"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "chat", Lang: "en", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/resource32"},
+			Pred: rdf.URI{URI: "http://example.org/property"},
+			Obj:  rdf.Literal{Val: "abc", DataType: rdf.URI{URI: "http://example.org/datatype1"}},
+		},
+	}},
 
 	//<#comment_following_triple> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "comment_following_triple" ;
@@ -497,7 +746,33 @@ var testSuite = []struct {
 	<http://example/s> <http://example/p> _:o . # comment
 	<http://example/s> <http://example/p> "o" . # comment
 	<http://example/s> <http://example/p> "o"^^<http://example/dt> . # comment
-	<http://example/s> <http://example/p> "o"@en . # comment`, "", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "o"@en . # comment`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.URI{URI: "http://example/o"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Blank{ID: "o"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "o", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "o", DataType: rdf.URI{URI: "http://example/dt"}},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "o", Lang: "en", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_ascii_boundaries> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_ascii_boundaries" ;
@@ -506,7 +781,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_ascii_boundaries.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> \"\x00	&([]\" .", "", []rdf.Triple{}},
+	{"<http://a.example/s> <http://a.example/p> \"\x00	&([]\" .", "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj: rdf.Literal{Val: "\x00	&([]", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_UTF8_boundaries> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_UTF8_boundaries" ;
@@ -515,7 +796,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_UTF8_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_all_controls> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_all_controls" ;
@@ -524,7 +811,13 @@ var testSuite = []struct {
 	//   mf:action   <literal_all_controls.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\x00\x01\x02\x03\x04\x05\x06\a\b\t\v\f\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_all_punctuation> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_all_punctuation" ;
@@ -533,7 +826,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_all_punctuation.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> \" !\"#$%&():;<=>?@[]^_`{|}~\" .", "", []rdf.Triple{}},
+	{"<http://a.example/s> <http://a.example/p> \" !\\\"#$%&():;<=>?@[]^_`{|}~\".", "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_squote> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_squote" ;
@@ -542,7 +841,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_squote.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x'y" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "x'y" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "x'y", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_2_squotes> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_2_squotes" ;
@@ -551,7 +856,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_2_squotes.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x''y" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "x''y" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "x''y", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal" ;
@@ -560,7 +871,13 @@ var testSuite = []struct {
 	//   mf:action    <literal.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_dquote> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_dquote" ;
@@ -569,7 +886,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_dquote.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x\"y" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "x\"y" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: `x"y`, DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_2_dquotes> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_2_dquotes" ;
@@ -578,7 +901,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_2_dquotes.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x\"\"y" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "x\"\"y" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: `x""y`, DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_REVERSE_SOLIDUS2> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "literal_with_REVERSE_SOLIDUS2" ;
@@ -587,7 +916,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_REVERSE_SOLIDUS2.nt> ;
 	//   .
 
-	{`<http://example.org/ns#s> <http://example.org/ns#p1> "test-\\" .`, "", []rdf.Triple{}},
+	{`<http://example.org/ns#s> <http://example.org/ns#p1> "test-\\" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ns#s"},
+			Pred: rdf.URI{URI: "http://example.org/ns#p1"},
+			Obj:  rdf.Literal{Val: `test-\`, DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_CHARACTER_TABULATION> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_CHARACTER_TABULATION" ;
@@ -596,7 +931,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_CHARACTER_TABULATION.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\t" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "\t" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\t", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_BACKSPACE> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_BACKSPACE" ;
@@ -605,7 +946,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_BACKSPACE.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\b" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "\b" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\b", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_LINE_FEED> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_LINE_FEED" ;
@@ -614,7 +961,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_LINE_FEED.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\n" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "\n" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\n", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_CARRIAGE_RETURN> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_CARRIAGE_RETURN" ;
@@ -623,7 +976,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_CARRIAGE_RETURN.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\r" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "\r" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\r", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_FORM_FEED> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_FORM_FEED" ;
@@ -632,7 +991,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_FORM_FEED.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\f" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "\f" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\f", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_REVERSE_SOLIDUS> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_REVERSE_SOLIDUS" ;
@@ -641,7 +1006,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_REVERSE_SOLIDUS.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\\" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "\\" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\\", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_numeric_escape4> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_numeric_escape4" ;
@@ -650,7 +1021,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_numeric_escape4.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\u006F" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "\u006F" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "o", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_numeric_escape8> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "literal_with_numeric_escape8" ;
@@ -659,7 +1036,13 @@ var testSuite = []struct {
 	//   mf:action    <literal_with_numeric_escape8.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\U0000006F" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "\U0000006F" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "o", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#langtagged_string> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "langtagged_string" ;
@@ -668,7 +1051,13 @@ var testSuite = []struct {
 	//   mf:action    <langtagged_string.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "chat", Lang: "en", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#lantag_with_subtag> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "lantag_with_subtag" ;
@@ -677,7 +1066,13 @@ var testSuite = []struct {
 	//   mf:action    <lantag_with_subtag.nt> ;
 	//   .
 
-	{`<http://example.org/ex#a> <http://example.org/ex#b> "Cheers"@en-UK .`, "", []rdf.Triple{}},
+	{`<http://example.org/ex#a> <http://example.org/ex#b> "Cheers"@en-UK .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex#a"},
+			Pred: rdf.URI{URI: "http://example.org/ex#b"},
+			Obj:  rdf.Literal{Val: "Cheers", Lang: "en-UK", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#minimal_whitespace> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name      "minimal_whitespace" ;
@@ -691,18 +1086,68 @@ var testSuite = []struct {
 	<http://example/s><http://example/p>_:o.
 	_:s<http://example/p><http://example/o>.
 	_:s<http://example/p>"Alice".
-	_:s<http://example/p>_:bnode1.`, "", []rdf.Triple{}},
+	_:s<http://example/p>_:bnode1.`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.URI{URI: "http://example/o"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "Alice", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example/s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Blank{ID: "o"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.URI{URI: "http://example/o"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Literal{Val: "Alice", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "s"},
+			Pred: rdf.URI{URI: "http://example/p"},
+			Obj:  rdf.Blank{ID: "bnode1"},
+		},
+	}},
+}
+
+func parseAll(s string) (r []rdf.Triple, err error) {
+	dec := NewNTDecoder(bytes.NewBufferString(s))
+	for tr, err := dec.Decode(); err != io.EOF; tr, err = dec.Decode() {
+		if err != nil {
+			return r, err
+		}
+		r = append(r, tr)
+	}
+	return r, err
 }
 
 func TestSuite(t *testing.T) {
-	for _, test := range testSuite[:] {
-		triples, err := parseNT(test.input)
-		if err != nil && err.Error() != test.errWant {
-			t.Errorf("ParseNT(%s) error => %v, want %v", test.input, err, test.errWant)
+	for _, test := range testSuite {
+		triples, err := parseAll(test.input)
+		if err != nil {
+			if test.errWant == "" {
+				t.Errorf("ParseNT(%s) => %v, want %v", test.input, err, test.want)
+				continue
+			}
+			if strings.HasSuffix(err.Error(), test.errWant) {
+				continue
+			}
+			t.Errorf("ParseNT(%s) => %q, want %q", test.input, err, test.errWant)
 			continue
 		}
+
 		if !reflect.DeepEqual(triples, test.want) {
-			t.Errorf("ParseNT(%s) => %q, want %q", test.input, triples, test.want)
+			t.Errorf("ParseNT(%s) => %v, want %v", test.input, triples, test.want)
 		}
 	}
 }

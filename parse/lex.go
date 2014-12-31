@@ -10,9 +10,10 @@ type tokenType int
 
 const (
 	// special tokens
-	tokenEOL   tokenType = iota // end of line
-	tokenEOF                    // end of input to be scanned TODO remove?
-	tokenError                  // an illegal token
+	tokenNone  tokenType = iota
+	tokenEOL             // end of line
+	tokenEOF             // end of input to be scanned TODO remove?
+	tokenError           // an illegal token
 
 	// turtle tokens
 	tokenIRIAbs      // RDF IRI reference (absolute)
@@ -79,7 +80,7 @@ type lexer struct {
 
 func newLexer() *lexer {
 	l := lexer{
-		incoming: make(chan []byte),
+		incoming: make(chan []byte, 1), // TODO understand why buffered? what's blocking unless?
 		tokens:   make(chan token),
 	}
 	go l.run()
@@ -200,7 +201,7 @@ func (l *lexer) nextToken() token {
 // run runs the state machine for the lexer.
 func (l *lexer) run() {
 again:
-	line := <-l.incoming
+	line := <-l.incoming // <- blocking
 	if line == nil {
 		// incoming channel is closed; terminate lexer
 		return
@@ -258,6 +259,13 @@ func lexAny(l *lexer) stateFn {
 		l.emit(tokenDot)
 		return lexAny
 	case '\n':
+		l.ignore()
+		if l.next() != eof {
+			panic("lexer got multi-line input")
+		}
+		l.ignore()
+		l.emit(tokenEOL)
+		//panic(fmt.Sprintf("got newline: %q", string(l.input)))
 		// Lexer should not get input with newlines.
 		// TODO panic or handle somehow?
 		return nil
@@ -361,7 +369,7 @@ func lexIRI(l *lexer) stateFn {
 }
 
 func lexIRIDT(l *lexer) stateFn {
-	res, absolute := _lexIRI(l) // TODO absolute
+	res, absolute := _lexIRI(l)
 	if res != nil {
 		return res
 	}
@@ -431,7 +439,7 @@ func lexBNode(l *lexer) stateFn {
 		return l.errorf("bad blank node: unexpected end of line")
 	}
 	for {
-		if r == '<' || r == '"' || r == ' ' || r == eof {
+		if r == '<' || r == '"' || r == ' ' || r == '.' || r == eof {
 			l.backup()
 			break
 		}

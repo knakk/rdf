@@ -2,11 +2,13 @@ package parse
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
 // Make the token types prettyprint.
 var tokenName = map[tokenType]string{
+	tokenNone:        "None",
 	tokenError:       "Error",
 	tokenEOL:         "EOL",
 	tokenEOF:         "EOF",
@@ -17,7 +19,7 @@ var tokenName = map[tokenType]string{
 	tokenLang:        "Language tag",
 	tokenDataTypeAbs: "Literal data type IRI (absolute)",
 	tokenDataTypeRel: "Literal data typ IRI (relative)",
-	tokenDot:         ".",
+	tokenDot:         "Dot",
 }
 
 func (t tokenType) String() string {
@@ -36,7 +38,7 @@ type testToken struct {
 func collect(l *lexer) []testToken {
 	tokens := []testToken{}
 	for {
-		tk := l.nextToken()
+		tk := l.nextToken() // <- blocking
 		tokens = append(tokens, testToken{tk.typ, tk.text})
 		if tk.typ == tokenEOL || tk.typ == tokenError {
 			break
@@ -111,6 +113,11 @@ func TestTokens(t *testing.T) {
 			{tokenLiteral, `she said: "hi"`},
 			{tokenEOL, ""}},
 		},
+		{`"escapes:\t\\\"\n\t"`, []testToken{
+			{tokenLiteral, `escapes:	\"
+	`},
+			{tokenEOL, ""},
+		}},
 		{`"hei"@nb-no "hi"@en #language tags`, []testToken{
 			{tokenLiteral, "hei"},
 			{tokenLang, "nb-no"},
@@ -123,21 +130,48 @@ func TestTokens(t *testing.T) {
 			{tokenDataTypeAbs, "s://mydatatype"},
 			{tokenEOL, ""}},
 		},
-		{`_:a`, []testToken{
+		{`_:a.`, []testToken{
 			{tokenBNode, "a"},
+			{tokenDot, ""},
+			{tokenEOL, ""}},
+		},
+		{`#comment
+		  <s><p><o>.#comment
+		  # comment	
+
+		  <s><p2> "yo"
+		  ####
+		  `, []testToken{
+			{tokenEOL, ""},
+			{tokenIRIRel, "s"},
+			{tokenIRIRel, "p"},
+			{tokenIRIRel, "o"},
+			{tokenDot, ""},
+			{tokenEOL, ""},
+			{tokenEOL, ""},
+			{tokenEOL, ""},
+			{tokenIRIRel, "s"},
+			{tokenIRIRel, "p2"},
+			{tokenLiteral, "yo"},
+			{tokenEOL, ""},
+			{tokenEOL, ""},
 			{tokenEOL, ""}},
 		},
 	}
 
 	lex := newLexer()
 	for _, tt := range lexTests {
-		lex.incoming <- []byte(tt.in)
-		res := collect(lex)
+		res := []testToken{}
+		for _, l := range strings.Split(tt.in, "\n") {
+			lex.incoming <- []byte(l)
+			for _, t := range collect(lex) {
+				res = append(res, t)
+			}
+
+		}
 		if !equalTokens(tt.want, res) {
 			t.Errorf("lexing %v, got:\n\t%v\nexpected:\n\t%v", tt.in, res, tt.want)
 		}
 	}
 	lex.stop()
 }
-
-//func TestTokenErrors(t *testing.T) { }

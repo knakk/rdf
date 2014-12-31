@@ -19,6 +19,11 @@ func TestNTriples(t *testing.T) {
 				Subj: rdf.URI{URI: "s:/s"},
 				Pred: rdf.URI{URI: "s:/p"},
 				Obj:  rdf.URI{URI: "s:/o"}}},
+		{`<s:/s> <s:/p> "literal" .`, "",
+			rdf.Triple{
+				Subj: rdf.URI{URI: "s:/s"},
+				Pred: rdf.URI{URI: "s:/p"},
+				Obj:  rdf.Literal{Val: "literal", DataType: rdf.XSDString}}},
 		{`<s:/s> <s:/p> "s:/o"^^<s:/xyz> .`, "",
 			rdf.Triple{
 				Subj: rdf.URI{URI: "s:/s"},
@@ -29,6 +34,15 @@ func TestNTriples(t *testing.T) {
 				Subj: rdf.URI{URI: "s:/s"},
 				Pred: rdf.URI{URI: "s:/p"},
 				Obj:  rdf.Literal{Val: 3.14, DataType: rdf.XSDFloat}}},
+		{`####
+			<http://example.org/resource> <http://example.org/property> "simple literal" .
+
+			#`, "",
+			rdf.Triple{
+				Subj: rdf.URI{URI: "http://example.org/resource"},
+				Pred: rdf.URI{URI: "http://example.org/property"},
+				Obj:  rdf.Literal{Val: "simple literal", DataType: rdf.XSDString},
+			}},
 	}
 
 	for _, tt := range tests {

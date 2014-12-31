@@ -20,7 +20,6 @@ type Decoder struct {
 	format string
 
 	cur, prev token
-	err       error
 }
 
 // NewNTDecoder creates a N-Triples decoder
@@ -32,8 +31,6 @@ func NewNTDecoder(r io.Reader) *Decoder {
 	}
 }
 
-// Parser functions:
-
 // Decode returns the next valid triple, or an error
 func (d *Decoder) Decode() (rdf.Triple, error) {
 	line, err := d.r.ReadBytes('\n')
@@ -43,20 +40,22 @@ func (d *Decoder) Decode() (rdf.Triple, error) {
 	}
 	line = bytes.TrimSpace(line)
 	if len(line) == 0 || bytes.HasPrefix(line, []byte("#")) {
+		// skip empty lines or comment lines
+		d.l.line++
 		return d.Decode()
 	}
 	return d.parseNT(line)
 }
 
 func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
+	d.cur.typ = tokenNone
 	d.l.incoming <- line
 	t := rdf.Triple{}
 
 	// parse triple subject
 	d.next()
-	d.expect(tokenIRIAbs, tokenBNode)
-	if d.err != nil {
-		return t, d.err
+	if err := d.expect(tokenIRIAbs, tokenBNode); err != nil {
+		return t, err
 	}
 	if d.cur.typ == tokenIRIAbs {
 		t.Subj = rdf.URI{URI: d.cur.text}
@@ -66,9 +65,8 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 
 	// parse triple predicate
 	d.next()
-	d.expect(tokenIRIAbs, tokenBNode)
-	if d.err != nil {
-		return t, d.err
+	if err := d.expect(tokenIRIAbs, tokenBNode); err != nil {
+		return t, err
 	}
 	if d.cur.typ == tokenIRIAbs {
 		t.Pred = rdf.URI{URI: d.cur.text}
@@ -78,9 +76,8 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 
 	// parse triple object
 	d.next()
-	d.expect(tokenIRIAbs, tokenBNode, tokenLiteral)
-	if d.err != nil {
-		return t, d.err
+	if err := d.expect(tokenIRIAbs, tokenBNode, tokenLiteral); err != nil {
+		return t, err
 	}
 
 	switch d.cur.typ {
@@ -93,10 +90,9 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 			return t, err
 		}
 		t.Obj = lit
-		if d.cur.typ == tokenDot {
-			return t, nil
+		if d.cur.typ != tokenDot {
+			d.next()
 		}
-		d.next()
 	case tokenIRIAbs:
 		t.Obj = rdf.URI{URI: d.cur.text}
 		d.next()
@@ -104,8 +100,8 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 
 	// parse final dot (d.next() called in ojbect parse to check for langtag, datatype)
 	d.expect(tokenDot)
-	if d.err != nil {
-		return t, d.err
+	if err := d.expect(tokenDot); err != nil {
+		return t, err
 	}
 
 	// check for extra tokens, assert we reached end of line
@@ -172,17 +168,15 @@ func (d *Decoder) parseLiteral(relIRI bool) (rdf.Literal, error) {
 		return l, fmt.Errorf("%d:%d: syntax error: %s", d.cur.line, d.cur.col, d.cur.text)
 	default:
 		// literal not follwed by language tag or datatype
-		if d.cur.typ != tokenDot {
-			d.backup()
-		}
 		return l, nil
 	}
 }
 
 func (d *Decoder) next() bool {
-	if d.cur.typ != tokenEOL {
-		d.prev = d.cur
+	if d.cur.typ == tokenEOL || d.cur.typ == tokenError {
+		return false
 	}
+	d.prev = d.cur
 	d.cur = d.l.nextToken()
 	if d.cur.typ == tokenEOL || d.cur.typ == tokenError {
 		return false
@@ -190,40 +184,24 @@ func (d *Decoder) next() bool {
 	return true
 }
 
-func (d *Decoder) backup() {
-	d.cur = d.prev
-}
-
-func (d *Decoder) expect(tt ...tokenType) {
+func (d *Decoder) expect(tt ...tokenType) error {
 	if d.cur.typ == tokenEOL {
-		d.err = fmt.Errorf("%d:%d: unexpected end of line", d.cur.line, d.cur.col)
-		return
+		return fmt.Errorf("%d:%d: unexpected end of line", d.cur.line, d.cur.col)
 	}
 	if d.cur.typ == tokenError {
-		d.err = fmt.Errorf("%d:%d: syntax error: %s", d.cur.line, d.cur.col, d.cur.text)
-		return
+		return fmt.Errorf("%d:%d: syntax error: %s", d.cur.line, d.cur.col, d.cur.text)
 	}
 	for i := range tt {
 		if d.cur.typ == tt[i] {
-			return
+			return nil
 		}
 	}
 	if len(tt) == 1 {
-		d.err = fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, tt[0], d.cur.typ)
-		return
+		return fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, tt[0], d.cur.typ)
 	}
 	var types = make([]string, 0, len(tt))
 	for _, t := range tt {
 		types = append(types, fmt.Sprintf("%s", t))
 	}
-	d.err = fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, strings.Join(types, " / "), tt[0])
-}
-
-func (d *Decoder) oneOf(tt ...tokenType) bool {
-	for i := range tt {
-		if d.cur.typ == tt[i] {
-			return true
-		}
-	}
-	return false
+	return fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, strings.Join(types, " / "), tt[0])
 }
