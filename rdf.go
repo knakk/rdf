@@ -218,7 +218,10 @@ func (l Literal) String() string {
 		case bool, int, float64:
 			return fmt.Sprintf("%v", t)
 		case string:
-			return fmt.Sprintf("\"%v\"", t)
+			if l.DataType.Eq(XSDString) || l.DataType.String() == "" {
+				return fmt.Sprintf("\"%v\"", t)
+			}
+			return fmt.Sprintf("\"%v\"^^%v", t, l.DataType)
 		case time.Time:
 			return fmt.Sprintf("\"%v\"^^%v", t.Format(DateFormat), l.DataType)
 		default:
