@@ -133,6 +133,7 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 		}
 		t.Obj = lit
 		if d.cur.typ != tokenDot {
+			// TODO document why, or find a better solution
 			d.next()
 		}
 	case tokenIRIAbs:
@@ -198,6 +199,7 @@ func (d *Decoder) parseNQ(line []byte) (rdf.Quad, error) {
 		}
 		q.Obj = lit
 		if d.cur.typ != tokenDot {
+			// TODO document why, or find a better solution
 			d.next()
 		}
 	case tokenIRIAbs:
@@ -210,7 +212,7 @@ func (d *Decoder) parseNQ(line []byte) (rdf.Quad, error) {
 		return q, err
 	}
 	switch d.cur.typ {
-	case tokenDot:
+	case tokenDot: // do nothing
 	case tokenBNode:
 		q.Graph = rdf.Blank{ID: d.cur.text}
 		d.next()
@@ -242,7 +244,7 @@ func (d *Decoder) parseLiteral(relIRI bool) (rdf.Literal, error) {
 	l := rdf.Literal{}
 	l.Val = d.cur.text
 	l.DataType = rdf.XSDString
-	d.next()
+	d.next() // need to see if literal has language tag or datatype URI
 	switch d.cur.typ {
 	case tokenLang:
 		l.Lang = d.cur.text
@@ -280,7 +282,7 @@ func (d *Decoder) parseLiteral(relIRI bool) (rdf.Literal, error) {
 				return l, nil
 			}
 			l.Val = t
-			// TODO: other xsd dataypes
+			// TODO: other xsd dataypes that maps to Go data types
 		}
 		return l, nil
 	case tokenEOL:
