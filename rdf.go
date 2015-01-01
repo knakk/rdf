@@ -204,6 +204,7 @@ type Literal struct {
 	Lang string
 
 	// The datatype of the Literal.
+	// TODO should be a pointer, to easily check for nil??
 	DataType URI
 }
 
@@ -291,6 +292,7 @@ type Triple struct {
 
 // NT returns a string representation of the triple in N-Triples format.
 func (t Triple) NT() string {
+	// TODO only xsd:string doesn't need datatype, all others do
 	return fmt.Sprintf("%v %v %v .", t.Subj, t.Pred, t.Obj)
 }
 
