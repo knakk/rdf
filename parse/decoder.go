@@ -13,11 +13,23 @@ import (
 	"github.com/knakk/rdf"
 )
 
+type format int
+
+const (
+	formatUnknown format = iota
+	formatRDFXML
+	formatTTL
+	formatNT
+	formatNQ
+	formatTriG
+)
+
 // Decoder implements a Turtle/Trig parser
 type Decoder struct {
-	r      *bufio.Reader
-	l      *lexer
-	format string
+	r *bufio.Reader
+	l *lexer
+	f format
+	g rdf.Term
 
 	cur, prev token
 }
@@ -25,14 +37,28 @@ type Decoder struct {
 // NewNTDecoder creates a N-Triples decoder
 func NewNTDecoder(r io.Reader) *Decoder {
 	return &Decoder{
-		l:      newLexer(),
-		r:      bufio.NewReader(r),
-		format: "N-Triples",
+		l: newLexer(),
+		r: bufio.NewReader(r),
+		f: formatNT,
 	}
 }
 
-// Decode returns the next valid triple, or an error
-func (d *Decoder) Decode() (rdf.Triple, error) {
+// NewNQDecoder creates a N-Quads decoder.
+// defaultGraph must be ether a rdf.URI or rdf.Blank.
+func NewNQDecoder(r io.Reader, defaultGraph rdf.Term) *Decoder {
+	if _, ok := defaultGraph.(rdf.Literal); ok {
+		panic("defaultGraph must be either an URI or Blank node")
+	}
+	return &Decoder{
+		l: newLexer(),
+		r: bufio.NewReader(r),
+		f: formatNQ,
+		g: defaultGraph,
+	}
+}
+
+// DecodeTriple returns the next valid triple, or an error
+func (d *Decoder) DecodeTriple() (rdf.Triple, error) {
 	line, err := d.r.ReadBytes('\n')
 	if err != nil && len(line) == 0 {
 		d.l.stop() // reader drained, stop lexer
@@ -42,9 +68,25 @@ func (d *Decoder) Decode() (rdf.Triple, error) {
 	if len(line) == 0 || bytes.HasPrefix(line, []byte("#")) {
 		// skip empty lines or comment lines
 		d.l.line++
-		return d.Decode()
+		return d.DecodeTriple()
 	}
 	return d.parseNT(line)
+}
+
+// DecodeQuad returns the next valid quad, or an error
+func (d *Decoder) DecodeQuad() (rdf.Quad, error) {
+	line, err := d.r.ReadBytes('\n')
+	if err != nil && len(line) == 0 {
+		d.l.stop() // reader drained, stop lexer
+		return rdf.Quad{}, err
+	}
+	line = bytes.TrimSpace(line)
+	if len(line) == 0 || bytes.HasPrefix(line, []byte("#")) {
+		// skip empty lines or comment lines
+		d.l.line++
+		return d.DecodeQuad()
+	}
+	return d.parseNQ(line)
 }
 
 func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
@@ -99,7 +141,6 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 	}
 
 	// parse final dot (d.next() called in ojbect parse to check for langtag, datatype)
-	d.expect(tokenDot)
 	if err := d.expect(tokenDot); err != nil {
 		return t, err
 	}
@@ -107,10 +148,90 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 	// check for extra tokens, assert we reached end of line
 	d.next()
 	if d.cur.typ != tokenEOL {
-		return t, fmt.Errorf("found extra token after end of statement: %q", d.cur.text)
+		return t, fmt.Errorf("found extra token after end of statement: %q(%v)", d.cur.text, d.cur.typ)
 	}
 
 	return t, nil
+}
+
+func (d *Decoder) parseNQ(line []byte) (rdf.Quad, error) {
+	d.cur.typ = tokenNone
+	d.l.incoming <- line
+	q := rdf.Quad{}
+
+	// parse quad subject
+	d.next()
+	if err := d.expect(tokenIRIAbs, tokenBNode); err != nil {
+		return q, err
+	}
+	if d.cur.typ == tokenIRIAbs {
+		q.Subj = rdf.URI{URI: d.cur.text}
+	} else {
+		q.Subj = rdf.Blank{ID: d.cur.text}
+	}
+
+	// parse quad predicate
+	d.next()
+	if err := d.expect(tokenIRIAbs, tokenBNode); err != nil {
+		return q, err
+	}
+	if d.cur.typ == tokenIRIAbs {
+		q.Pred = rdf.URI{URI: d.cur.text}
+	} else {
+		q.Pred = rdf.Blank{ID: d.cur.text}
+	}
+
+	// parse quad object
+	d.next()
+	if err := d.expect(tokenIRIAbs, tokenBNode, tokenLiteral); err != nil {
+		return q, err
+	}
+
+	switch d.cur.typ {
+	case tokenBNode:
+		q.Obj = rdf.Blank{ID: d.cur.text}
+		d.next()
+	case tokenLiteral:
+		lit, err := d.parseLiteral(false)
+		if err != nil {
+			return q, err
+		}
+		q.Obj = lit
+		if d.cur.typ != tokenDot {
+			d.next()
+		}
+	case tokenIRIAbs:
+		q.Obj = rdf.URI{URI: d.cur.text}
+		d.next()
+	}
+
+	// parse graph (optional) or final dot (d.next() called in ojbect parse to check for langtag, datatype).
+	if err := d.expect(tokenDot, tokenIRIAbs, tokenBNode); err != nil {
+		return q, err
+	}
+	switch d.cur.typ {
+	case tokenDot:
+	case tokenBNode:
+		q.Graph = rdf.Blank{ID: d.cur.text}
+		d.next()
+		if err := d.expect(tokenDot); err != nil {
+			return q, err
+		}
+	case tokenIRIAbs:
+		q.Graph = rdf.URI{URI: d.cur.text}
+		d.next()
+		if err := d.expect(tokenDot); err != nil {
+			return q, err
+		}
+	}
+
+	// check for extra tokens, assert we reached end of line
+	d.next()
+	if d.cur.typ != tokenEOL {
+		return q, fmt.Errorf("found extra token after end of statement: %q(%v)", d.cur.text, d.cur.typ)
+	}
+
+	return q, nil
 }
 
 // parseLiteral

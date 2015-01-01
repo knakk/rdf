@@ -10,9 +10,9 @@ import (
 	"github.com/knakk/rdf"
 )
 
-// testSuite is a representation of the official W3C test suite for N-Triples
+// ntTestSuite is a representation of the official W3C test suite for N-Triples
 // which is found at: http://www.w3.org/2013/N-TriplesTests/
-var testSuite = []struct {
+var ntTestSuite = []struct {
 	input   string
 	errWant string
 	want    []rdf.Triple
@@ -1120,9 +1120,9 @@ var testSuite = []struct {
 	}},
 }
 
-func parseAll(s string) (r []rdf.Triple, err error) {
+func parseAllNT(s string) (r []rdf.Triple, err error) {
 	dec := NewNTDecoder(bytes.NewBufferString(s))
-	for tr, err := dec.Decode(); err != io.EOF; tr, err = dec.Decode() {
+	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {
 		if err != nil {
 			return r, err
 		}
@@ -1131,9 +1131,9 @@ func parseAll(s string) (r []rdf.Triple, err error) {
 	return r, err
 }
 
-func TestSuite(t *testing.T) {
-	for _, test := range testSuite {
-		triples, err := parseAll(test.input)
+func TestNT(t *testing.T) {
+	for _, test := range ntTestSuite {
+		triples, err := parseAllNT(test.input)
 		if err != nil {
 			if test.errWant == "" {
 				t.Errorf("ParseNT(%s) => %v, want %v", test.input, err, test.want)
