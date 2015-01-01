@@ -12,7 +12,6 @@ const (
 	// special tokens
 	tokenNone  tokenType = iota
 	tokenEOL             // end of line
-	tokenEOF             // end of input to be scanned TODO remove?
 	tokenError           // an illegal token
 
 	// turtle tokens
@@ -101,7 +100,7 @@ type stateFn func(*lexer) stateFn
 //
 // The lexer is assumed to be working on one line at a time. When end of line
 // is reached, tokenEOL is emitted, and the caller may supply more lines to
-// the incoming channel. If there are no more input to be scanned, the user
+// the incoming channel. If there are no more input to be scanned, the user (parser)
 // must call stop(), which will terminate lexing goroutine.
 //
 // Tokens for whitespace and comments are not emitted.
@@ -124,7 +123,7 @@ type lexer struct {
 
 func newLexer() *lexer {
 	l := lexer{
-		incoming: make(chan []byte, 1), // TODO understand why buffered? what's blocking unless?
+		incoming: make(chan []byte, 1),
 		tokens:   make(chan token),
 	}
 	go l.run()
@@ -309,9 +308,6 @@ func lexAny(l *lexer) stateFn {
 		}
 		l.ignore()
 		l.emit(tokenEOL)
-		//panic(fmt.Sprintf("got newline: %q", string(l.input)))
-		// Lexer should not get input with newlines.
-		// TODO panic or handle somehow?
 		return nil
 	case '#', eof:
 		l.ignore()

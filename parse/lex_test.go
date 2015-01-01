@@ -11,7 +11,6 @@ var tokenName = map[tokenType]string{
 	tokenNone:        "None",
 	tokenError:       "Error",
 	tokenEOL:         "EOL",
-	tokenEOF:         "EOF",
 	tokenIRIAbs:      "IRI (absolute)",
 	tokenIRIRel:      "IRI (relative)",
 	tokenLiteral:     "Literal",
