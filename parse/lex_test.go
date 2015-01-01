@@ -130,8 +130,13 @@ func TestTokens(t *testing.T) {
 			{tokenDataTypeAbs, "s://mydatatype"},
 			{tokenEOL, ""}},
 		},
-		{`_:a.`, []testToken{
-			{tokenBNode, "a"},
+		{`_:a_BlankLabel123.`, []testToken{
+			{tokenBNode, "a_BlankLabel123"},
+			{tokenDot, ""},
+			{tokenEOL, ""}},
+		},
+		{`_:a-b.c.`, []testToken{
+			{tokenBNode, "a-b.c"},
 			{tokenDot, ""},
 			{tokenEOL, ""}},
 		},

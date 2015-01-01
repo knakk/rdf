@@ -28,18 +28,62 @@ const (
 
 const eof = -1
 
-var hex = []byte("0123456789ABCDEFabcdef")
+// Rune helper values and functions:
+var (
+	hex         = []byte("0123456789ABCDEFabcdef")
+	badIRIRunes = [...]rune{' ', '<', '"', '{', '}', '|', '^', '`'}
+	pnTab       = []rune{
+		'A', 'Z',
+		'a', 'z',
+		0x00C0, 0x00D6,
+		0x00D8, 0x00F6,
+		0x00F8, 0x02FF,
+		0x0370, 0x037D,
+		0x037F, 0x1FFF,
+		0x200C, 0x200D,
+		0x2070, 0x218F,
+		0x2C00, 0x2FEF,
+		0x3001, 0xD7FF,
+		0xF900, 0xFDCF,
+		0xFDF0, 0xFFFD,
+		0x10000, 0xEFFFF, // last of PN_CHARS_BASE
+		'_', '_',
+		':', ':', // last of PN_CHARS_U
+		'-', '-',
+		'0', '9',
+		0x00B7, 0x00B7,
+		0x0300, 0x036F,
+		0x203F, 0x2040, // last of PN_CHARS
+	}
+)
 
-var badIRIRunes = [...]rune{' ', '<', '"', '{', '}', '|', '^', '`'}
-
-// isAlpha tests if rune is in the set [a-zA-Z]
 func isAlpha(r rune) bool {
 	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
 }
 
-// isAlphaOrDigit tests if rune is in the set [a-zA-Z0-9]
+func isDigit(r rune) bool {
+	return (r >= '0' && r <= '9')
+}
+
 func isAlphaOrDigit(r rune) bool {
-	return isAlpha(r) || (r >= '0' && r <= '9')
+	return isAlpha(r) || isDigit(r)
+}
+
+func check(r rune, tab []rune) bool {
+	for i := 0; i < len(tab); i += 2 {
+		if r >= tab[i] && r <= tab[i+1] {
+			return true
+		}
+	}
+	return false
+}
+
+func isPnCharsU(r rune) bool {
+	return check(r, pnTab[:2*16])
+}
+
+func isPnChars(r rune) bool {
+	return check(r, pnTab)
 }
 
 // token represents a token emitted by the lexer.
@@ -433,17 +477,31 @@ func lexLiteral(l *lexer) stateFn {
 }
 
 func lexBNode(l *lexer) stateFn {
-	// TODO make this according to spec
 	r := l.next()
 	if r == eof {
 		return l.errorf("bad blank node: unexpected end of line")
 	}
+	if !(isPnCharsU(r) || isDigit(r)) {
+		return l.errorf("bad blank node: invalid character %q", r)
+	}
+
 	for {
-		if r == '<' || r == '"' || r == ' ' || r == '.' || r == eof {
+		r = l.next()
+
+		if r == '.' {
+			// Blank node labels can include '.', except as the final character
+			if isPnChars(l.peek()) {
+				continue
+			} else {
+				l.pos-- // backup, '.' has width 1
+				break
+			}
+		}
+
+		if !(isPnChars(r)) {
 			l.backup()
 			break
 		}
-		r = l.next()
 	}
 	l.emit(tokenBNode)
 	return lexAny
