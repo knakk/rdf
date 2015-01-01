@@ -299,5 +299,5 @@ type Quad struct {
 	Subj  Term
 	Pred  Term
 	Obj   Term
-	Graph URI
+	Graph Term // URI or BNode (Literal not valid as graph)
 }
