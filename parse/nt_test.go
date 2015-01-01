@@ -303,7 +303,7 @@ var ntTestSuite = []struct {
 	//   .
 
 	{`# Bad IRI : character escapes not allowed.
-	<http://example/\n> <http://example/p> <http://example/o> .`, " bad IRI: disallowed escape character 'n'", []rdf.Triple{}},
+	<http://example/\n> <http://example/p> <http://example/o> .`, "bad IRI: disallowed escape character 'n'", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-05> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-05" ;
