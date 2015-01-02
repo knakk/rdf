@@ -33,6 +33,15 @@ type Decoder struct {
 	cur, prev token
 }
 
+// NewTTLDecoder creates a Turtle decoder
+func NewTTLDecoder(r io.Reader) *Decoder {
+	return &Decoder{
+		l: newLexer(),
+		r: bufio.NewReader(r),
+		f: formatTTL,
+	}
+}
+
 // NewNTDecoder creates a N-Triples decoder
 func NewNTDecoder(r io.Reader) *Decoder {
 	return &Decoder{
@@ -69,7 +78,10 @@ func (d *Decoder) DecodeTriple() (rdf.Triple, error) {
 		d.l.line++
 		return d.DecodeTriple()
 	}
-	return d.parseNT(line)
+	if d.f == formatNT {
+		return d.parseNT(line)
+	}
+	return d.parseTTL(line)
 }
 
 // DecodeQuad returns the next valid quad, or an error
@@ -86,6 +98,97 @@ func (d *Decoder) DecodeQuad() (rdf.Quad, error) {
 		return d.DecodeQuad()
 	}
 	return d.parseNQ(line)
+}
+
+func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
+	d.cur.typ = tokenNone
+	d.l.incoming <- line
+	t := rdf.Triple{}
+
+	// parse triple subject
+	d.next()
+	if err := d.expect(tokenIRIAbs, tokenBNode); err != nil {
+		return t, err
+	}
+	if d.cur.typ == tokenIRIAbs {
+		t.Subj = rdf.URI{URI: d.cur.text}
+	} else {
+		t.Subj = rdf.Blank{ID: d.cur.text}
+	}
+
+	// parse triple predicate
+	d.next()
+	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenRDFType); err != nil {
+		return t, err
+	}
+	switch d.cur.typ {
+	case tokenIRIAbs, tokenIRIRel:
+		t.Pred = rdf.URI{URI: d.cur.text}
+	case tokenBNode:
+		t.Pred = rdf.Blank{ID: d.cur.text}
+	case tokenRDFType:
+		t.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
+	}
+
+	// parse triple object
+	d.next()
+	if err := d.expect(tokenIRIAbs, tokenBNode, tokenLiteral); err != nil {
+		return t, err
+	}
+
+	switch d.cur.typ {
+	case tokenBNode:
+		t.Obj = rdf.Blank{ID: d.cur.text}
+	case tokenLiteral:
+		val := d.cur.text
+		l := rdf.Literal{
+			Val:      val,
+			DataType: rdf.XSDString,
+		}
+		d.next()
+		if err := d.expect(tokenLangMarker, tokenDataTypeMarker, tokenDot); err != nil {
+			return t, err
+		}
+		switch d.cur.typ {
+		case tokenDot:
+			t.Obj = l
+			goto consumedDot
+		case tokenLangMarker:
+			d.next()
+			if err := d.expect(tokenLang); err != nil {
+				return t, err
+			}
+			l.Lang = d.cur.text
+		case tokenDataTypeMarker:
+			d.next()
+			if err := d.expect(tokenIRIAbs); err != nil {
+				return t, err
+			}
+			v, err := parseLiteral(val, d.cur.text)
+			if err == nil {
+				l.Val = v
+			}
+			l.DataType = rdf.URI{URI: d.cur.text}
+		}
+		t.Obj = l
+	case tokenIRIAbs:
+		t.Obj = rdf.URI{URI: d.cur.text}
+	}
+
+	// parse final dot
+	d.next()
+consumedDot:
+	if err := d.expect(tokenDot); err != nil {
+		return t, err
+	}
+
+	// check for extra tokens, assert we reached end of line
+	d.next()
+	if d.cur.typ != tokenEOL {
+		return t, fmt.Errorf("found extra token after end of statement: %q(%v)", d.cur.text, d.cur.typ)
+	}
+
+	return t, nil
 }
 
 func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {

@@ -11,7 +11,7 @@ import (
 )
 
 func parseAllTTL(s string) (r []rdf.Triple, err error) {
-	dec := NewNTDecoder(bytes.NewBufferString(s))
+	dec := NewTTLDecoder(bytes.NewBufferString(s))
 	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {
 		if err != nil {
 			return r, err
@@ -22,7 +22,7 @@ func parseAllTTL(s string) (r []rdf.Triple, err error) {
 }
 
 func TestTTL(t *testing.T) {
-	for _, test := range ttlTestSuite[:3] {
+	for _, test := range ttlTestSuite[:6] {
 		triples, err := parseAllTTL(test.input)
 		if err != nil {
 			if test.errWant == "" {

@@ -356,7 +356,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-prefix-01.nt> ;
 	//   .
 
-	{`@prefix : <http://example/> .`, "syntax error: illegal character '@'", []rdf.Triple{}},
+	{`@prefix : <http://example/> .`, "expected IRI (absolute) / Blank node, got Prefix", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-base-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-base-01" ;

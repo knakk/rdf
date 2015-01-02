@@ -19,6 +19,9 @@ var tokenName = map[tokenType]string{
 	tokenLang:           "Language tag",
 	tokenDataTypeMarker: "Literal datatype marker",
 	tokenDot:            "Dot",
+	tokenRDFType:        "rdf:type",
+	tokenPrefix:         "Prefix",
+	tokenPrefixLabel:    "Prefix label",
 }
 
 func (t tokenType) String() string {
@@ -84,6 +87,19 @@ func TestTokens(t *testing.T) {
 		},
 		{"<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>", []testToken{
 			{tokenIRIAbs, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			{tokenEOL, ""}},
+		},
+		{`<s:1> a <o:1>`, []testToken{
+			{tokenIRIAbs, "s:1"},
+			{tokenRDFType, "a"},
+			{tokenIRIAbs, "o:1"},
+			{tokenEOL, ""}},
+		},
+		{`<a>a<b>.`, []testToken{
+			{tokenIRIRel, "a"},
+			{tokenRDFType, "a"},
+			{tokenIRIRel, "b"},
+			{tokenDot, ""},
 			{tokenEOL, ""}},
 		},
 		{`  <x><y> <z>  <\u0053> `, []testToken{
@@ -191,6 +207,12 @@ func TestTokens(t *testing.T) {
 			{tokenLiteral, "yo"},
 			{tokenEOL, ""},
 			{tokenEOL, ""},
+			{tokenEOL, ""}},
+		},
+		{`@prefix a: <http:/a.org/>`, []testToken{
+			{tokenPrefix, "prefix"},
+			{tokenPrefixLabel, "a"},
+			{tokenIRIAbs, "http:/a.org/"},
 			{tokenEOL, ""}},
 		},
 	}

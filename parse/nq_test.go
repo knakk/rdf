@@ -645,7 +645,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-prefix-01.nq> ;
 	//   .
 
-	{`@prefix : <http://example/> .`, "syntax error: illegal character '@'", []rdf.Quad{}},
+	{`@prefix : <http://example/> .`, "expected IRI (absolute) / Blank node, got Prefix", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-base-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-base-01" ;

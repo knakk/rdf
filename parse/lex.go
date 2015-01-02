@@ -19,19 +19,23 @@ const (
 	tokenIRIRel         // RDF IRI reference (relative)
 	tokenBNode          // RDF blank node
 	tokenLiteral        // RDF literal
-	tokenLangMarker     // @
+	tokenLangMarker     // '@''
 	tokenLang           // literal language tag
-	tokenDataTypeMarker // ^^
-	tokenDot            // .
+	tokenDataTypeMarker // '^^''
+	tokenDot            // '.''
+	tokenRDFType        // 'a' => <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+	tokenPrefix         // @prefix
+	tokenPrefixLabel    // @prefix tokenPrefixLabel: IRI
 )
 
 const eof = -1
 
 // Rune helper values and functions:
 var (
-	hex         = []byte("0123456789ABCDEFabcdef")
-	badIRIRunes = [...]rune{' ', '<', '"', '{', '}', '|', '^', '`'}
-	pnTab       = []rune{
+	hex            = []byte("0123456789ABCDEFabcdef")
+	badIRIRunes    = [...]rune{' ', '<', '"', '{', '}', '|', '^', '`'}
+	okAfterRDFType = [...]rune{' ', '\t', '<', '"', '\''}
+	pnTab          = []rune{
 		'A', 'Z',
 		'a', 'z',
 		0x00C0, 0x00D6,
@@ -75,6 +79,10 @@ func check(r rune, tab []rune) bool {
 		}
 	}
 	return false
+}
+
+func isPnCharsBase(r rune) bool {
+	return check(r, pnTab[:2*14])
 }
 
 func isPnCharsU(r rune) bool {
@@ -235,6 +243,20 @@ func (l *lexer) acceptRunMin(valid []byte, num int) bool {
 	return c >= num
 }
 
+// acceptExact consumes the given string in l.input and returns true,
+// or otherwise false if the string is not matched in l.input.
+// The string must not contain multi-byte runes.
+func (l *lexer) acceptExact(s string) bool {
+	if len(l.input[l.start:]) < len(s) {
+		return false
+	}
+	if string(l.input[l.start:l.pos+len(s)-1]) == s {
+		l.pos = l.pos + len(s) - 1
+		return true
+	}
+	return false
+}
+
 // nextToken returns the next token from the input.
 func (l *lexer) nextToken() token {
 	token := <-l.tokens
@@ -280,6 +302,19 @@ func (l *lexer) errorf(format string, args ...interface{}) stateFn {
 func lexAny(l *lexer) stateFn {
 	r := l.next()
 	switch r {
+	case '@':
+		n := l.next()
+		switch n {
+		case 'p':
+			l.start++ // consume '@''
+			return lexPrefix
+		case 'b':
+			l.start++ // consume '@''
+			return lexBase
+		default:
+			l.backup()
+			return l.errorf("illegal character %q", r)
+		}
 	case '_':
 		if l.peek() != ':' {
 			return l.errorf("illegal character %q in blank node identifier", l.peek())
@@ -291,11 +326,21 @@ func lexAny(l *lexer) stateFn {
 	case '<':
 		l.ignore()
 		return lexIRI
+	case 'a':
+		p := l.peek()
+		for _, a := range okAfterRDFType {
+			if p == a {
+				l.emit(tokenRDFType)
+				return lexAny
+			}
+		}
+		return l.errorf("illegal character %q", r)
 	case '"':
 		l.ignore()
 		return lexLiteral
 	case ' ', '\t':
 		// whitespace tokens are not emitted, we continue
+		l.ignore()
 		return lexAny
 	case '.':
 		l.ignore()
@@ -534,4 +579,51 @@ func lexLang(l *lexer) stateFn {
 
 	l.emit(tokenLang)
 	return lexAny
+}
+
+func lexPrefix(l *lexer) stateFn {
+	if l.acceptExact("prefix") {
+		l.emit(tokenPrefix)
+		// consume and ignore any whitespace before localname
+		for r := l.next(); r == ' ' || r == '\t'; r = l.next() {
+		}
+		l.backup()
+		l.ignore()
+		return lexPrefixLabel
+	}
+	return l.errorf("invalid character 'p'")
+}
+
+func lexPrefixLabel(l *lexer) stateFn {
+	r := l.next()
+	if r == ':' {
+		//PN_PREFIX can be empty
+		l.emit(tokenPrefixLabel)
+		return lexAny
+	}
+	if !isPnCharsBase(r) {
+		return l.errorf("invalid character %q in prefix label", r)
+	}
+	for {
+		r = l.next()
+		if r == ':' {
+			l.backup()
+			break
+		}
+		if !(isPnChars(r) || (r == '.' && l.peek() != ':')) {
+			return l.errorf("invalid character %q in prefix label", r)
+		}
+	}
+
+	l.emit(tokenPrefixLabel)
+
+	// consume and ignore ':'
+	l.next()
+	l.ignore()
+
+	return lexAny
+}
+
+func lexBase(l *lexer) stateFn {
+	return l.errorf("not implemented")
 }
