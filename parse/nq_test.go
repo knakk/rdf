@@ -219,7 +219,7 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> "o" .`,
-		"Graph name may not be a simple literal", []rdf.Quad{}},
+		"expected Dot / IRI (absolute) / Blank node, got Literal", []rdf.Quad{}},
 
 	//<#nq-syntax-bad-literal-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-literal-02" ;
@@ -229,7 +229,7 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> "o"@en .`,
-		"Graph name may not be a language tagged literal", []rdf.Quad{}},
+		"expected Dot / IRI (absolute) / Blank node, got Literal", []rdf.Quad{}},
 
 	//<#nq-syntax-bad-literal-03> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-literal-03" ;
@@ -239,7 +239,7 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> "o"^^<http://www.w3.org/2001/XMLSchema#string> .`,
-		"Graph name may not be a datatyped literal", []rdf.Quad{}},
+		"expected Dot / IRI (absolute) / Blank node, got Literal", []rdf.Quad{}},
 
 	//<#nq-syntax-bad-uri-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-uri-01" ;
@@ -250,7 +250,7 @@ var nqTestSuite = []struct {
 
 	{`# No relative IRIs in N-Quads
 <http://example/s> <http://example/p> <http://example/o> <g>.`,
-		"Graph name URI must be absolute", []rdf.Quad{}},
+		"expected Dot / IRI (absolute) / Blank node, got IRI (relative)", []rdf.Quad{}},
 
 	//<#nq-syntax-bad-quint-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-quint-01" ;
@@ -261,7 +261,7 @@ var nqTestSuite = []struct {
 
 	{`# N-Quads rejects a quint
 <http://example/s> <http://example/p> <http://example/o> <http://example/g> <http://example/n> .`,
-		"N-Quads does not have a fifth element", []rdf.Quad{}},
+		"expected Dot, got IRI (absolute)", []rdf.Quad{}},
 
 	//<#nt-syntax-file-01> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nt-syntax-file-01" ;
@@ -270,7 +270,7 @@ var nqTestSuite = []struct {
 	//   mf:action    <nt-syntax-file-01.nq> ;
 	//   .
 
-	{``, "", []rdf.Quad{}},
+	{``, "", nil},
 
 	//<#nt-syntax-file-02> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nt-syntax-file-02" ;
@@ -279,7 +279,7 @@ var nqTestSuite = []struct {
 	//   mf:action    <nt-syntax-file-02.nq> ;
 	//   .
 
-	{`#Empty file.`, "", []rdf.Quad{}},
+	{`#Empty file.`, "", nil},
 
 	//<#nt-syntax-file-03> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nt-syntax-file-03" ;
@@ -289,7 +289,7 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`#One comment, one empty line.
-`, "", []rdf.Quad{}},
+`, "", nil},
 
 	//<#nt-syntax-uri-01> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nt-syntax-uri-01" ;
@@ -606,7 +606,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<s> <http://example/p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (absolute)", []rdf.Quad{}},
+<s> <http://example/p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (relative)", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-uri-07> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-07" ;
@@ -616,7 +616,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<http://example/s> <p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (absolute)", []rdf.Quad{}},
+<http://example/s> <p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (relative)", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-uri-08> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-08" ;
@@ -626,7 +626,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<http://example/s> <http://example/p> <o> .`, "expected IRI (absolute) / Blank node / Literal, got IRI (absolute)", []rdf.Quad{}},
+<http://example/s> <http://example/p> <o> .`, "expected IRI (absolute) / Blank node / Literal, got IRI (relative)", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-uri-09> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-09" ;
@@ -636,7 +636,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<http://example/s> <http://example/p> "foo"^^<dt> .`, "Literal data type IRI must be absolute", []rdf.Quad{}},
+<http://example/s> <http://example/p> "foo"^^<dt> .`, "expected IRI (absolute), got IRI (relative)", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-prefix-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-prefix-01" ;
@@ -674,7 +674,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o>; <http://example/p2>, <http://example/o2> .`,
-		"syntax error: illegal character ','", []rdf.Quad{}},
+		"syntax error: illegal character ';'", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-lang-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-lang-01" ;
@@ -759,7 +759,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-05.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> """abc""" .`, "expected Dot, got Literal", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> """abc""" .`, "expected Language tag marker / Literal datatype marker / IRI (absolute) / Blank node / Dot, got Literal", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-string-06> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-06" ;
@@ -1067,9 +1067,10 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 			Graph: defaultGraph,
 		},
 		rdf.Quad{
-			Subj: rdf.URI{URI: "http://example.org/resource32"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "abc", DataType: rdf.URI{URI: "http://example.org/datatype1"}},
+			Subj:  rdf.URI{URI: "http://example.org/resource32"},
+			Pred:  rdf.URI{URI: "http://example.org/property"},
+			Obj:   rdf.Literal{Val: "abc", DataType: rdf.URI{URI: "http://example.org/datatype1"}},
+			Graph: defaultGraph,
 		},
 	}},
 

@@ -123,7 +123,7 @@ type lexer struct {
 
 func newLexer() *lexer {
 	l := lexer{
-		incoming: make(chan []byte, 1),
+		incoming: make(chan []byte),
 		tokens:   make(chan token),
 	}
 	go l.run()

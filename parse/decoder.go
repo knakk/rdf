@@ -179,7 +179,7 @@ consumedDot:
 func (d *Decoder) parseNQ(line []byte) (rdf.Quad, error) {
 	d.cur.typ = tokenNone
 	d.l.incoming <- line
-	q := rdf.Quad{}
+	q := rdf.Quad{Graph: d.g}
 
 	// parse quad subject
 	d.next()
@@ -240,8 +240,8 @@ func (d *Decoder) parseNQ(line []byte) (rdf.Quad, error) {
 			v, err := parseLiteral(val, d.cur.text)
 			if err == nil {
 				l.Val = v
-				l.DataType = rdf.URI{URI: d.cur.text}
 			}
+			l.DataType = rdf.URI{URI: d.cur.text}
 		}
 		q.Obj = l
 	case tokenIRIAbs:
@@ -250,10 +250,10 @@ func (d *Decoder) parseNQ(line []byte) (rdf.Quad, error) {
 
 	// parse graph (optional) or final dot (d.next() called in ojbect parse to check for langtag, datatype).
 	d.next()
-consumedDot:
 	if err := d.expect(tokenDot, tokenIRIAbs, tokenBNode); err != nil {
 		return q, err
 	}
+consumedDot:
 	switch d.cur.typ {
 	case tokenDot: // do nothing
 	case tokenBNode:
