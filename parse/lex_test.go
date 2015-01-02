@@ -8,17 +8,17 @@ import (
 
 // Make the token types prettyprint.
 var tokenName = map[tokenType]string{
-	tokenNone:        "None",
-	tokenError:       "Error",
-	tokenEOL:         "EOL",
-	tokenIRIAbs:      "IRI (absolute)",
-	tokenIRIRel:      "IRI (relative)",
-	tokenLiteral:     "Literal",
-	tokenBNode:       "Blank node",
-	tokenLang:        "Language tag",
-	tokenDataTypeAbs: "Literal data type IRI (absolute)",
-	tokenDataTypeRel: "Literal data typ IRI (relative)",
-	tokenDot:         "Dot",
+	tokenNone:           "None",
+	tokenError:          "Error",
+	tokenEOL:            "EOL",
+	tokenIRIAbs:         "IRI (absolute)",
+	tokenIRIRel:         "IRI (relative)",
+	tokenLiteral:        "Literal",
+	tokenBNode:          "Blank node",
+	tokenLangMarker:     "Language tag marker",
+	tokenLang:           "Language tag",
+	tokenDataTypeMarker: "Literal datatype marker",
+	tokenDot:            "Dot",
 }
 
 func (t tokenType) String() string {
@@ -74,6 +74,10 @@ func TestTokens(t *testing.T) {
 		{" \t ", []testToken{
 			{tokenEOL, ""}},
 		},
+		{" \n", []testToken{
+			{tokenEOL, ""},
+			{tokenEOL, ""}},
+		},
 		{"<a>", []testToken{
 			{tokenIRIRel, "a"},
 			{tokenEOL, ""}},
@@ -100,6 +104,12 @@ func TestTokens(t *testing.T) {
 			{tokenLiteral, "a"},
 			{tokenEOL, ""}},
 		},
+		{`"""a"""`, []testToken{
+			{tokenLiteral, ""},
+			{tokenLiteral, "a"},
+			{tokenLiteral, ""},
+			{tokenEOL, ""}},
+		},
 		{`"æøå üçgen こんにちは" # comments should be ignored`, []testToken{
 			{tokenLiteral, "æøå üçgen こんにちは"},
 			{tokenEOL, ""}},
@@ -119,15 +129,37 @@ func TestTokens(t *testing.T) {
 		}},
 		{`"hei"@nb-no "hi"@en #language tags`, []testToken{
 			{tokenLiteral, "hei"},
+			{tokenLangMarker, "@"},
 			{tokenLang, "nb-no"},
 			{tokenLiteral, "hi"},
+			{tokenLangMarker, "@"},
 			{tokenLang, "en"},
 			{tokenEOL, ""}},
 		},
+		{`"hei"@`, []testToken{
+			{tokenLiteral, "hei"},
+			{tokenLangMarker, "@"},
+			{tokenError, "bad literal: invalid language tag"}},
+		},
 		{`"a"^^<s://mydatatype>`, []testToken{
 			{tokenLiteral, "a"},
-			{tokenDataTypeAbs, "s://mydatatype"},
+			{tokenDataTypeMarker, "^^"},
+			{tokenIRIAbs, "s://mydatatype"},
 			{tokenEOL, ""}},
+		},
+		{`"a"^`, []testToken{
+			{tokenLiteral, "a"},
+			{tokenError, "bad literal: invalid datatype IRI"}},
+		},
+		{`"a"^^`, []testToken{
+			{tokenLiteral, "a"},
+			{tokenDataTypeMarker, "^^"},
+			{tokenError, "bad literal: invalid datatype IRI"}},
+		},
+		{`"a"^^xyz`, []testToken{
+			{tokenLiteral, "a"},
+			{tokenDataTypeMarker, "^^"},
+			{tokenError, "bad literal: invalid datatype IRI"}},
 		},
 		{`_:a_BlankLabel123.`, []testToken{
 			{tokenBNode, "a_BlankLabel123"},

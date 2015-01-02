@@ -321,7 +321,7 @@ var ntTestSuite = []struct {
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<s> <http://example/p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (absolute)", []rdf.Triple{}},
+	<s> <http://example/p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (relative)", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-07> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-07" ;
@@ -330,7 +330,7 @@ var ntTestSuite = []struct {
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<http://example/s> <p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (absolute)", []rdf.Triple{}},
+	<http://example/s> <p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (relative)", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-08> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-08" ;
@@ -339,7 +339,7 @@ var ntTestSuite = []struct {
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<http://example/s> <http://example/p> <o> .`, "expected IRI (absolute) / Blank node / Literal, got IRI (absolute)", []rdf.Triple{}},
+	<http://example/s> <http://example/p> <o> .`, "expected IRI (absolute) / Blank node / Literal, got IRI (relative)", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-uri-09> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-09" ;
@@ -348,7 +348,7 @@ var ntTestSuite = []struct {
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<http://example/s> <http://example/p> "foo"^^<dt> .`, "Literal data type IRI must be absolute", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "foo"^^<dt> .`, "expected IRI (absolute), got IRI (relative)", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-prefix-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-prefix-01" ;
@@ -456,7 +456,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-05.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> """abc""" .`, "expected Dot, got Literal", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> """abc""" .`, "expected Language tag marker / Literal datatype marker / Dot, got Literal", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-string-06> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-06" ;

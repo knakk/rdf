@@ -15,14 +15,14 @@ const (
 	tokenError           // an illegal token
 
 	// turtle tokens
-	tokenIRIAbs      // RDF IRI reference (absolute)
-	tokenIRIRel      // RDF IRI reference (relative)
-	tokenBNode       // RDF blank node
-	tokenLiteral     // RDF literal
-	tokenLang        // literal language tag
-	tokenDataTypeAbs // literal data type (absolute)
-	tokenDataTypeRel // literal data type (relative)
-	tokenDot         // .
+	tokenIRIAbs         // RDF IRI reference (absolute)
+	tokenIRIRel         // RDF IRI reference (relative)
+	tokenBNode          // RDF blank node
+	tokenLiteral        // RDF literal
+	tokenLangMarker     // @
+	tokenLang           // literal language tag
+	tokenDataTypeMarker // ^^
+	tokenDot            // .
 )
 
 const eof = -1
@@ -408,24 +408,6 @@ func lexIRI(l *lexer) stateFn {
 	return lexAny
 }
 
-func lexIRIDT(l *lexer) stateFn {
-	res, absolute := _lexIRI(l)
-	if res != nil {
-		return res
-	}
-	if absolute {
-		l.emit(tokenDataTypeAbs)
-	} else {
-		l.emit(tokenDataTypeRel)
-	}
-
-	// ignore '>'
-	l.pos++
-	l.ignore()
-
-	return lexAny
-}
-
 func lexLiteral(l *lexer) stateFn {
 	for {
 		r := l.next()
@@ -469,7 +451,29 @@ func lexLiteral(l *lexer) stateFn {
 	// ignore '"'
 	l.pos++
 	l.ignore()
-	return lexLang
+
+	// check if literal has language tag or datatype URI:
+	r := l.next()
+	switch r {
+	case '@':
+		l.emit(tokenLangMarker)
+		return lexLang
+	case '^':
+		if l.next() != '^' {
+			return l.errorf("bad literal: invalid datatype IRI")
+		}
+		l.emit(tokenDataTypeMarker)
+		if l.next() != '<' {
+			return l.errorf("bad literal: invalid datatype IRI")
+		}
+		l.ignore() // ignore '<'
+		return lexIRI
+	case ' ', '\t':
+		return lexAny
+	default:
+		l.backup()
+		return lexAny
+	}
 }
 
 func lexBNode(l *lexer) stateFn {
@@ -504,13 +508,6 @@ func lexBNode(l *lexer) stateFn {
 }
 
 func lexLang(l *lexer) stateFn {
-	if l.peek() != '@' {
-		return lexDataType
-	}
-	// consume and ignore '@'
-	l.next()
-	l.ignore()
-
 	// consume [A-Za-z]+
 	c := 0
 	for r := l.next(); isAlpha(r); r = l.next() {
@@ -537,22 +534,4 @@ func lexLang(l *lexer) stateFn {
 
 	l.emit(tokenLang)
 	return lexAny
-}
-
-func lexDataType(l *lexer) stateFn {
-	if l.peek() != '^' {
-		return lexAny
-	}
-	l.next() // consume '^'
-	if l.peek() != '^' {
-		return l.errorf("bad literal: incomplete datatype marker")
-	}
-	l.next() // consume '^'
-	if l.peek() != '<' {
-		return l.errorf("bad literal: expected IRI after datatype marker, found %q", l.peek())
-	}
-	l.next() // consume and ignore '^^<'
-	l.ignore()
-
-	return lexIRIDT
 }

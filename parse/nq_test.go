@@ -1503,7 +1503,7 @@ func parseAllNQ(s string) (r []rdf.Quad, err error) {
 }
 
 func TestNQ(t *testing.T) {
-	for _, test := range nqTestSuite[:1] {
+	for _, test := range nqTestSuite {
 		quads, err := parseAllNQ(test.input)
 		if err != nil {
 			if test.errWant == "" {

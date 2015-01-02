@@ -3,7 +3,6 @@ package parse
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -125,23 +124,45 @@ func (d *Decoder) parseNT(line []byte) (rdf.Triple, error) {
 	switch d.cur.typ {
 	case tokenBNode:
 		t.Obj = rdf.Blank{ID: d.cur.text}
-		d.next()
 	case tokenLiteral:
-		lit, err := d.parseLiteral(false)
-		if err != nil {
+		val := d.cur.text
+		l := rdf.Literal{
+			Val:      val,
+			DataType: rdf.XSDString,
+		}
+		d.next()
+		if err := d.expect(tokenLangMarker, tokenDataTypeMarker, tokenDot); err != nil {
 			return t, err
 		}
-		t.Obj = lit
-		if d.cur.typ != tokenDot {
-			// TODO document why, or find a better solution
+		switch d.cur.typ {
+		case tokenDot:
+			t.Obj = l
+			goto consumedDot
+		case tokenLangMarker:
 			d.next()
+			if err := d.expect(tokenLang); err != nil {
+				return t, err
+			}
+			l.Lang = d.cur.text
+		case tokenDataTypeMarker:
+			d.next()
+			if err := d.expect(tokenIRIAbs); err != nil {
+				return t, err
+			}
+			v, err := parseLiteral(val, d.cur.text)
+			if err == nil {
+				l.Val = v
+			}
+			l.DataType = rdf.URI{URI: d.cur.text}
 		}
+		t.Obj = l
 	case tokenIRIAbs:
 		t.Obj = rdf.URI{URI: d.cur.text}
-		d.next()
 	}
 
-	// parse final dot (d.next() called in ojbect parse to check for langtag, datatype)
+	// parse final dot
+	d.next()
+consumedDot:
 	if err := d.expect(tokenDot); err != nil {
 		return t, err
 	}
@@ -191,23 +212,45 @@ func (d *Decoder) parseNQ(line []byte) (rdf.Quad, error) {
 	switch d.cur.typ {
 	case tokenBNode:
 		q.Obj = rdf.Blank{ID: d.cur.text}
-		d.next()
 	case tokenLiteral:
-		lit, err := d.parseLiteral(false)
-		if err != nil {
+		val := d.cur.text
+		l := rdf.Literal{
+			Val:      val,
+			DataType: rdf.XSDString,
+		}
+		d.next()
+		if err := d.expect(tokenLangMarker, tokenDataTypeMarker, tokenIRIAbs, tokenBNode, tokenDot); err != nil {
 			return q, err
 		}
-		q.Obj = lit
-		if d.cur.typ != tokenDot {
-			// TODO document why, or find a better solution
+		switch d.cur.typ {
+		case tokenDot, tokenIRIAbs, tokenBNode:
+			q.Obj = l
+			goto consumedDot
+		case tokenLangMarker:
 			d.next()
+			if err := d.expect(tokenLang); err != nil {
+				return q, err
+			}
+			l.Lang = d.cur.text
+		case tokenDataTypeMarker:
+			d.next()
+			if err := d.expect(tokenIRIAbs); err != nil {
+				return q, err
+			}
+			v, err := parseLiteral(val, d.cur.text)
+			if err == nil {
+				l.Val = v
+				l.DataType = rdf.URI{URI: d.cur.text}
+			}
 		}
+		q.Obj = l
 	case tokenIRIAbs:
 		q.Obj = rdf.URI{URI: d.cur.text}
-		d.next()
 	}
 
 	// parse graph (optional) or final dot (d.next() called in ojbect parse to check for langtag, datatype).
+	d.next()
+consumedDot:
 	if err := d.expect(tokenDot, tokenIRIAbs, tokenBNode); err != nil {
 		return q, err
 	}
@@ -237,61 +280,35 @@ func (d *Decoder) parseNQ(line []byte) (rdf.Quad, error) {
 }
 
 // parseLiteral
-func (d *Decoder) parseLiteral(relIRI bool) (rdf.Literal, error) {
-	if d.cur.typ != tokenLiteral {
-		panic("interal parse error: parseLiteral() expects current token to be a tokenLiteral")
-	}
-	l := rdf.Literal{}
-	l.Val = d.cur.text
-	l.DataType = rdf.XSDString
-	d.next() // need to see if literal has language tag or datatype URI
-	switch d.cur.typ {
-	case tokenLang:
-		l.Lang = d.cur.text
-		return l, nil
-	case tokenDataTypeRel:
-		if !relIRI {
-			return l, errors.New("Literal data type IRI must be absolute")
+func parseLiteral(val, datatype string) (interface{}, error) {
+	switch val {
+	case rdf.XSDInteger.URI:
+		i, err := strconv.Atoi(val)
+		if err != nil {
+			return nil, err
 		}
-		fallthrough
-	case tokenDataTypeAbs:
-		l.DataType = rdf.URI{URI: d.cur.text}
-		switch d.cur.text {
-		case rdf.XSDInteger.URI:
-			i, err := strconv.Atoi(d.prev.text)
-			if err != nil {
-				//TODO set datatype to xsd:string?
-				return l, nil
-			}
-			l.Val = i
-		case rdf.XSDFloat.URI: // TODO also XSDDouble ?
-			f, err := strconv.ParseFloat(d.prev.text, 64)
-			if err != nil {
-				return l, nil
-			}
-			l.Val = f
-		case rdf.XSDBoolean.URI:
-			bo, err := strconv.ParseBool(d.prev.text)
-			if err != nil {
-				return l, nil
-			}
-			l.Val = bo
-		case rdf.XSDDateTime.URI:
-			t, err := time.Parse(rdf.DateFormat, d.prev.text)
-			if err != nil {
-				return l, nil
-			}
-			l.Val = t
-			// TODO: other xsd dataypes that maps to Go data types
+		return i, nil
+	case rdf.XSDFloat.URI: // TODO also XSDDouble ?
+		f, err := strconv.ParseFloat(val, 64)
+		if err != nil {
+			return nil, err
 		}
-		return l, nil
-	case tokenEOL:
-		return l, fmt.Errorf("%d:%d: unexpected end of line", d.cur.line, d.cur.col)
-	case tokenError:
-		return l, fmt.Errorf("%d:%d: syntax error: %s", d.cur.line, d.cur.col, d.cur.text)
+		return f, nil
+	case rdf.XSDBoolean.URI:
+		bo, err := strconv.ParseBool(val)
+		if err != nil {
+			return nil, err
+		}
+		return bo, nil
+	case rdf.XSDDateTime.URI:
+		t, err := time.Parse(rdf.DateFormat, val)
+		if err != nil {
+			return nil, err
+		}
+		return t, nil
+		// TODO: other xsd dataypes that maps to Go data types
 	default:
-		// literal not follwed by language tag or datatype
-		return l, nil
+		return nil, fmt.Errorf("don't know how to represent %q with datatype %q as a Go type", val, datatype)
 	}
 }
 
@@ -326,5 +343,5 @@ func (d *Decoder) expect(tt ...tokenType) error {
 	for _, t := range tt {
 		types = append(types, fmt.Sprintf("%s", t))
 	}
-	return fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, strings.Join(types, " / "), tt[0])
+	return fmt.Errorf("%d:%d: expected %s, got %s", d.cur.line, d.cur.col, strings.Join(types, " / "), d.cur.typ)
 }
