@@ -505,11 +505,11 @@ func (d *Decoder) expect(tt ...tokenType) error {
 		}
 	}
 	if len(tt) == 1 {
-		return fmt.Errorf("%d:%d: expected %v, got %s", d.cur.line, d.cur.col, tt[0], d.cur.typ)
+		return fmt.Errorf("%d:%d: expected %v, got %v", d.cur.line, d.cur.col, tt[0], d.cur.typ)
 	}
 	var types = make([]string, 0, len(tt))
 	for _, t := range tt {
-		types = append(types, fmt.Sprintf("%s", t))
+		types = append(types, fmt.Sprintf("%v", t))
 	}
-	return fmt.Errorf("%d:%d: expected %v, got %s", d.cur.line, d.cur.col, strings.Join(types, " / "), d.cur.typ)
+	return fmt.Errorf("%d:%d: expected %v, got %v", d.cur.line, d.cur.col, strings.Join(types, " / "), d.cur.typ)
 }
