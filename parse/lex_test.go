@@ -24,6 +24,7 @@ var tokenName = map[tokenType]string{
 	tokenPrefixLabel:    "Prefix label",
 	tokenIRISuffix:      "IRI suffix",
 	tokenBase:           "@base",
+	tokenSparqlPrefix:   "PREFIX",
 }
 
 func (t tokenType) String() string {

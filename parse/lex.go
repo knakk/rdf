@@ -28,6 +28,8 @@ const (
 	tokenPrefixLabel    // @prefix tokenPrefixLabel: IRI
 	tokenIRISuffix      // prefixLabel:IRISuffix
 	tokenBase           // Base marker
+	tokenSparqlPrefix   // PREFIX
+	tokenSparqlBase     // BASE
 )
 
 const eof = -1
@@ -397,6 +399,17 @@ func lexAny(l *lexer) stateFn {
 		l.ignore()
 		l.emit(tokenEOL)
 		return nil
+	case 'P':
+		if l.acceptExact("PREFIX") {
+			l.emit(tokenSparqlPrefix)
+			// consume and ignore any whitespace before localname
+			for r := l.next(); r == ' ' || r == '\t'; r = l.next() {
+			}
+			l.backup()
+			l.ignore()
+			return lexPrefixLabel
+		}
+		fallthrough // continue to default
 	default:
 		if isPnCharsBase(r) {
 			l.backup()
@@ -682,6 +695,9 @@ func lexIRISuffix(l *lexer) stateFn {
 		return l.errorf("invalid character %q", r)
 	}
 	for r = l.next(); isPnLocalMid(r); r = l.next() {
+		// TODO check validity of:
+		// - ('%' hex hex)
+		// - escaped characters (range := pnLocalEsc)
 	}
 	l.backup()
 	if l.input[l.pos] == '.' {

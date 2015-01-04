@@ -69,11 +69,12 @@ func NewNQDecoder(r io.Reader, defaultGraph rdf.Term) *Decoder {
 
 func (d *Decoder) parseDirectives() error {
 	d.next()
-	if err := d.expect(tokenPrefix, tokenBase); err != nil {
+	if err := d.expect(tokenPrefix, tokenSparqlPrefix, tokenBase); err != nil {
 		return err
 	}
-	switch d.cur.typ {
-	case tokenPrefix:
+	t := d.cur.typ
+	switch t {
+	case tokenPrefix, tokenSparqlPrefix:
 		d.next()
 		if err := d.expect(tokenPrefixLabel); err != nil {
 			return err
@@ -86,10 +87,14 @@ func (d *Decoder) parseDirectives() error {
 		// store namespace prefix
 		d.ns[d.prev.text] = d.cur.text
 
-		d.next()
-		if err := d.expect(tokenDot); err != nil {
-			return err
+		if t == tokenPrefix {
+			// @prefix directives end in '.', but not SPARQL PREFIX directive
+			d.next()
+			if err := d.expect(tokenDot); err != nil {
+				return err
+			}
 		}
+
 		d.next()
 		if d.cur.typ != tokenEOL {
 			return fmt.Errorf("%d:%d: illegal token after end of directive: %s", d.cur.line, d.cur.col, d.cur.text)
