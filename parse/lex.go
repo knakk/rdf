@@ -201,10 +201,18 @@ func (l *lexer) backup() {
 	l.pos -= l.width
 }
 
-func (l *lexer) unescape(s string) string {
+func (l *lexer) unescape(s string, t tokenType) string {
 	if !l.unEsc {
 		return s
 	}
+	l.unEsc = false
+	if t == tokenIRISuffix {
+		return unescapeReservedChars(s)
+	}
+	return unescapeNumericString(s)
+}
+
+func unescapeNumericString(s string) string {
 	r := []rune(s)
 	buf := bytes.NewBuffer(make([]byte, 0, len(r)))
 
@@ -251,7 +259,28 @@ func (l *lexer) unescape(s string) string {
 		}
 		i++
 	}
-	l.unEsc = false
+	return buf.String()
+}
+
+func unescapeReservedChars(s string) string {
+	r := []rune(s)
+	buf := bytes.NewBuffer(make([]byte, 0, len(r)))
+
+	for i := 0; i < len(r); {
+		switch r[i] {
+		case '\\':
+			i++
+			var c rune
+			switch r[i] {
+			case '_', '~', '.', '-', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=', '/', '?', '#', '@', '%':
+				c = r[i]
+			}
+			buf.WriteRune(c)
+		default:
+			buf.WriteRune(r[i])
+		}
+		i++
+	}
 	return buf.String()
 }
 
@@ -261,7 +290,7 @@ func (l *lexer) emit(typ tokenType) {
 		typ:  typ,
 		line: l.line,
 		col:  l.start,
-		text: l.unescape(string(l.input[l.start:l.pos])),
+		text: l.unescape(string(l.input[l.start:l.pos]), typ),
 	}
 	l.start = l.pos
 }
@@ -736,9 +765,17 @@ func lexIRISuffix(l *lexer) stateFn {
 		return l.errorf("invalid character %q", r)
 	}
 	for r = l.next(); isPnLocalMid(r); r = l.next() {
+		if r == '\\' {
+			p := l.next()
+			for _, esc := range pnLocalEsc {
+				if esc == p {
+					l.unEsc = true
+					continue
+				}
+			}
+		}
 		// TODO check validity of:
 		// - ('%' hex hex)
-		// - escaped characters (range := pnLocalEsc)
 	}
 	l.backup()
 	if l.input[l.pos] == '.' {

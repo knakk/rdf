@@ -22,7 +22,7 @@ func parseAllTTL(s string) (r []rdf.Triple, err error) {
 }
 
 func TestTTL(t *testing.T) {
-	for _, test := range ttlTestSuite[:16] {
+	for _, test := range ttlTestSuite[:18] {
 		triples, err := parseAllTTL(test.input)
 		if err != nil {
 			if test.errWant == "" {
@@ -346,7 +346,7 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	{`@prefix p: <http://a.example/>.
 p:\_\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\%00 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 		rdf.Triple{
-			Subj: rdf.URI{URI: `http://b.example/\_\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\%00`},
+			Subj: rdf.URI{URI: `http://a.example/_~.-!$&'()*+,;=/?#@%00`},
 			Pred: rdf.URI{URI: "http://a.example/p"},
 			Obj:  rdf.URI{URI: "http://a.example/o"},
 		},
