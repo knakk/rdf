@@ -376,6 +376,10 @@ func lexAny(l *lexer) stateFn {
 		// it can be a prefixed local name starting with 'a'
 		l.pos-- // undread 'a'
 		return lexPrefixLabel
+	case ':':
+		// default namespace, no prefix
+		l.backup()
+		return lexPrefixLabel
 	case '"':
 		l.ignore()
 		return lexLiteral
@@ -693,7 +697,7 @@ func lexPrefixLabel(l *lexer) stateFn {
 	if r == ':' {
 		//PN_PREFIX can be empty
 		l.emit(tokenPrefixLabel)
-		return lexAny
+		return lexIRISuffix
 	}
 	if !isPnCharsBase(r) {
 		return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
