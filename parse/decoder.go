@@ -183,7 +183,7 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 
 	// parse triple predicate
 	d.next()
-	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenRDFType); err != nil {
+	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenRDFType, tokenPrefixLabel); err != nil {
 		return t, err
 	}
 	switch d.cur.typ {
@@ -193,6 +193,16 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 		t.Pred = rdf.Blank{ID: d.cur.text}
 	case tokenRDFType:
 		t.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
+	case tokenPrefixLabel:
+		ns, ok := d.ns[d.cur.text]
+		if !ok {
+			return t, fmt.Errorf("missing namespace for prefix: %s", d.cur.text)
+		}
+		d.next()
+		if err := d.expect(tokenIRISuffix); err != nil {
+			return t, err
+		}
+		t.Pred = rdf.URI{URI: ns + d.cur.text}
 	}
 
 	// parse triple object

@@ -22,7 +22,7 @@ func parseAllTTL(s string) (r []rdf.Triple, err error) {
 }
 
 func TestTTL(t *testing.T) {
-	for _, test := range ttlTestSuite[:7] {
+	for _, test := range ttlTestSuite[:8] {
 		triples, err := parseAllTTL(test.input)
 		if err != nil {
 			if test.errWant == "" {
