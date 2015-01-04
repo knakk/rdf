@@ -22,7 +22,7 @@ func parseAllTTL(s string) (r []rdf.Triple, err error) {
 }
 
 func TestTTL(t *testing.T) {
-	for _, test := range ttlTestSuite[:18] {
+	for _, test := range ttlTestSuite[:25] {
 		triples, err := parseAllTTL(test.input)
 		if err != nil {
 			if test.errWant == "" {
@@ -361,7 +361,13 @@ p:\_\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\%00 <http://a.example/p> <http://a.exam
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:%25 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+p:%25 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: `http://a.example/%25`},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#HYPHEN_MINUS_in_localName> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "HYPHEN_MINUS_in_localName" ;
@@ -372,7 +378,13 @@ p:%25 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:s- <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+p:s- <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: `http://a.example/s-`},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#underscore_in_localName> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "underscore_in_localName" ;
@@ -383,7 +395,13 @@ p:s- <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:s_ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+p:s_ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: `http://a.example/s_`},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#localname_with_COLON> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "localname_with_COLON" ;
@@ -394,7 +412,13 @@ p:s_ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:s: <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+p:s: <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: `http://a.example/s:`},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#localName_with_leading_underscore> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "localName_with_leading_underscore" ;
@@ -405,7 +429,13 @@ p:s: <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:_ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+p:_ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: `http://a.example/_`},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#localName_with_leading_digit> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "localName_with_leading_digit" ;
@@ -416,7 +446,13 @@ p:_ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:0 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+p:0 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: `http://a.example/0`},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#localName_with_non_leading_extras> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "localName_with_non_leading_extras" ;
@@ -427,7 +463,13 @@ p:0 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: `http://a.example/a·̀ͯ‿.⁀`},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#old_style_base> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "old_style_base" ;
