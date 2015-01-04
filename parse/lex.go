@@ -407,7 +407,7 @@ func lexAny(l *lexer) stateFn {
 			}
 			l.backup()
 			l.ignore()
-			return lexPrefixLabel
+			return lexPrefixLabelInDirective
 		}
 		fallthrough // continue to default
 	default:
@@ -645,12 +645,12 @@ func lexPrefix(l *lexer) stateFn {
 		}
 		l.backup()
 		l.ignore()
-		return lexPrefixLabel
+		return lexPrefixLabelInDirective
 	}
 	return l.errorf("invalid character 'p'")
 }
 
-func lexPrefixLabel(l *lexer) stateFn {
+func lexPrefixLabelInDirective(l *lexer) stateFn {
 	r := l.next()
 	if r == ':' {
 		//PN_PREFIX can be empty
@@ -688,9 +688,46 @@ func lexPrefixLabel(l *lexer) stateFn {
 	return lexIRISuffix
 }
 
+func lexPrefixLabel(l *lexer) stateFn {
+	r := l.next()
+	if r == ':' {
+		//PN_PREFIX can be empty
+		l.emit(tokenPrefixLabel)
+		return lexAny
+	}
+	if !isPnCharsBase(r) {
+		return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
+	}
+	for {
+		r = l.next()
+		if r == ':' {
+			l.backup()
+			break
+		}
+		if !(isPnChars(r) || (r == '.' && l.peek() != ':')) {
+			return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
+		}
+	}
+
+	l.emit(tokenPrefixLabel)
+
+	// consume and ignore ':'
+	l.next()
+	l.ignore()
+
+	return lexIRISuffix
+
+}
+
 func lexIRISuffix(l *lexer) stateFn {
 	//(PN_CHARS_U | ':' | [0-9] | PLX) ((PN_CHARS | '.' | ':' | PLX)* (PN_CHARS | ':' | PLX))?
 	r := l.next()
+	if r == ' ' {
+		// prefix ony IRI
+		l.ignore()
+		l.emit(tokenIRISuffix)
+		return lexAny
+	}
 	if !isPnLocalFirst(r) {
 		return l.errorf("invalid character %q", r)
 	}
