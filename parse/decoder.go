@@ -28,17 +28,19 @@ type Decoder struct {
 	r *bufio.Reader
 	l *lexer
 	f format
-	g rdf.Term
 
-	cur, prev token
+	g         rdf.Term          // default graph
+	ns        map[string]string // map[prefix]namespace
+	cur, prev token             // current and previous lexed tokens
 }
 
 // NewTTLDecoder creates a Turtle decoder
 func NewTTLDecoder(r io.Reader) *Decoder {
 	return &Decoder{
-		l: newLexer(),
-		r: bufio.NewReader(r),
-		f: formatTTL,
+		l:  newLexer(),
+		r:  bufio.NewReader(r),
+		f:  formatTTL,
+		ns: make(map[string]string),
 	}
 }
 
@@ -65,6 +67,43 @@ func NewNQDecoder(r io.Reader, defaultGraph rdf.Term) *Decoder {
 	}
 }
 
+func (d *Decoder) parseDirectives() error {
+	d.next()
+	if err := d.expect(tokenPrefix, tokenBase); err != nil {
+		return err
+	}
+	switch d.cur.typ {
+	case tokenPrefix:
+		d.next()
+		if err := d.expect(tokenPrefixLabel); err != nil {
+			return err
+		}
+		d.next()
+		if err := d.expect(tokenIRIAbs); err != nil {
+			return err
+		}
+
+		// store namespace prefix
+		d.ns[d.prev.text] = d.cur.text
+
+		d.next()
+		if err := d.expect(tokenDot); err != nil {
+			return err
+		}
+		d.next()
+		if d.cur.typ != tokenEOL {
+			return fmt.Errorf("%d:%d: illegal token after end of directive: %s", d.cur.line, d.cur.col, d.cur.text)
+		}
+	case tokenBase:
+		panic("not yet")
+		d.next()
+		if err := d.expect(tokenIRIAbs); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // DecodeTriple returns the next valid triple, or an error
 func (d *Decoder) DecodeTriple() (rdf.Triple, error) {
 	line, err := d.r.ReadBytes('\n')
@@ -73,13 +112,24 @@ func (d *Decoder) DecodeTriple() (rdf.Triple, error) {
 		return rdf.Triple{}, err
 	}
 	line = bytes.TrimSpace(line)
-	if len(line) == 0 || bytes.HasPrefix(line, []byte("#")) {
+	if len(line) == 0 || line[0] == '#' {
 		// skip empty lines or comment lines
 		d.l.line++
 		return d.DecodeTriple()
 	}
 	if d.f == formatNT {
 		return d.parseNT(line)
+	}
+	if line[0] == '@' || line[0] == 'P' || line[0] == 'B' {
+		// parse @prefix / @base / PREFIX / BASE
+		d.cur.typ = tokenNone
+		d.l.incoming <- line
+		d.l.line++
+		err := d.parseDirectives()
+		if err != nil {
+			return rdf.Triple{}, err
+		}
+		return d.DecodeTriple()
 	}
 	return d.parseTTL(line)
 }
@@ -107,13 +157,24 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 
 	// parse triple subject
 	d.next()
-	if err := d.expect(tokenIRIAbs, tokenBNode); err != nil {
+	if err := d.expect(tokenIRIAbs, tokenBNode, tokenPrefixLabel); err != nil {
 		return t, err
 	}
-	if d.cur.typ == tokenIRIAbs {
+	switch d.cur.typ {
+	case tokenIRIAbs:
 		t.Subj = rdf.URI{URI: d.cur.text}
-	} else {
+	case tokenBNode:
 		t.Subj = rdf.Blank{ID: d.cur.text}
+	case tokenPrefixLabel:
+		ns, ok := d.ns[d.cur.text]
+		if !ok {
+			return t, fmt.Errorf("missing namespace for prefix: %s", d.cur.text)
+		}
+		d.next()
+		if err := d.expect(tokenIRISuffix); err != nil {
+			return t, err
+		}
+		t.Subj = rdf.URI{ns + d.cur.text}
 	}
 
 	// parse triple predicate

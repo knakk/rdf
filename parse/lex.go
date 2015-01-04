@@ -26,6 +26,8 @@ const (
 	tokenRDFType        // 'a' => <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
 	tokenPrefix         // @prefix
 	tokenPrefixLabel    // @prefix tokenPrefixLabel: IRI
+	tokenIRISuffix      // prefixLabel:IRISuffix
+	tokenBase           // Base marker
 )
 
 const eof = -1
@@ -33,6 +35,7 @@ const eof = -1
 // Rune helper values and functions:
 var (
 	hex            = []byte("0123456789ABCDEFabcdef")
+	pnLocalEsc     = [...]rune{'_', '~', '.', '-', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=', '/', '?', '#', '@', '%'}
 	badIRIRunes    = [...]rune{' ', '<', '"', '{', '}', '|', '^', '`'}
 	okAfterRDFType = [...]rune{' ', '\t', '<', '"', '\''}
 	pnTab          = []rune{
@@ -57,6 +60,32 @@ var (
 		0x00B7, 0x00B7,
 		0x0300, 0x036F,
 		0x203F, 0x2040, // last of PN_CHARS
+	}
+	plTab = []rune{
+		'A', 'Z',
+		'a', 'z',
+		0x00C0, 0x00D6,
+		0x00D8, 0x00F6,
+		0x00F8, 0x02FF,
+		0x0370, 0x037D,
+		0x037F, 0x1FFF,
+		0x200C, 0x200D,
+		0x2070, 0x218F,
+		0x2C00, 0x2FEF,
+		0x3001, 0xD7FF,
+		0xF900, 0xFDCF,
+		0xFDF0, 0xFFFD,
+		0x10000, 0xEFFFF, // last of PN_CHARS_BASE
+		'_', '_', // last of PN_CHARS_U
+		'-', '-',
+		'0', '9',
+		0x00B7, 0x00B7,
+		0x0300, 0x036F,
+		0x203F, 0x2040, // last of PN_CHARS
+		'%', '%',
+		'\\', '\\', // last of PN_LOCAL first character
+		':', ':',
+		'.', '.', // last of PN_LOCAL (except last character)
 	}
 )
 
@@ -91,6 +120,14 @@ func isPnCharsU(r rune) bool {
 
 func isPnChars(r rune) bool {
 	return check(r, pnTab)
+}
+
+func isPnLocalFirst(r rune) bool {
+	return check(r, plTab[:2*22])
+}
+
+func isPnLocalMid(r rune) bool {
+	return check(r, plTab)
 }
 
 // token represents a token emitted by the lexer.
@@ -334,7 +371,9 @@ func lexAny(l *lexer) stateFn {
 				return lexAny
 			}
 		}
-		return l.errorf("illegal character %q", r)
+		// it can be a prefixed local name starting with 'a'
+		return lexPrefixLabel
+		//return l.errorf("illegal character %q", r)
 	case '"':
 		l.ignore()
 		return lexLiteral
@@ -359,6 +398,10 @@ func lexAny(l *lexer) stateFn {
 		l.emit(tokenEOL)
 		return nil
 	default:
+		if isPnCharsBase(r) {
+			l.backup()
+			return lexPrefixLabel
+		}
 		return l.errorf("illegal character %q", r)
 	}
 }
@@ -602,7 +645,7 @@ func lexPrefixLabel(l *lexer) stateFn {
 		return lexAny
 	}
 	if !isPnCharsBase(r) {
-		return l.errorf("invalid character %q in prefix label", r)
+		return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
 	}
 	for {
 		r = l.next()
@@ -611,7 +654,7 @@ func lexPrefixLabel(l *lexer) stateFn {
 			break
 		}
 		if !(isPnChars(r) || (r == '.' && l.peek() != ':')) {
-			return l.errorf("invalid character %q in prefix label", r)
+			return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
 		}
 	}
 
@@ -620,10 +663,44 @@ func lexPrefixLabel(l *lexer) stateFn {
 	// consume and ignore ':'
 	l.next()
 	l.ignore()
+	// consume and ignore any whitespace
+	for r = l.next(); r == ' ' || r == '\t'; r = l.next() {
+	}
+	if r == '<' {
+		l.ignore()
+		return lexIRI
+	}
 
+	l.backup()
+	return lexIRISuffix
+}
+
+func lexIRISuffix(l *lexer) stateFn {
+	//(PN_CHARS_U | ':' | [0-9] | PLX) ((PN_CHARS | '.' | ':' | PLX)* (PN_CHARS | ':' | PLX))?
+	r := l.next()
+	if !isPnLocalFirst(r) {
+		return l.errorf("invalid character %q", r)
+	}
+	for r = l.next(); isPnLocalMid(r); r = l.next() {
+	}
+	l.backup()
+	if l.input[l.pos] == '.' {
+		// last rune cannot be dot, otherwise isPnLocalMid(r) is valid for last position as well
+		return l.errorf("illegal token: ", string(l.input[l.start:l.pos]))
+	}
+	l.emit(tokenIRISuffix)
 	return lexAny
 }
 
 func lexBase(l *lexer) stateFn {
-	return l.errorf("not implemented")
+	if l.acceptExact("base") {
+		l.emit(tokenBase)
+		// consume and ignore any whitespace before base IRI
+		for r := l.next(); r == ' ' || r == '\t'; r = l.next() {
+		}
+		l.backup()
+		l.ignore()
+		return lexAny
+	}
+	return l.errorf("invalid character 'b'")
 }

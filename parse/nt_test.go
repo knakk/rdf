@@ -356,7 +356,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-prefix-01.nt> ;
 	//   .
 
-	{`@prefix : <http://example/> .`, "expected IRI (absolute) / Blank node, got Prefix", []rdf.Triple{}},
+	{`@prefix : <http://example/> .`, "expected IRI (absolute) / Blank node, got @prefix", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-base-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-base-01" ;
@@ -364,7 +364,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-base-01.nt> ;
 	//   .
 
-	{`@base <http://example/> .`, "syntax error: illegal character '@'", []rdf.Triple{}},
+	{`@base <http://example/> .`, "expected IRI (absolute) / Blank node, got @base", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-struct-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-01" ;
@@ -472,7 +472,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-07.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> abc" .`, "syntax error: illegal character 'a'", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> abc" .`, "syntax error: illegal token: abc\"", []rdf.Triple{}},
 
 	//<#nt-syntax-bad-num-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-01" ;

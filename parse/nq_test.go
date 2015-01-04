@@ -645,7 +645,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-prefix-01.nq> ;
 	//   .
 
-	{`@prefix : <http://example/> .`, "expected IRI (absolute) / Blank node, got Prefix", []rdf.Quad{}},
+	{`@prefix : <http://example/> .`, "expected IRI (absolute) / Blank node, got @prefix", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-base-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-base-01" ;
@@ -654,7 +654,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-base-01.nq> ;
 	//   .
 
-	{`@base <http://example/> .`, "syntax error: illegal character '@'", []rdf.Quad{}},
+	{`@base <http://example/> .`, "expected IRI (absolute) / Blank node, got @base", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-struct-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-01" ;
@@ -777,7 +777,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-07.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> abc" .`, "syntax error: illegal character 'a'", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> abc" .`, "syntax error: illegal token: abc\"", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-num-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-01" ;

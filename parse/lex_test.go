@@ -20,8 +20,10 @@ var tokenName = map[tokenType]string{
 	tokenDataTypeMarker: "Literal datatype marker",
 	tokenDot:            "Dot",
 	tokenRDFType:        "rdf:type",
-	tokenPrefix:         "Prefix",
+	tokenPrefix:         "@prefix",
 	tokenPrefixLabel:    "Prefix label",
+	tokenIRISuffix:      "IRI suffix",
+	tokenBase:           "@base",
 }
 
 func (t tokenType) String() string {
@@ -209,12 +211,20 @@ func TestTokens(t *testing.T) {
 			{tokenEOL, ""},
 			{tokenEOL, ""}},
 		},
-		{`@prefix a: <http:/a.org/>`, []testToken{
+		{`@prefix a: <http:/a.org/>.`, []testToken{
 			{tokenPrefix, "prefix"},
 			{tokenPrefixLabel, "a"},
 			{tokenIRIAbs, "http:/a.org/"},
+			{tokenDot, ""},
 			{tokenEOL, ""}},
 		},
+		{`p:s <http://a.example/p> <http://a.example/o>`, []testToken{
+			{tokenPrefixLabel, "p"},
+			{tokenIRISuffix, "s"},
+			{tokenIRIAbs, "http://a.example/p"},
+			{tokenIRIAbs, "http://a.example/o"},
+			{tokenEOL, ""},
+		}},
 	}
 
 	lex := newLexer()
