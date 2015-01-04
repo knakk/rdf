@@ -100,7 +100,6 @@ func (d *Decoder) parseDirectives() error {
 			return fmt.Errorf("%d:%d: illegal token after end of directive: %s", d.cur.line, d.cur.col, d.cur.text)
 		}
 	case tokenBase:
-		panic("not yet")
 		d.next()
 		if err := d.expect(tokenIRIAbs); err != nil {
 			return err
@@ -179,7 +178,7 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 		if err := d.expect(tokenIRISuffix); err != nil {
 			return t, err
 		}
-		t.Subj = rdf.URI{ns + d.cur.text}
+		t.Subj = rdf.URI{URI: ns + d.cur.text}
 	}
 
 	// parse triple predicate

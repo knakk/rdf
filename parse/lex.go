@@ -702,7 +702,7 @@ func lexIRISuffix(l *lexer) stateFn {
 	l.backup()
 	if l.input[l.pos] == '.' {
 		// last rune cannot be dot, otherwise isPnLocalMid(r) is valid for last position as well
-		return l.errorf("illegal token: ", string(l.input[l.start:l.pos]))
+		return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
 	}
 	l.emit(tokenIRISuffix)
 	return lexAny
