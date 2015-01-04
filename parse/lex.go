@@ -374,8 +374,8 @@ func lexAny(l *lexer) stateFn {
 			}
 		}
 		// it can be a prefixed local name starting with 'a'
+		l.pos-- // undread 'a'
 		return lexPrefixLabel
-		//return l.errorf("illegal character %q", r)
 	case '"':
 		l.ignore()
 		return lexLiteral
