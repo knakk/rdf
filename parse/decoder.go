@@ -207,7 +207,7 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 
 	// parse triple object
 	d.next()
-	if err := d.expect(tokenIRIAbs, tokenBNode, tokenLiteral); err != nil {
+	if err := d.expect(tokenIRIAbs, tokenBNode, tokenLiteral, tokenPrefixLabel); err != nil {
 		return t, err
 	}
 
@@ -248,6 +248,16 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 		t.Obj = l
 	case tokenIRIAbs:
 		t.Obj = rdf.URI{URI: d.cur.text}
+	case tokenPrefixLabel:
+		ns, ok := d.ns[d.cur.text]
+		if !ok {
+			return t, fmt.Errorf("missing namespace for prefix: %s", d.cur.text)
+		}
+		d.next()
+		if err := d.expect(tokenIRISuffix); err != nil {
+			return t, err
+		}
+		t.Obj = rdf.URI{URI: ns + d.cur.text}
 	}
 
 	// parse final dot
