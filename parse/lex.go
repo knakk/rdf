@@ -137,7 +137,7 @@ func isPnLocalMid(r rune) bool {
 type token struct {
 	typ  tokenType // type of token
 	line int       // line number
-	col  int       // column number (measured in runes, not bytes)
+	col  int       // column number (NB measured in bytes, not runes)
 	text string    // the value of the token
 }
 
@@ -335,9 +335,9 @@ func (l *lexer) nextToken() token {
 // run runs the state machine for the lexer.
 func (l *lexer) run() {
 again:
-	line := <-l.incoming // <- blocking
+	line := <-l.incoming // Block while waiting for more input
 	if line == nil {
-		// incoming channel is closed; terminate lexer
+		// The incoming channel is closed; terminate lexer
 		return
 	}
 	l.input = line
@@ -403,7 +403,7 @@ func lexAny(l *lexer) stateFn {
 				return lexAny
 			}
 		}
-		// it can be a prefixed local name starting with 'a'
+		// If not 'a' as rdf:type, it can be a prefixed local name starting with 'a'
 		l.pos-- // undread 'a'
 		return lexPrefixLabel
 	case ':':
@@ -414,11 +414,12 @@ func lexAny(l *lexer) stateFn {
 		l.ignore()
 		return lexLiteral
 	case ' ', '\t':
-		// whitespace tokens are not emitted, we continue
+		// whitespace tokens are not emitted, so we ignore and continue
 		l.ignore()
 		return lexAny
 	case '[':
-		// '[' WS* ']'
+		// Can be either an anonymous blank node: '[' WS* ']',
+		// or start of blank node property list: '[' verb objectList (';' (verb objectList)?)* ']'
 		for r = l.next(); r == ' ' || r == '\t'; r = l.next() {
 		}
 		if r == ']' {
@@ -426,6 +427,10 @@ func lexAny(l *lexer) stateFn {
 			l.emit(tokenAnonBNode)
 			return lexAny
 		}
+		//TODO:
+		//l.backup()
+		//l.emit(tokenPropertyListStart)
+		//return lexAny
 		return l.errorf("illegal character %q", r)
 	case '.':
 		l.ignore()
@@ -440,9 +445,10 @@ func lexAny(l *lexer) stateFn {
 		l.emit(tokenEOL)
 		return nil
 	case '#', eof:
+		// comment tokens are not emitted, so treated as eof
 		l.ignore()
 		l.emit(tokenEOL)
-		return nil
+		return nil // This parks the lexer until it gets more input
 	case 'P':
 		if l.acceptExact("PREFIX") {
 			l.emit(tokenSparqlPrefix)
