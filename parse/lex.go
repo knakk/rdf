@@ -15,22 +15,24 @@ const (
 	tokenError           // an illegal token
 
 	// turtle tokens
-	tokenIRIAbs         // RDF IRI reference (absolute)
-	tokenIRIRel         // RDF IRI reference (relative)
-	tokenBNode          // RDF blank node
-	tokenLiteral        // RDF literal
-	tokenLangMarker     // '@''
-	tokenLang           // literal language tag
-	tokenDataTypeMarker // '^^''
-	tokenDot            // '.''
-	tokenRDFType        // 'a' => <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
-	tokenPrefix         // @prefix
-	tokenPrefixLabel    // @prefix tokenPrefixLabel: IRI
-	tokenIRISuffix      // prefixLabel:IRISuffix
-	tokenBase           // Base marker
-	tokenSparqlPrefix   // PREFIX
-	tokenSparqlBase     // BASE
-	tokenAnonBNode      // []
+	tokenIRIAbs            // RDF IRI reference (absolute)
+	tokenIRIRel            // RDF IRI reference (relative)
+	tokenBNode             // RDF blank node
+	tokenLiteral           // RDF literal
+	tokenLangMarker        // '@''
+	tokenLang              // literal language tag
+	tokenDataTypeMarker    // '^^''
+	tokenDot               // '.''
+	tokenRDFType           // 'a' => <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+	tokenPrefix            // @prefix
+	tokenPrefixLabel       // @prefix tokenPrefixLabel: IRI
+	tokenIRISuffix         // prefixLabel:IRISuffix
+	tokenBase              // Base marker
+	tokenSparqlPrefix      // PREFIX
+	tokenSparqlBase        // BASE
+	tokenAnonBNode         // [ws*]
+	tokenPropertyListStart // [
+	tokenPropertyListEnd   // ]
 )
 
 const eof = -1
@@ -427,11 +429,16 @@ func lexAny(l *lexer) stateFn {
 			l.emit(tokenAnonBNode)
 			return lexAny
 		}
-		//TODO:
-		//l.backup()
-		//l.emit(tokenPropertyListStart)
-		//return lexAny
-		return l.errorf("illegal character %q", r)
+		l.backup()
+		l.ignore()
+		l.emit(tokenPropertyListStart)
+		return lexAny
+	case ']':
+		// This must be closing of a blank node property list,
+		// since the closing of anonymous blank node is lexed above.
+		l.ignore()
+		l.emit(tokenPropertyListEnd)
+		return lexAny
 	case '.':
 		l.ignore()
 		l.emit(tokenDot)

@@ -22,7 +22,7 @@ func parseAllTTL(s string) (r []rdf.Triple, err error) {
 }
 
 func TestTTL(t *testing.T) {
-	for _, test := range ttlTestSuite[:35] {
+	for _, test := range ttlTestSuite[:38] {
 		triples, err := parseAllTTL(test.input)
 		if err != nil {
 			if test.errWant == "" {
@@ -641,7 +641,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <labeled_blank_node_subject.nt> ;
 	//   .
 
-	{`[ <http://a.example/p> <http://a.example/o> ] .`, "", []rdf.Triple{}},
+	{`[ <http://a.example/p> <http://a.example/o> ] .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#blankNodePropertyList_as_subject> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "blankNodePropertyList_as_subject" ;
@@ -651,7 +657,18 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <blankNodePropertyList_as_subject.nt> ;
 	//   .
 
-	{`[ <http://a.example/p> <http://a.example/o> ] <http://a.example/p2> <http://a.example/o2> .`, "", []rdf.Triple{}},
+	{`[ <http://a.example/p> <http://a.example/o> ] <http://a.example/p2> <http://a.example/o2> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p2"},
+			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		},
+	}},
 
 	//<#blankNodePropertyList_as_object> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "blankNodePropertyList_as_object" ;
@@ -661,7 +678,18 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <blankNodePropertyList_as_object.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> [ <http://a.example/p2> <http://a.example/o2> ] .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> [ <http://a.example/p2> <http://a.example/o2> ] .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Blank{ID: "b1"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p2"},
+			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		},
+	}},
 
 	//<#blankNodePropertyList_with_multiple_triples> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "blankNodePropertyList_with_multiple_triples" ;
