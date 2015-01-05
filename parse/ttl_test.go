@@ -22,7 +22,7 @@ func parseAllTTL(s string) (r []rdf.Triple, err error) {
 }
 
 func TestTTL(t *testing.T) {
-	for _, test := range ttlTestSuite[:25] {
+	for _, test := range ttlTestSuite[:27] {
 		triples, err := parseAllTTL(test.input)
 		if err != nil {
 			if test.errWant == "" {
@@ -480,7 +480,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@base <http://a.example/>.
-<s> <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+<s> <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: `http://a.example/s`},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#SPARQL_style_base> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "SPARQL_style_base" ;
@@ -491,7 +497,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`BASE <http://a.example/>
-<s> <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+<s> <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: `http://a.example/s`},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#labeled_blank_node_subject> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "labeled_blank_node_subject" ;

@@ -29,6 +29,7 @@ type Decoder struct {
 	l *lexer
 	f format
 
+	base      string            // base (default IRI)
 	g         rdf.Term          // default graph
 	ns        map[string]string // map[prefix]namespace
 	cur, prev token             // current and previous lexed tokens
@@ -69,7 +70,7 @@ func NewNQDecoder(r io.Reader, defaultGraph rdf.Term) *Decoder {
 
 func (d *Decoder) parseDirectives() error {
 	d.next()
-	if err := d.expect(tokenPrefix, tokenSparqlPrefix, tokenBase); err != nil {
+	if err := d.expect(tokenPrefix, tokenSparqlPrefix, tokenBase, tokenSparqlBase); err != nil {
 		return err
 	}
 	t := d.cur.typ
@@ -99,10 +100,24 @@ func (d *Decoder) parseDirectives() error {
 		if d.cur.typ != tokenEOL {
 			return fmt.Errorf("%d:%d: illegal token after end of directive: %s", d.cur.line, d.cur.col, d.cur.text)
 		}
-	case tokenBase:
+	case tokenBase, tokenSparqlBase:
 		d.next()
 		if err := d.expect(tokenIRIAbs); err != nil {
 			return err
+		}
+		d.base = d.cur.text
+
+		if t == tokenBase {
+			// @base directives end in '.', but not SPARQL BAE directive
+			d.next()
+			if err := d.expect(tokenDot); err != nil {
+				return err
+			}
+		}
+
+		d.next()
+		if d.cur.typ != tokenEOL {
+			return fmt.Errorf("%d:%d: illegal token after end of directive: %s", d.cur.line, d.cur.col, d.cur.text)
 		}
 	}
 	return nil
@@ -161,12 +176,15 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 
 	// parse triple subject
 	d.next()
-	if err := d.expect(tokenIRIAbs, tokenBNode, tokenPrefixLabel); err != nil {
+	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenPrefixLabel); err != nil {
 		return t, err
 	}
 	switch d.cur.typ {
 	case tokenIRIAbs:
 		t.Subj = rdf.URI{URI: d.cur.text}
+	case tokenIRIRel:
+		t.Subj = rdf.URI{URI: d.base + d.cur.text}
+		// TODO err if no base
 	case tokenBNode:
 		t.Subj = rdf.Blank{ID: d.cur.text}
 	case tokenPrefixLabel:
@@ -187,8 +205,11 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 		return t, err
 	}
 	switch d.cur.typ {
-	case tokenIRIAbs, tokenIRIRel:
+	case tokenIRIAbs:
 		t.Pred = rdf.URI{URI: d.cur.text}
+	case tokenIRIRel:
+		t.Pred = rdf.URI{URI: d.base + d.cur.text}
+		// TODO err if no base
 	case tokenBNode:
 		t.Pred = rdf.Blank{ID: d.cur.text}
 	case tokenRDFType:
@@ -207,7 +228,7 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 
 	// parse triple object
 	d.next()
-	if err := d.expect(tokenIRIAbs, tokenBNode, tokenLiteral, tokenPrefixLabel); err != nil {
+	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenLiteral, tokenPrefixLabel); err != nil {
 		return t, err
 	}
 
@@ -248,6 +269,9 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 		t.Obj = l
 	case tokenIRIAbs:
 		t.Obj = rdf.URI{URI: d.cur.text}
+	case tokenIRIRel:
+		t.Obj = rdf.URI{URI: d.base + d.cur.text}
+		// TODO err if no base
 	case tokenPrefixLabel:
 		ns, ok := d.ns[d.cur.text]
 		if !ok {

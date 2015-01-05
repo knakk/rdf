@@ -224,8 +224,19 @@ func TestTokens(t *testing.T) {
 			{tokenIRISuffix, "s"},
 			{tokenIRIAbs, "http://a.example/p"},
 			{tokenIRIAbs, "http://a.example/o"},
-			{tokenEOL, ""},
-		}},
+			{tokenEOL, ""}},
+		},
+		{"@base <http:/a.org/>.", []testToken{
+			{tokenBase, "base"},
+			{tokenIRIAbs, "http:/a.org/"},
+			{tokenDot, ""},
+			{tokenEOL, ""}},
+		},
+		{"BASE <http:/a.org/>", []testToken{
+			{tokenSparqlBase, "BASE"},
+			{tokenIRIAbs, "http:/a.org/"},
+			{tokenEOL, ""}},
+		},
 	}
 
 	lex := newLexer()

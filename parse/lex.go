@@ -443,6 +443,12 @@ func lexAny(l *lexer) stateFn {
 			return lexPrefixLabelInDirective
 		}
 		fallthrough // continue to default
+	case 'B':
+		if l.acceptExact("BASE") {
+			l.emit(tokenSparqlBase)
+			return lexAny
+		}
+		fallthrough // continue to default
 	default:
 		if isPnCharsBase(r) {
 			l.backup()
