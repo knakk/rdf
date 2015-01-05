@@ -24,7 +24,9 @@ var tokenName = map[tokenType]string{
 	tokenPrefixLabel:    "Prefix label",
 	tokenIRISuffix:      "IRI suffix",
 	tokenBase:           "@base",
+	tokenSparqlBase:     "BASE",
 	tokenSparqlPrefix:   "PREFIX",
+	tokenAnonBNode:      "Anonymous blank node",
 }
 
 func (t tokenType) String() string {
@@ -235,6 +237,17 @@ func TestTokens(t *testing.T) {
 		{"BASE <http:/a.org/>", []testToken{
 			{tokenSparqlBase, "BASE"},
 			{tokenIRIAbs, "http:/a.org/"},
+			{tokenEOL, ""}},
+		},
+		{"[] <a> <b> .", []testToken{
+			{tokenAnonBNode, ""},
+			{tokenIRIRel, "a"},
+			{tokenIRIRel, "b"},
+			{tokenDot, ""},
+			{tokenEOL, ""}},
+		},
+		{"[\t ]", []testToken{
+			{tokenAnonBNode, ""},
 			{tokenEOL, ""}},
 		},
 	}

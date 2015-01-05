@@ -30,6 +30,7 @@ type Decoder struct {
 	f format
 
 	base      string            // base (default IRI)
+	bnodeN    int               // anonymous blank node counter
 	g         rdf.Term          // default graph
 	ns        map[string]string // map[prefix]namespace
 	cur, prev token             // current and previous lexed tokens
@@ -176,7 +177,7 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 
 	// parse triple subject
 	d.next()
-	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenPrefixLabel); err != nil {
+	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenAnonBNode, tokenPrefixLabel); err != nil {
 		return t, err
 	}
 	switch d.cur.typ {
@@ -187,6 +188,9 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 		// TODO err if no base
 	case tokenBNode:
 		t.Subj = rdf.Blank{ID: d.cur.text}
+	case tokenAnonBNode:
+		d.bnodeN++
+		t.Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
 	case tokenPrefixLabel:
 		ns, ok := d.ns[d.cur.text]
 		if !ok {
@@ -228,13 +232,16 @@ func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
 
 	// parse triple object
 	d.next()
-	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenLiteral, tokenPrefixLabel); err != nil {
+	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenAnonBNode, tokenLiteral, tokenPrefixLabel); err != nil {
 		return t, err
 	}
 
 	switch d.cur.typ {
 	case tokenBNode:
 		t.Obj = rdf.Blank{ID: d.cur.text}
+	case tokenAnonBNode:
+		d.bnodeN++
+		t.Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
 	case tokenLiteral:
 		val := d.cur.text
 		l := rdf.Literal{

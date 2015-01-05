@@ -30,6 +30,7 @@ const (
 	tokenBase           // Base marker
 	tokenSparqlPrefix   // PREFIX
 	tokenSparqlBase     // BASE
+	tokenAnonBNode      // []
 )
 
 const eof = -1
@@ -416,6 +417,16 @@ func lexAny(l *lexer) stateFn {
 		// whitespace tokens are not emitted, we continue
 		l.ignore()
 		return lexAny
+	case '[':
+		// '[' WS* ']'
+		for r = l.next(); r == ' ' || r == '\t'; r = l.next() {
+		}
+		if r == ']' {
+			l.ignore()
+			l.emit(tokenAnonBNode)
+			return lexAny
+		}
+		return l.errorf("illegal character %q", r)
 	case '.':
 		l.ignore()
 		l.emit(tokenDot)
