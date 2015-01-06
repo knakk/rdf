@@ -10,6 +10,45 @@ import (
 	"github.com/knakk/rdf"
 )
 
+func parseAllNT(s string) (r []rdf.Triple, err error) {
+	dec := NewNTDecoder(bytes.NewBufferString(s))
+	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {
+		if err != nil {
+			return r, err
+		}
+		r = append(r, tr)
+	}
+	return r, err
+}
+
+func TestNT(t *testing.T) {
+	for _, test := range ntTestSuite {
+		triples, err := parseAllNT(test.input)
+		if test.errWant != "" && err == nil {
+			t.Errorf("parseNT(%s) => <no error>, want %q", test.input, test.errWant)
+			continue
+		}
+
+		if test.errWant != "" && err != nil {
+			if !strings.HasSuffix(err.Error(), test.errWant) {
+				t.Errorf("parseNT(%s) => %v, want %q", test.input, err.Error(), test.errWant)
+			}
+			continue
+		}
+
+		if test.errWant == "" && err != nil {
+			t.Errorf("parseNT(%s) => %v, want %q", test.input, err.Error(), test.want)
+			continue
+		}
+
+		if !reflect.DeepEqual(triples, test.want) {
+			t.Errorf("parseNT(%s) => %v, want %v", test.input, triples, test.want)
+		}
+	}
+}
+
+var empty = []rdf.Triple{rdf.Triple{}}
+
 // ntTestSuite is a representation of the official W3C test suite for N-Triples
 // which is found at: http://www.w3.org/2013/N-TriplesTests/
 var ntTestSuite = []struct {
@@ -271,232 +310,232 @@ var ntTestSuite = []struct {
 
 	//<#nt-syntax-bad-uri-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-01" ;
-	//   rdfs:comment "Bad IRI : space (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad IRI : space (negative test) ;
 	//   mf:action    <nt-syntax-bad-uri-01.nt> ;
 	//   .
 
 	{`# Bad IRI : space.
-	<http://example/ space> <http://example/p> <http://example/o> .`, "bad IRI: disallowed character ' '", []rdf.Triple{}},
+	<http://example/ space> <http://example/p> <http://example/o> .`, "bad IRI: disallowed character ' '", nil},
 
 	//<#nt-syntax-bad-uri-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-02" ;
-	//   rdfs:comment "Bad IRI : bad escape (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad IRI : bad escape (negative test) ;
 	//   mf:action    <nt-syntax-bad-uri-02.nt> ;
 	//   .
 
 	{`# Bad IRI : bad escape
-	<http://example/\u00ZZ11> <http://example/p> <http://example/o> .`, "bad IRI: insufficent hex digits in unicode escape", []rdf.Triple{}},
+	<http://example/\u00ZZ11> <http://example/p> <http://example/o> .`, "bad IRI: insufficent hex digits in unicode escape", nil},
 
 	//<#nt-syntax-bad-uri-03> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-03" ;
-	//   rdfs:comment "Bad IRI : bad long escape (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad IRI : bad long escape (negative test) ;
 	//   mf:action    <nt-syntax-bad-uri-03.nt> ;
 	//   .
 
 	{`# Bad IRI : bad escape
-	<http://example/\U00ZZ1111> <http://example/p> <http://example/o> .`, "bad IRI: insufficent hex digits in unicode escape", []rdf.Triple{}},
+	<http://example/\U00ZZ1111> <http://example/p> <http://example/o> .`, "bad IRI: insufficent hex digits in unicode escape", nil},
 
 	//<#nt-syntax-bad-uri-04> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-04" ;
-	//   rdfs:comment "Bad IRI : character escapes not allowed (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad IRI : character escapes not allowed (negative test) ;
 	//   mf:action    <nt-syntax-bad-uri-04.nt> ;
 	//   .
 
 	{`# Bad IRI : character escapes not allowed.
-	<http://example/\n> <http://example/p> <http://example/o> .`, "bad IRI: disallowed escape character 'n'", []rdf.Triple{}},
+	<http://example/\n> <http://example/p> <http://example/o> .`, "bad IRI: disallowed escape character 'n'", nil},
 
 	//<#nt-syntax-bad-uri-05> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-05" ;
-	//   rdfs:comment "Bad IRI : character escapes not allowed (2) (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad IRI : character escapes not allowed (2) (negative test) ;
 	//   mf:action    <nt-syntax-bad-uri-05.nt> ;
 	//   .
 
 	{`# Bad IRI : character escapes not allowed.
-	<http://example/\/> <http://example/p> <http://example/o> .`, "bad IRI: disallowed escape character '/'", []rdf.Triple{}},
+	<http://example/\/> <http://example/p> <http://example/o> .`, "bad IRI: disallowed escape character '/'", nil},
 
 	//<#nt-syntax-bad-uri-06> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-06" ;
-	//   rdfs:comment "Bad IRI : relative IRI not allowed in subject (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad IRI : relative IRI not allowed in subject (negative test) ;
 	//   mf:action    <nt-syntax-bad-uri-06.nt> ;
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<s> <http://example/p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (relative)", []rdf.Triple{}},
+	<s> <http://example/p> <http://example/o> .`, "unexpected IRI (relative) as subject", nil},
 
 	//<#nt-syntax-bad-uri-07> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-07" ;
-	//   rdfs:comment "Bad IRI : relative IRI not allowed in predicate (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad IRI : relative IRI not allowed in predicate (negative test) ;
 	//   mf:action    <nt-syntax-bad-uri-07.nt> ;
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<http://example/s> <p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (relative)", []rdf.Triple{}},
+	<http://example/s> <p> <http://example/o> .`, "unexpected IRI (relative) as predicate", nil},
 
 	//<#nt-syntax-bad-uri-08> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-08" ;
-	//   rdfs:comment "Bad IRI : relative IRI not allowed in object (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad IRI : relative IRI not allowed in object (negative test) ;
 	//   mf:action    <nt-syntax-bad-uri-08.nt> ;
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<http://example/s> <http://example/p> <o> .`, "expected IRI (absolute) / Blank node / Literal, got IRI (relative)", []rdf.Triple{}},
+	<http://example/s> <http://example/p> <o> .`, "unexpected IRI (relative) as object", nil},
 
 	//<#nt-syntax-bad-uri-09> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-09" ;
-	//   rdfs:comment "Bad IRI : relative IRI not allowed in datatype (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad IRI : relative IRI not allowed in datatype (negative test) ;
 	//   mf:action    <nt-syntax-bad-uri-09.nt> ;
 	//   .
 
 	{`# No relative IRIs in N-Triples
-	<http://example/s> <http://example/p> "foo"^^<dt> .`, "expected IRI (absolute), got IRI (relative)", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "foo"^^<dt> .`, "unexpected IRI (relative) as literal datatype", nil},
 
 	//<#nt-syntax-bad-prefix-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-prefix-01" ;
-	//   rdfs:comment "@prefix not allowed in n-triples (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "@prefix not allowed in n-triples (negative test) ;
 	//   mf:action    <nt-syntax-bad-prefix-01.nt> ;
 	//   .
 
-	{`@prefix : <http://example/> .`, "expected IRI (absolute) / Blank node, got @prefix", []rdf.Triple{}},
+	{`@prefix : <http://example/> .`, "unexpected @prefix as subject", nil},
 
 	//<#nt-syntax-bad-base-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-base-01" ;
-	//   rdfs:comment "@base not allowed in N-Triples (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "@base not allowed in N-Triples (negative test) ;
 	//   mf:action    <nt-syntax-bad-base-01.nt> ;
 	//   .
 
-	{`@base <http://example/> .`, "expected IRI (absolute) / Blank node, got @base", []rdf.Triple{}},
+	{`@base <http://example/> .`, "unexpected @base as subject", nil},
 
 	//<#nt-syntax-bad-struct-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-01" ;
-	//   rdfs:comment "N-Triples does not have objectList (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "N-Triples does not have objectList (negative test) ;
 	//   mf:action    <nt-syntax-bad-struct-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> <http://example/o>, <http://example/o2> .`, "syntax error: illegal character ','", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> <http://example/o>, <http://example/o2> .`, "syntax error: illegal character ','", nil},
 
 	//<#nt-syntax-bad-struct-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-02" ;
-	//   rdfs:comment "N-Triples does not have predicateObjectList (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "N-Triples does not have predicateObjectList (negative test) ;
 	//   mf:action    <nt-syntax-bad-struct-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> <http://example/o>; <http://example/p2>, <http://example/o2> .`, "syntax error: illegal character ';'", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> <http://example/o>; <http://example/p2>, <http://example/o2> .`, "syntax error: illegal character ';'", nil},
 
 	//<#nt-syntax-bad-lang-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-lang-01" ;
-	//   rdfs:comment "langString with bad lang (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "langString with bad lang (negative test) ;
 	//   mf:action    <nt-syntax-bad-lang-01.nt> ;
 	//   .
 
 	{`# Bad lang tag
-	<http://example/s> <http://example/p> "string"@1 .`, "syntax error: bad literal: invalid language tag", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "string"@1 .`, "syntax error: bad literal: invalid language tag", nil},
 
 	//<#nt-syntax-bad-esc-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-esc-01" ;
-	//   rdfs:comment "Bad string escape (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad string escape (negative test) ;
 	//   mf:action    <nt-syntax-bad-esc-01.nt> ;
 	//   .
 
 	{`# Bad string escape
-	<http://example/s> <http://example/p> "a\zb" .`, "syntax error: bad literal: disallowed escape character 'z'", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "a\zb" .`, "syntax error: bad literal: disallowed escape character 'z'", nil},
 
 	//<#nt-syntax-bad-esc-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-esc-02" ;
-	//   rdfs:comment "Bad string escape (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad string escape (negative test) ;
 	//   mf:action    <nt-syntax-bad-esc-02.nt> ;
 	//   .
 
 	{`# Bad string escape
-	<http://example/s> <http://example/p> "\uWXYZ" .`, "syntax error: bad literal: insufficent hex digits in unicode escape", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "\uWXYZ" .`, "syntax error: bad literal: insufficent hex digits in unicode escape", nil},
 
 	//<#nt-syntax-bad-esc-03> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-esc-03" ;
-	//   rdfs:comment "Bad string escape (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "Bad string escape (negative test) ;
 	//   mf:action    <nt-syntax-bad-esc-03.nt> ;
 	//   .
 
 	{`# Bad string escape
-	<http://example/s> <http://example/p> "\U0000WXYZ" .`, "syntax error: bad literal: insufficent hex digits in unicode escape", []rdf.Triple{}},
+	<http://example/s> <http://example/p> "\U0000WXYZ" .`, "syntax error: bad literal: insufficent hex digits in unicode escape", nil},
 
 	//<#nt-syntax-bad-string-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-01" ;
-	//   rdfs:comment "mismatching string literal open/close (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "mismatching string literal open/close (negative test) ;
 	//   mf:action    <nt-syntax-bad-string-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "abc' .`, "syntax error: bad Literal: no closing '\"'", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "abc' .`, "syntax error: bad Literal: no closing '\"'", nil},
 
 	//<#nt-syntax-bad-string-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-02" ;
-	//   rdfs:comment "mismatching string literal open/close (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "mismatching string literal open/close (negative test) ;
 	//   mf:action    <nt-syntax-bad-string-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0 .`, "syntax error: illegal character '1'", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> 1.0 .`, "syntax error: illegal character '1'", nil},
 
 	//<#nt-syntax-bad-string-03> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-03" ;
-	//   rdfs:comment "single quotes (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "single quotes (negative test) ;
 	//   mf:action    <nt-syntax-bad-string-03.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0e1 .`, "syntax error: illegal character '1'", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> 1.0e1 .`, "syntax error: illegal character '1'", nil},
 
 	//<#nt-syntax-bad-string-04> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-04" ;
-	//   rdfs:comment "long single string literal (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "long single string literal (negative test) ;
 	//   mf:action    <nt-syntax-bad-string-04.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> '''abc''' .`, "syntax error: illegal character '\\''", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> '''abc''' .`, "syntax error: illegal character '\\''", nil},
 
 	//<#nt-syntax-bad-string-05> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-05" ;
-	//   rdfs:comment "long double string literal (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "long double string literal (negative test) ;
 	//   mf:action    <nt-syntax-bad-string-05.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> """abc""" .`, "expected Language tag marker / Literal datatype marker / Dot, got Literal", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> """abc""" .`, "unexpected Literal as dot (.)", nil},
 
 	//<#nt-syntax-bad-string-06> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-06" ;
-	//   rdfs:comment "string literal with no end (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "string literal with no end (negative test) ;
 	//   mf:action    <nt-syntax-bad-string-06.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "abc .`, "syntax error: bad Literal: no closing '\"'", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> "abc .`, "syntax error: bad Literal: no closing '\"'", nil},
 
 	//<#nt-syntax-bad-string-07> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-07" ;
-	//   rdfs:comment "string literal with no start (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "string literal with no start (negative test) ;
 	//   mf:action    <nt-syntax-bad-string-07.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> abc" .`, "syntax error: illegal token: abc\"", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> abc" .`, "syntax error: illegal token: abc\"", nil},
 
 	//<#nt-syntax-bad-num-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-01" ;
-	//   rdfs:comment "no numbers in N-Triples (integer) (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "no numbers in N-Triples (integer) (negative test) ;
 	//   mf:action    <nt-syntax-bad-num-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1 .`, "syntax error: illegal character '1'", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> 1 .`, "syntax error: illegal character '1'", nil},
 
 	//<#nt-syntax-bad-num-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-02" ;
-	//   rdfs:comment "no numbers in N-Triples (decimal) (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "no numbers in N-Triples (decimal) (negative test) ;
 	//   mf:action    <nt-syntax-bad-num-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0 .`, "syntax error: illegal character '1'", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> 1.0 .`, "syntax error: illegal character '1'", nil},
 
 	//<#nt-syntax-bad-num-03> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-03" ;
-	//   rdfs:comment "no numbers in N-Triples (float) (negative test)", []rdf.Triple{} ;
+	//   rdfs:comment "no numbers in N-Triples (float) (negative test) ;
 	//   mf:action    <nt-syntax-bad-num-03.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0e0 .`, "syntax error: illegal character '1'", []rdf.Triple{}},
+	{`<http://example/s> <http://example/p> 1.0e0 .`, "syntax error: illegal character '1'", nil},
 
 	//<#nt-syntax-subm-01> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-subm-01" ;
@@ -1118,36 +1157,4 @@ var ntTestSuite = []struct {
 			Obj:  rdf.Blank{ID: "bnode1"},
 		},
 	}},
-}
-
-func parseAllNT(s string) (r []rdf.Triple, err error) {
-	dec := NewNTDecoder(bytes.NewBufferString(s))
-	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {
-		if err != nil {
-			return r, err
-		}
-		r = append(r, tr)
-	}
-	return r, err
-}
-
-func TestNT(t *testing.T) {
-	for _, test := range ntTestSuite {
-		triples, err := parseAllNT(test.input)
-		if err != nil {
-			if test.errWant == "" {
-				t.Errorf("ParseNT(%s) => %v, want %v", test.input, err, test.want)
-				continue
-			}
-			if strings.HasSuffix(err.Error(), test.errWant) {
-				continue
-			}
-			t.Errorf("ParseNT(%s) => %q, want %q", test.input, err, test.errWant)
-			continue
-		}
-
-		if !reflect.DeepEqual(triples, test.want) {
-			t.Errorf("ParseNT(%s) => %v, want %v", test.input, triples, test.want)
-		}
-	}
 }

@@ -12,6 +12,43 @@ import (
 
 var defaultGraph = rdf.Blank{ID: "defaultGraph"}
 
+func parseAllNQ(s string) (r []rdf.Quad, err error) {
+	dec := NewNQDecoder(bytes.NewBufferString(s), defaultGraph)
+	for q, err := dec.DecodeQuad(); err != io.EOF; q, err = dec.DecodeQuad() {
+		if err != nil {
+			return r, err
+		}
+		r = append(r, q)
+	}
+	return r, err
+}
+
+func TestNQ(t *testing.T) {
+	for _, test := range nqTestSuite {
+		quads, err := parseAllNQ(test.input)
+		if test.errWant != "" && err == nil {
+			t.Errorf("parseNQ(%s) => <no error>, want %q", test.input, test.errWant)
+			continue
+		}
+
+		if test.errWant != "" && err != nil {
+			if !strings.HasSuffix(err.Error(), test.errWant) {
+				t.Errorf("parseNQ(%s) => %v, want %q", test.input, err.Error(), test.errWant)
+			}
+			continue
+		}
+
+		if test.errWant == "" && err != nil {
+			t.Errorf("parseNQ(%s) => %v, want %q", test.input, err.Error(), test.want)
+			continue
+		}
+
+		if !reflect.DeepEqual(quads, test.want) {
+			t.Errorf("parseNQ(%s) => %v, want %v", test.input, quads, test.want)
+		}
+	}
+}
+
 // nqTestSuite is a representation of the official W3C test suite for N-Quads
 // which is found at: http://www.w3.org/2013/N-QuadsTests/
 var nqTestSuite = []struct {
@@ -219,7 +256,7 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> "o" .`,
-		"expected Dot / IRI (absolute) / Blank node, got Literal", []rdf.Quad{}},
+		"unexpected Literal as graph", []rdf.Quad{}},
 
 	//<#nq-syntax-bad-literal-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-literal-02" ;
@@ -229,7 +266,7 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> "o"@en .`,
-		"expected Dot / IRI (absolute) / Blank node, got Literal", []rdf.Quad{}},
+		"unexpected Literal as graph", []rdf.Quad{}},
 
 	//<#nq-syntax-bad-literal-03> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-literal-03" ;
@@ -239,7 +276,7 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> "o"^^<http://www.w3.org/2001/XMLSchema#string> .`,
-		"expected Dot / IRI (absolute) / Blank node, got Literal", []rdf.Quad{}},
+		"unexpected Literal as graph", []rdf.Quad{}},
 
 	//<#nq-syntax-bad-uri-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-uri-01" ;
@@ -250,7 +287,7 @@ var nqTestSuite = []struct {
 
 	{`# No relative IRIs in N-Quads
 <http://example/s> <http://example/p> <http://example/o> <g>.`,
-		"expected Dot / IRI (absolute) / Blank node, got IRI (relative)", []rdf.Quad{}},
+		"unexpected IRI (relative) as graph", []rdf.Quad{}},
 
 	//<#nq-syntax-bad-quint-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-quint-01" ;
@@ -261,7 +298,7 @@ var nqTestSuite = []struct {
 
 	{`# N-Quads rejects a quint
 <http://example/s> <http://example/p> <http://example/o> <http://example/g> <http://example/n> .`,
-		"expected Dot, got IRI (absolute)", []rdf.Quad{}},
+		"unexpected IRI (absolute) as dot (.)", []rdf.Quad{}},
 
 	//<#nt-syntax-file-01> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nt-syntax-file-01" ;
@@ -606,7 +643,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<s> <http://example/p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (relative)", []rdf.Quad{}},
+<s> <http://example/p> <http://example/o> .`, "unexpected IRI (relative) as subject", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-uri-07> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-07" ;
@@ -616,7 +653,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<http://example/s> <p> <http://example/o> .`, "expected IRI (absolute) / Blank node, got IRI (relative)", []rdf.Quad{}},
+<http://example/s> <p> <http://example/o> .`, "unexpected IRI (relative) as predicate", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-uri-08> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-08" ;
@@ -626,7 +663,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<http://example/s> <http://example/p> <o> .`, "expected IRI (absolute) / Blank node / Literal, got IRI (relative)", []rdf.Quad{}},
+<http://example/s> <http://example/p> <o> .`, "unexpected IRI (relative) as object", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-uri-09> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-09" ;
@@ -636,7 +673,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<http://example/s> <http://example/p> "foo"^^<dt> .`, "expected IRI (absolute), got IRI (relative)", []rdf.Quad{}},
+<http://example/s> <http://example/p> "foo"^^<dt> .`, "unexpected IRI (relative) as literal datatype", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-prefix-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-prefix-01" ;
@@ -645,7 +682,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-prefix-01.nq> ;
 	//   .
 
-	{`@prefix : <http://example/> .`, "expected IRI (absolute) / Blank node, got @prefix", []rdf.Quad{}},
+	{`@prefix : <http://example/> .`, "unexpected @prefix as subject", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-base-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-base-01" ;
@@ -654,7 +691,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-base-01.nq> ;
 	//   .
 
-	{`@base <http://example/> .`, "expected IRI (absolute) / Blank node, got @base", []rdf.Quad{}},
+	{`@base <http://example/> .`, " unexpected @base as subject", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-struct-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-01" ;
@@ -759,7 +796,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-05.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> """abc""" .`, "expected Language tag marker / Literal datatype marker / IRI (absolute) / Blank node / Dot, got Literal", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> """abc""" .`, "unexpected Literal as graph", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-string-06> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-06" ;
@@ -1490,36 +1527,4 @@ _:s<http://example/p>_:bnode1.`, "", []rdf.Quad{
 			Graph: defaultGraph,
 		},
 	}},
-}
-
-func parseAllNQ(s string) (r []rdf.Quad, err error) {
-	dec := NewNQDecoder(bytes.NewBufferString(s), defaultGraph)
-	for q, err := dec.DecodeQuad(); err != io.EOF; q, err = dec.DecodeQuad() {
-		if err != nil {
-			return r, err
-		}
-		r = append(r, q)
-	}
-	return r, err
-}
-
-func TestNQ(t *testing.T) {
-	for _, test := range nqTestSuite {
-		quads, err := parseAllNQ(test.input)
-		if err != nil {
-			if test.errWant == "" {
-				t.Errorf("ParseNQ(%s) => %v, want %v", test.input, err, test.want)
-				continue
-			}
-			if strings.HasSuffix(err.Error(), test.errWant) {
-				continue
-			}
-			t.Errorf("ParseNQ(%s) => %q, want %q", test.input, err, test.errWant)
-			continue
-		}
-
-		if !reflect.DeepEqual(quads, test.want) {
-			t.Errorf("ParseNQ(%s) => %v, want %v", test.input, quads, test.want)
-		}
-	}
 }
