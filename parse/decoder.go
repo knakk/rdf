@@ -2,12 +2,10 @@ package parse
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 	"runtime"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/knakk/rdf"
@@ -47,35 +45,41 @@ type Decoder struct {
 	l *lexer
 	f format
 
-	base        string            // base (default IRI)
-	bnodeN      int               // anonymous blank node counter
-	g           rdf.Term          // default graph
-	ns          map[string]string // map[prefix]namespace
-	cur, prev   token             // current and previous lexed tokens
-	tokens      [3]token          // 3 token lookahead
-	peekCount   int               // number of tokens peeked at (position in tokens)
-	curSubj     rdf.Term          // current subject
-	curPred     rdf.Term          // current predicate
-	tripleStack []rdf.Triple      // stack of parent triples, needed for nested property lists
+	state      parseFn           // state of parser
+	startState parseFn           // start state (parseOutsideTriple, or, parseListItem if in a recursive structure)
+	base       string            // base (default IRI)
+	bnodeN     int               // anonymous blank node counter
+	g          rdf.Term          // default graph
+	ns         map[string]string // map[prefix]namespace
+	tokens     [3]token          // 3 token lookahead
+	peekCount  int               // number of tokens peeked at (position in tokens)
+	lineMode   bool              // true if parsing line-based formats (N-Triples and N-Quads)
+
+	// stack to keep track of nested patterns (collections, blank node property lists)
+	// the top of the stack is always the next triple to be emitted
+	tripleStack []rdf.Triple
 }
 
 // NewTTLDecoder creates a Turtle decoder
 func NewTTLDecoder(r io.Reader) *Decoder {
-	return &Decoder{
-		l:  newLexer(),
-		r:  bufio.NewReader(r),
-		f:  formatTTL,
-		ns: make(map[string]string),
+	d := Decoder{
+		l:           newLexer(r),
+		f:           formatTTL,
+		ns:          make(map[string]string),
+		tripleStack: make([]rdf.Triple, 1, 4),
+		startState:  parseOutsideTriple,
 	}
+	return &d
 }
 
 // NewNTDecoder creates a N-Triples decoder
 func NewNTDecoder(r io.Reader) *Decoder {
-	return &Decoder{
-		l: newLexer(),
-		r: bufio.NewReader(r),
-		f: formatNT,
+	d := Decoder{
+		l:        newLexer(r),
+		f:        formatNT,
+		lineMode: true,
 	}
+	return &d
 }
 
 // NewNQDecoder creates a N-Quads decoder.
@@ -85,10 +89,10 @@ func NewNQDecoder(r io.Reader, defaultGraph rdf.Term) *Decoder {
 		panic("defaultGraph must be either an URI or Blank node")
 	}
 	return &Decoder{
-		l: newLexer(),
-		r: bufio.NewReader(r),
-		f: formatNQ,
-		g: defaultGraph,
+		l:        newLexer(r),
+		f:        formatNQ,
+		g:        defaultGraph,
+		lineMode: true,
 	}
 }
 
@@ -96,69 +100,75 @@ func NewNQDecoder(r io.Reader, defaultGraph rdf.Term) *Decoder {
 
 // DecodeTriple returns the next valid triple, or an error
 func (d *Decoder) DecodeTriple() (rdf.Triple, error) {
-	line, err := d.r.ReadBytes('\n')
-	if err != nil && len(line) == 0 {
-		d.l.stop() // reader drained, stop lexer
-		return rdf.Triple{}, err
+	switch d.f {
+	case formatNT:
+		return d.parseNT()
+	case formatTTL:
+		return d.parseTTL()
 	}
-	line = bytes.TrimSpace(line)
-	if len(line) == 0 || line[0] == '#' {
-		// skip empty lines or comment lines
-		d.l.line++
-		return d.DecodeTriple()
-	}
-	if d.f == formatNT {
-		return d.parseNT(line)
-	}
-	if line[0] == '@' || line[0] == 'P' || line[0] == 'B' {
-		// parse @prefix / @base / PREFIX / BASE
-		d.cur.typ = tokenNone
-		d.l.incoming <- line
-		d.l.line++
-		err := d.parseDirectives()
-		if err != nil {
-			return rdf.Triple{}, err
-		}
-		return d.DecodeTriple()
-	}
-	return d.parseTTL(line)
+
+	return rdf.Triple{}, fmt.Errorf("can't decode triples in format %v", d.f)
 }
 
 // DecodeQuad returns the next valid quad, or an error
 func (d *Decoder) DecodeQuad() (rdf.Quad, error) {
-	line, err := d.r.ReadBytes('\n')
-	if err != nil && len(line) == 0 {
-		d.l.stop() // reader drained, stop lexer
-		return rdf.Quad{}, err
-	}
-	line = bytes.TrimSpace(line)
-	if len(line) == 0 || line[0] == '#' {
-		// skip empty lines or comment lines
-		d.l.line++
-		return d.DecodeQuad()
-	}
-	return d.parseNQ(line)
+	return d.parseNQ()
 }
 
 // Private parsing helpers:
 
-// next returns the next token.
-func (d *Decoder) next() token {
-	if d.peekCount > 0 {
-		d.peekCount--
+// curTriple returns a pointer to the next triple to be emitted (the top of tripleStack).
+func (d *Decoder) curTriple() *rdf.Triple {
+	return &d.tripleStack[len(d.tripleStack)-1]
+}
+
+// insertBeforeTop a triple to the position before top of the stack
+func (d *Decoder) insertBeforeTop(t rdf.Triple) {
+	d.tripleStack = append(d.tripleStack, rdf.Triple{})
+	d.tripleStack[len(d.tripleStack)-1] = d.tripleStack[len(d.tripleStack)-2]
+	d.tripleStack[len(d.tripleStack)-2] = t
+}
+
+// remove the top-1 triple from the stack
+func (d *Decoder) removeBeforeTop() {
+	if len(d.tripleStack) >= 2 {
+		i := len(d.tripleStack) - 2
+		d.tripleStack = d.tripleStack[:i+copy(d.tripleStack[i:], d.tripleStack[i+1:])]
 	} else {
-		d.tokens[0] = d.l.nextToken()
+		println("removeBeforeTop called with len(d.tripleStack) < 2") // TODO panic?
+	}
+}
+
+// next returns the next token, or the next non-EOL token if the
+// parser is not in linemode.
+func (d *Decoder) next() token {
+	for {
+		if d.peekCount > 0 {
+			d.peekCount--
+		} else {
+			d.tokens[0] = d.l.nextToken()
+		}
+		if !d.lineMode && d.tokens[d.peekCount].typ == tokenEOL {
+			continue
+		}
+		break
 	}
 	return d.tokens[d.peekCount]
 }
 
 // peek returns but does not consume the next token.
 func (d *Decoder) peek() token {
-	if d.peekCount > 0 {
-		return d.tokens[d.peekCount-1]
+	for {
+		if d.peekCount > 0 {
+			return d.tokens[d.peekCount-1]
+		}
+		d.peekCount = 1
+		d.tokens[0] = d.l.nextToken()
+		if !d.lineMode && d.tokens[0].typ == tokenEOL {
+			continue
+		}
+		break
 	}
-	d.peekCount = 1
-	d.tokens[0] = d.l.nextToken()
 	return d.tokens[0]
 }
 
@@ -181,6 +191,270 @@ func (d *Decoder) backup3(t2, t1 token) {
 }
 
 // Parsing:
+
+// parseFn represents the state of the parser as a function that returns the next state.
+type parseFn func(*Decoder) parseFn
+
+// parseOutsideTriple parses entering a new triple, or after a triple (before punctuation)
+func parseOutsideTriple(d *Decoder) parseFn {
+	switch d.next().typ {
+	case tokenSemicolon:
+		// We have a full triple, entering a predicate list.
+		// Push to stack a triple with current subject set.
+		d.insertBeforeTop(rdf.Triple{
+			Subj: d.curTriple().Subj,
+		})
+		return nil // emit current triple
+	case tokenComma:
+		// We have a full triple, entering a object list.
+		// Push to stack a triple with current subject and predicate set.
+		d.insertBeforeTop(rdf.Triple{
+			Subj: d.curTriple().Subj,
+			Pred: d.curTriple().Pred,
+		})
+		return nil // emit current triple
+	case tokenPrefix:
+		label := d.expect1As("prefix label", tokenPrefixLabel)
+		uri := d.expect1As("prefix URI", tokenIRIAbs)
+		d.ns[label.text] = uri.text
+		d.expect1As("directive trailing dot", tokenDot)
+	case tokenSparqlPrefix:
+		label := d.expect1As("prefix label", tokenPrefixLabel)
+		uri := d.expect1As("prefix URI", tokenIRIAbs)
+		d.ns[label.text] = uri.text
+	case tokenBase:
+		uri := d.expect1As("base URI", tokenIRIAbs)
+		d.base = uri.text
+		d.expect1As("directive trailing dot", tokenDot)
+	case tokenSparqlBase:
+		uri := d.expect1As("base URI", tokenIRIAbs)
+		d.base = uri.text
+	case tokenPropertyListEnd:
+		// If not entering a predicate list or object list, we must
+		// discard the previous entry in the stack.
+		// TODO but what if last object was end of list? then top-1 will be { bnode rdf:rest rdf:nil }
+		switch d.peek().typ {
+		case tokenIRIAbs, tokenIRIRel, tokenPrefixLabel:
+			// property list is subject, continue with predicate and object after this triple is emitted
+		case tokenSemicolon, tokenComma:
+			d.removeBeforeTop()
+			d.next() // consume ';'
+			fmt.Printf("%v\n", d.tripleStack)
+			// property list is object,
+		case tokenPropertyListEnd:
+			d.removeBeforeTop()
+			return parseOutsideTriple
+		case tokenDot:
+			d.next() // consume '.'
+		default:
+			d.removeBeforeTop()
+		}
+
+		return nil
+	case tokenCollectionEnd:
+		// insert { bnode rdf:last rdf:nil } in the stack, so that it will be emitted after current triple.
+		d.removeBeforeTop()
+		d.insertBeforeTop(
+			rdf.Triple{
+				Subj: d.curTriple().Subj,
+				Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+				Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			})
+		return nil
+	case tokenDot:
+		return nil // emit triple
+	default:
+		d.backup()
+		return parseTriple
+	}
+	return parseOutsideTriple
+}
+
+func parseTriple(d *Decoder) parseFn {
+	return parseSubject
+}
+
+func parseSubject(d *Decoder) parseFn {
+	if d.curTriple().Subj != nil {
+		return parsePredicate
+	}
+	tok := d.next()
+	switch tok.typ {
+	case tokenIRIAbs:
+		d.curTriple().Subj = rdf.URI{URI: tok.text}
+	case tokenIRIRel:
+		d.curTriple().Subj = rdf.URI{URI: d.base + tok.text}
+		// TODO err if d.base == ""
+	case tokenBNode:
+		d.curTriple().Subj = rdf.Blank{ID: tok.text}
+	case tokenAnonBNode:
+		d.bnodeN++
+		d.curTriple().Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+	case tokenPrefixLabel:
+		ns, ok := d.ns[tok.text]
+		if !ok {
+			d.errorf("missing namespace for prefix: %s", tok.text)
+		}
+		suf := d.expect1As("IRI suffix", tokenIRISuffix)
+		d.curTriple().Subj = rdf.URI{URI: ns + suf.text}
+	case tokenPropertyListStart:
+		d.bnodeN++
+		d.curTriple().Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		// Blank node is subject.
+		// insert triple with subj of property list, to be restored when property list ends
+		d.insertBeforeTop(rdf.Triple{Subj: d.curTriple().Subj})
+	case tokenCollectionStart:
+		if d.peek().typ == tokenCollectionEnd {
+			d.curTriple().Subj = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+			break
+		}
+		d.bnodeN++
+		d.curTriple().Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.curTriple().Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
+
+		d.insertBeforeTop(
+			rdf.Triple{
+				Subj: d.curTriple().Subj,
+			})
+		return parseObject
+	case tokenError:
+		d.errorf("%d:%d: syntax error: %v", tok.line, tok.col, tok.text)
+	default:
+		d.errorf("unexpected %v as subject", tok.typ)
+	}
+
+	return parsePredicate
+}
+
+func parsePredicate(d *Decoder) parseFn {
+	if d.curTriple().Pred != nil {
+		return parseObject
+	}
+	tok := d.next()
+	switch tok.typ {
+	case tokenIRIAbs:
+		d.curTriple().Pred = rdf.URI{URI: tok.text}
+	case tokenIRIRel:
+		d.curTriple().Pred = rdf.URI{URI: d.base + tok.text}
+		// TODO err if d.base == ""
+	case tokenRDFType:
+		d.curTriple().Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
+	case tokenBNode:
+		d.curTriple().Pred = rdf.Blank{ID: tok.text}
+	case tokenPrefixLabel:
+		ns, ok := d.ns[tok.text]
+		if !ok {
+			d.errorf("missing namespace for prefix: %s", tok.text)
+		}
+		suf := d.expect1As("IRI suffix", tokenIRISuffix)
+		d.curTriple().Pred = rdf.URI{URI: ns + suf.text}
+	case tokenError:
+		d.errorf("syntax error: %v", tok.text)
+	default:
+		d.errorf("%d:%d: unexpected %v as predicate", tok.line, tok.col, tok.typ)
+	}
+
+	//	d.tripleStack[len(d.tripleStack)-1].Pred = d.curTriple().Pred
+
+	return parseObject
+}
+
+func parseObject(d *Decoder) parseFn {
+	if d.curTriple().Obj != nil {
+		return nil
+	}
+	tok := d.next()
+	switch tok.typ {
+	case tokenIRIAbs:
+		d.curTriple().Obj = rdf.URI{URI: tok.text}
+	case tokenIRIRel:
+		d.curTriple().Obj = rdf.URI{URI: d.base + tok.text}
+		// TODO err if d.base == ""
+	case tokenBNode:
+		d.curTriple().Obj = rdf.Blank{ID: tok.text}
+	case tokenAnonBNode:
+		d.bnodeN++
+		d.curTriple().Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+	case tokenLiteral:
+		val := tok.text
+		l := rdf.Literal{
+			Val:      val,
+			DataType: rdf.XSDString,
+		}
+		p := d.peek()
+		switch p.typ {
+		case tokenLangMarker:
+			d.next() // consume peeked token
+			tok = d.expect1As("literal language", tokenLang)
+			l.Lang = tok.text
+		case tokenDataTypeMarker:
+			d.next() // consume peeked token
+			tok = d.expect1As("literal datatype", tokenIRIAbs)
+			v, err := parseLiteral(val, tok.text)
+			if err == nil {
+				l.Val = v
+			}
+			l.DataType = rdf.URI{URI: tok.text}
+		}
+		d.curTriple().Obj = l
+	case tokenLiteralDecimal:
+		// we can ignore the error, because we know it's an correctly lexed decimal value:
+		f, _ := strconv.ParseFloat(tok.text, 64) // TODO math/bigINt?
+		d.curTriple().Obj = rdf.Literal{
+			Val:      f,
+			DataType: rdf.XSDDecimal,
+		}
+	case tokenLiteralInteger:
+		// we can ignore the error, because we know it's an correctly lexed integer value:
+		i, _ := strconv.Atoi(tok.text)
+		d.curTriple().Obj = rdf.Literal{
+			Val:      i,
+			DataType: rdf.XSDInteger,
+		}
+	case tokenPrefixLabel:
+		ns, ok := d.ns[tok.text]
+		if !ok {
+			d.errorf("missing namespace for prefix: %s", tok.text)
+		}
+		suf := d.expect1As("IRI suffix", tokenIRISuffix)
+		d.curTriple().Obj = rdf.URI{URI: ns + suf.text}
+	case tokenPropertyListStart:
+		d.bnodeN++
+		d.curTriple().Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.insertBeforeTop(rdf.Triple{Subj: d.curTriple().Subj})
+		d.insertBeforeTop(rdf.Triple{Subj: d.curTriple().Obj})
+		return nil
+	case tokenCollectionStart:
+		if d.peek().typ == tokenCollectionEnd {
+			d.next() // consume ')'
+			d.curTriple().Obj = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+			break
+		}
+		d.bnodeN++
+		d.curTriple().Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+
+		d.insertBeforeTop(
+			rdf.Triple{
+				Subj: d.curTriple().Obj,
+				Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			})
+		return nil
+	case tokenError:
+		d.errorf("%d:%d: syntax error: %v", tok.line, tok.col, tok.text)
+	default:
+		d.errorf("%d:%d: unexpected %v as object", tok.line, tok.col, tok.typ)
+	}
+
+	return d.startState //parseOutsideTriple | parseListItem
+}
+
+func parseCollectionItem(d *Decoder) parseFn {
+	switch d.next().typ {
+	case tokenCollectionEnd:
+
+	}
+	return nil
+}
 
 // errorf formats the error and terminates parsing.
 func (d *Decoder) errorf(format string, args ...interface{}) {
@@ -238,9 +512,15 @@ func (d *Decoder) expectAs(context string, expected ...tokenType) token {
 }
 
 // parseNT parses a line of N-Triples and returns a valid triple or an error.
-func (d *Decoder) parseNT(line []byte) (t rdf.Triple, err error) {
+func (d *Decoder) parseNT() (t rdf.Triple, err error) {
 	defer d.recover(&err)
-	d.l.incoming <- line
+
+	for d.peek().typ == tokenEOL {
+		d.next()
+	}
+	if d.peek().typ == tokenEOF {
+		return t, io.EOF
+	}
 
 	// parse triple subject
 	tok := d.expectAs("subject", tokenIRIAbs, tokenBNode)
@@ -296,13 +576,24 @@ func (d *Decoder) parseNT(line []byte) (t rdf.Triple, err error) {
 	// check for extra tokens, assert we reached end of line
 	d.expect1As("end of line", tokenEOL)
 
+	if d.peek().typ == tokenEOF {
+		// drain lexer
+		d.next()
+	}
+
 	return t, err
 }
 
 // parseNQ parses a line of N-Quads and returns a valid quad or an error.
-func (d *Decoder) parseNQ(line []byte) (q rdf.Quad, err error) {
+func (d *Decoder) parseNQ() (q rdf.Quad, err error) {
 	defer d.recover(&err)
-	d.l.incoming <- line
+
+	for d.peek().typ == tokenEOL {
+		d.next()
+	}
+	if d.peek().typ == tokenEOF {
+		return q, io.EOF
+	}
 
 	// Set Quad graph to default graph
 	q.Graph = d.g
@@ -376,268 +667,40 @@ func (d *Decoder) parseNQ(line []byte) (q rdf.Quad, err error) {
 	// check for extra tokens, assert we reached end of line
 	d.expect1As("end of line", tokenEOL)
 
+	if d.peek().typ == tokenEOF {
+		// drain lexer
+		d.next()
+	}
 	return q, err
 }
 
-// *******************************
-func (d *Decoder) parseDirectives() error {
-	d.next()
-	if err := d.expect(tokenPrefix, tokenSparqlPrefix, tokenBase, tokenSparqlBase); err != nil {
-		return err
+// parseTTL parses a Turtle document, and returns the first available triple.
+func (d *Decoder) parseTTL() (t rdf.Triple, err error) {
+	defer d.recover(&err)
+	if d.next().typ == tokenEOF {
+		//fmt.Printf("final stack: %v\n", d.tripleStack)
+		return t, io.EOF
 	}
-	t := d.cur.typ
-	switch t {
-	case tokenPrefix, tokenSparqlPrefix:
-		d.next()
-		if err := d.expect(tokenPrefixLabel); err != nil {
-			return err
-		}
-		d.next()
-		if err := d.expect(tokenIRIAbs); err != nil {
-			return err
-		}
+	d.backup()
 
-		// store namespace prefix
-		d.ns[d.prev.text] = d.cur.text
-
-		if t == tokenPrefix {
-			// @prefix directives end in '.', but not SPARQL PREFIX directive
-			d.next()
-			if err := d.expect(tokenDot); err != nil {
-				return err
-			}
-		}
-
-		d.next()
-		if d.cur.typ != tokenEOL {
-			return fmt.Errorf("%d:%d: illegal token after end of directive: %s", d.cur.line, d.cur.col, d.cur.text)
-		}
-	case tokenBase, tokenSparqlBase:
-		d.next()
-		if err := d.expect(tokenIRIAbs); err != nil {
-			return err
-		}
-		d.base = d.cur.text
-
-		if t == tokenBase {
-			// @base directives end in '.', but not SPARQL BAE directive
-			d.next()
-			if err := d.expect(tokenDot); err != nil {
-				return err
-			}
-		}
-
-		d.next()
-		if d.cur.typ != tokenEOL {
-			return fmt.Errorf("%d:%d: illegal token after end of directive: %s", d.cur.line, d.cur.col, d.cur.text)
-		}
-	}
-	return nil
-}
-
-func (d *Decoder) _ttlParseSubj() (rdf.Term, error) {
-	d.next()
-	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenAnonBNode, tokenPropertyListStart, tokenPrefixLabel); err != nil {
-		return nil, err
-	}
-	switch d.cur.typ {
-	case tokenIRIAbs:
-		return rdf.URI{URI: d.cur.text}, nil
-	case tokenIRIRel:
-		return rdf.URI{URI: d.base + d.cur.text}, nil
-		// TODO err if no base
-	case tokenBNode:
-		return rdf.Blank{ID: d.cur.text}, nil
-	case tokenAnonBNode:
-		d.bnodeN++
-		return rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}, nil
-	case tokenPropertyListStart:
-		d.bnodeN++
-		d.curSubj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
-		return d.curSubj, nil
-	case tokenPrefixLabel:
-		ns, ok := d.ns[d.cur.text]
-		if !ok {
-			return nil, fmt.Errorf("missing namespace for prefix: %s", d.cur.text)
-		}
-		d.next()
-		if err := d.expect(tokenIRISuffix); err != nil {
-			return nil, err
-		}
-		return rdf.URI{URI: ns + d.cur.text}, nil
-	}
-	panic("unreachable")
-}
-
-func (d *Decoder) _ttlParsePred() (rdf.Term, error) {
-	d.next()
-	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenRDFType, tokenPrefixLabel); err != nil {
-		return nil, err
-	}
-	switch d.cur.typ {
-	case tokenIRIAbs:
-		return rdf.URI{URI: d.cur.text}, nil
-	case tokenIRIRel:
-		return rdf.URI{URI: d.base + d.cur.text}, nil
-		// TODO err if no base
-	case tokenBNode:
-		return rdf.Blank{ID: d.cur.text}, nil
-	case tokenRDFType:
-		return rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}, nil
-	case tokenPrefixLabel:
-		ns, ok := d.ns[d.cur.text]
-		if !ok {
-			return nil, fmt.Errorf("missing namespace for prefix: %s", d.cur.text)
-		}
-		d.next()
-		if err := d.expect(tokenIRISuffix); err != nil {
-			return nil, err
-		}
-		return rdf.URI{URI: ns + d.cur.text}, nil
-	}
-	panic("unreachable")
-}
-
-func (d *Decoder) _ttlParseObj() (rdf.Term, error) {
-	d.next()
-	if err := d.expect(tokenIRIAbs, tokenIRIRel, tokenBNode, tokenAnonBNode, tokenPropertyListStart, tokenLiteral, tokenPrefixLabel); err != nil {
-		return nil, err
-	}
-
-	switch d.cur.typ {
-	case tokenBNode:
-		d.next() // becasue case tokenLiteral consumes (at least) two tokens
-		return rdf.Blank{ID: d.prev.text}, nil
-	case tokenAnonBNode:
-		d.bnodeN++
-		d.next() // becasue case tokenLiteral consumes (at least) two tokens
-		return rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}, nil
-	case tokenPropertyListStart:
-		d.bnodeN++
-		d.curSubj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
-		return d.curSubj, nil
-	case tokenLiteral:
-		val := d.cur.text
-		l := rdf.Literal{
-			Val:      val,
-			DataType: rdf.XSDString,
-		}
-		d.next()
-		if err := d.expect(tokenLangMarker, tokenDataTypeMarker, tokenDot); err != nil {
-			return nil, err
-		}
-		switch d.cur.typ {
-		case tokenDot:
-			return l, nil
-		case tokenLangMarker:
-			d.next()
-			if err := d.expect(tokenLang); err != nil {
-				return nil, err
-			}
-			l.Lang = d.cur.text
-		case tokenDataTypeMarker:
-			d.next()
-			if err := d.expect(tokenIRIAbs); err != nil {
-				return nil, err
-			}
-			v, err := parseLiteral(val, d.cur.text)
-			if err == nil {
-				l.Val = v
-			}
-			l.DataType = rdf.URI{URI: d.cur.text}
-		}
-		return l, nil
-	case tokenIRIAbs:
-		d.next() // becasue case tokenLiteral consumes (at least) two tokens
-		return rdf.URI{URI: d.prev.text}, nil
-	case tokenIRIRel:
-		// TODO err if no base
-		d.next() // becasue case tokenLiteral consumes (at least) two tokens
-		return rdf.URI{URI: d.base + d.prev.text}, nil
-	case tokenPrefixLabel:
-		ns, ok := d.ns[d.cur.text]
-		if !ok {
-			return nil, fmt.Errorf("missing namespace for prefix: %s", d.cur.text)
-		}
-		d.next()
-		if err := d.expect(tokenIRISuffix); err != nil {
-			return nil, err
-		}
-		d.next() // becasue case tokenLiteral consumes (at least) two tokens
-		return rdf.URI{URI: ns + d.prev.text}, nil
-	}
-	panic("unreachable")
-}
-
-func (d *Decoder) parseTTL(line []byte) (rdf.Triple, error) {
-	d.l.incoming <- line
-	d.cur.typ = tokenNone
-	t := rdf.Triple{}
-	var term rdf.Term
-	var err error
-
-	if d.curSubj != nil {
-		// we are in a blankNodePropertyList
-		t.Subj = d.curSubj
+	if len(d.tripleStack) > 1 {
+		// Remove the last emitted triple from stack.
+		d.tripleStack = d.tripleStack[:len(d.tripleStack)-1]
 	} else {
-		// parse triple subject
-		term, err := d._ttlParseSubj()
-		if err != nil {
-			return t, err
-		}
-		t.Subj = term
+		// Clear the only triple on stack.
+		d.tripleStack[0] = rdf.Triple{}
 	}
 
-	if d.curPred != nil {
-		// we are in a predicateObjectList
-		t.Subj = d.curSubj
-	} else {
-		// parse triple predicate
-		term, err = d._ttlParsePred()
-		if err != nil {
-			return t, err
-		}
-		t.Pred = term
+	//fmt.Printf("start stack: %v\n", d.tripleStack)
+	for d.state = d.startState; d.state != nil; {
+		d.state = d.state(d)
 	}
-
-	// parse triple object
-	term, err = d._ttlParseObj()
-	if err != nil {
-		return t, err
-	}
-	t.Obj = term
-
-	// d.next() called in _ttlParseObj()
-	// parse final dot, or end of proerty list
-	if err := d.expect(tokenDot, tokenPropertyListEnd, tokenPropertyListStart); err != nil {
-		return t, err
-	}
-	switch d.cur.typ {
-	case tokenPropertyListEnd:
-		d.next()
-		if d.cur.typ == tokenDot {
-			break
-		}
-		return t, nil
-	case tokenDot:
-		d.curSubj = nil
-		d.curPred = nil
-	case tokenPropertyListStart:
-		d.next()
-		fmt.Printf("curSubj: %v\n", d.curSubj)
-		fmt.Printf("curPred: %v\n", d.curPred)
-		fmt.Printf("%v %v", d.cur.typ, d.cur.text)
-		return t, nil
-	}
-
-	// check for extra tokens, assert we reached end of line
-	d.next()
-	if d.cur.typ != tokenEOL {
-		return t, fmt.Errorf("found extra token after end of statement: %q(%v)", d.cur.text, d.cur.typ)
-	}
-
-	return t, nil
+	t = *d.curTriple()
+	//fmt.Printf("emit: %v\n\n", t)
+	return t, err
 }
+
+// Helper functions:
 
 // parseLiteral
 func parseLiteral(val, datatype string) (interface{}, error) {
@@ -670,26 +733,4 @@ func parseLiteral(val, datatype string) (interface{}, error) {
 	default:
 		return nil, fmt.Errorf("don't know how to represent %q with datatype %q as a Go type", val, datatype)
 	}
-}
-
-func (d *Decoder) expect(tt ...tokenType) error {
-	if d.cur.typ == tokenEOL {
-		return fmt.Errorf("%d:%d: unexpected end of line", d.cur.line, d.cur.col)
-	}
-	if d.cur.typ == tokenError {
-		return fmt.Errorf("%d:%d: syntax error: %s", d.cur.line, d.cur.col, d.cur.text)
-	}
-	for i := range tt {
-		if d.cur.typ == tt[i] {
-			return nil
-		}
-	}
-	if len(tt) == 1 {
-		return fmt.Errorf("%d:%d: expected %v, got %v", d.cur.line, d.cur.col, tt[0], d.cur.typ)
-	}
-	var types = make([]string, 0, len(tt))
-	for _, t := range tt {
-		types = append(types, fmt.Sprintf("%v", t))
-	}
-	return fmt.Errorf("%d:%d: expected %v, got %v", d.cur.line, d.cur.col, strings.Join(types, " / "), d.cur.typ)
 }

@@ -25,24 +25,24 @@ func TestNT(t *testing.T) {
 	for _, test := range ntTestSuite {
 		triples, err := parseAllNT(test.input)
 		if test.errWant != "" && err == nil {
-			t.Errorf("parseNT(%s) => <no error>, want %q", test.input, test.errWant)
+			t.Fatalf("parseNT(%s) => <no Fatalnt %q", test.input, test.errWant)
 			continue
 		}
 
 		if test.errWant != "" && err != nil {
 			if !strings.HasSuffix(err.Error(), test.errWant) {
-				t.Errorf("parseNT(%s) => %v, want %q", test.input, err.Error(), test.errWant)
+				t.Fatalf("parseNT(%s) => %v, want %q", test.input, err.Error(), test.errWant)
 			}
 			continue
 		}
 
 		if test.errWant == "" && err != nil {
-			t.Errorf("parseNT(%s) => %v, want %q", test.input, err.Error(), test.want)
+			t.Fatalf("parseNT(%s) => %v, want %q", test.input, err.Error(), test.want)
 			continue
 		}
 
 		if !reflect.DeepEqual(triples, test.want) {
-			t.Errorf("parseNT(%s) => %v, want %v", test.input, triples, test.want)
+			t.Fatalf("parseNT(%s) => %v, want %v", test.input, triples, test.want)
 		}
 	}
 }
@@ -411,7 +411,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-struct-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> <http://example/o>, <http://example/o2> .`, "syntax error: illegal character ','", nil},
+	{`<http://example/s> <http://example/p> <http://example/o>, <http://example/o2> .`, "unexpected Comma as dot (.)", nil},
 
 	//<#nt-syntax-bad-struct-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-02" ;
@@ -419,7 +419,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-struct-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> <http://example/o>; <http://example/p2>, <http://example/o2> .`, "syntax error: illegal character ';'", nil},
+	{`<http://example/s> <http://example/p> <http://example/o>; <http://example/p2>, <http://example/o2> .`, "unexpected Semicolon as dot (.)", nil},
 
 	//<#nt-syntax-bad-lang-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-lang-01" ;
@@ -471,7 +471,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0 .`, "syntax error: illegal character '1'", nil},
+	{`<http://example/s> <http://example/p> 1.0 .`, "unexpected Literal (decimal shorthand syntax) as object", nil},
 
 	//<#nt-syntax-bad-string-03> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-03" ;
@@ -479,7 +479,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-03.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0e1 .`, "syntax error: illegal character '1'", nil},
+	{`<http://example/s> <http://example/p> 1.0e1 .`, "unexpected Literal (double shorthand syntax) as object", nil},
 
 	//<#nt-syntax-bad-string-04> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-04" ;
@@ -519,7 +519,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-num-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1 .`, "syntax error: illegal character '1'", nil},
+	{`<http://example/s> <http://example/p> 1 .`, "unexpected Literal (integer shorthand syntax) as object", nil},
 
 	//<#nt-syntax-bad-num-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-02" ;
@@ -527,7 +527,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-num-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0 .`, "syntax error: illegal character '1'", nil},
+	{`<http://example/s> <http://example/p> 1.0 .`, "unexpected Literal (decimal shorthand syntax) as object", nil},
 
 	//<#nt-syntax-bad-num-03> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-03" ;
@@ -535,7 +535,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-num-03.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0e0 .`, "syntax error: illegal character '1'", nil},
+	{`<http://example/s> <http://example/p> 1.0e0 .`, "unexpected Literal (double shorthand syntax) as object", nil},
 
 	//<#nt-syntax-subm-01> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-subm-01" ;

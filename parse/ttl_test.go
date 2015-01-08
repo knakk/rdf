@@ -22,25 +22,126 @@ func parseAllTTL(s string) (r []rdf.Triple, err error) {
 }
 
 func TestTTL(t *testing.T) {
-	for _, test := range ttlTestSuite[:38] {
+	for _, test := range ttlTestSuite {
 		triples, err := parseAllTTL(test.input)
 		if err != nil {
 			if test.errWant == "" {
-				t.Errorf("ParseTTL(%s) => %v, want %v", test.input, err, test.want)
+				t.Fatalf("ParseTTL(%s) => %v, want %v\ntriples:%v", test.input, err, test.want, triples)
 				continue
 			}
 			if strings.HasSuffix(err.Error(), test.errWant) {
 				continue
 			}
-			t.Errorf("ParseTTL(%s) => %q, want %q", test.input, err, test.errWant)
+			t.Fatalf("ParseTTL(%s) => %q, want %q", test.input, err, test.errWant)
 			continue
 		}
 
 		if !reflect.DeepEqual(triples, test.want) {
-			t.Errorf("ParseTTL(%s) => %v, want %v", test.input, triples, test.want)
+			t.Fatalf("ParseTTL(%s) => %v,\nwant: %v", test.input, triples, test.want)
 		}
 	}
 }
+
+func TestStack(t *testing.T) {
+	for _, test := range stackSuite[:0] {
+		triples, err := parseAllTTL(test.input)
+		if err != nil {
+			if test.errWant == "" {
+				t.Fatalf("ParseTTL(%s) => %v, want %v\ntriples:%v", test.input, err, test.want, triples)
+				continue
+			}
+			if strings.HasSuffix(err.Error(), test.errWant) {
+				continue
+			}
+			t.Fatalf("ParseTTL(%s) => %q, want %q", test.input, err, test.errWant)
+			continue
+		}
+
+		if !reflect.DeepEqual(triples, test.want) {
+			for _, tr := range triples {
+				t.Logf("\t%v", tr)
+			}
+			t.Fail()
+		}
+	}
+}
+
+var stackSuite = []struct {
+	input   string
+	errWant string
+	want    []rdf.Triple
+}{
+	/*{`@base <s:> .
+		  @prefix p: <i:> .
+	                                	 	# Stack after emit:
+		<a> <p1> "a" ;						 # {<s:a> nil nil}
+		    <p2> "b" ;						 # {<s:a> nil nil}
+		    <p3> "c" .          	    	 # {nil nil nil}
+		<b> <p1> 2 ;                		 # {<s:b> nil nil}
+		    <p2> [             	     		 # {<s:b> nil nil} {_:b1 nil nil}
+		    	p:name "Odd" ;				 # {<s:b> nil nil} {_:b1 nil nil}
+		    	p:alder 12 ;            	 # {<s:b> nil nil} {_:b1 nil nil}
+		   	    p:friend [					 # {<s:b> nil nil} {_:b1 nil nil} {_:b2 nil nil}
+		          p:name "Knut" ] ;          # {<s:b> nil nil} {_:b1 nil nil}
+		     	p:friend [					 # {<s:b> nil nil} {_:b1 nil nil} {_:b3 nil nil}
+		   	 	  p:name "Frida" ] 			 # {<s:b> nil nil} {_:b1 nil nil}
+		    	]
+		    ] ;
+		    <p3> "ggg" .					 #{_:b1 nil nil}
+		    `, "", []rdf.Triple{}},*/
+
+	/*@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+	  _:b0  rdf:first  1 ;
+	        rdf:rest   _:b1 .
+	  _:b1  rdf:first  _:b2 .
+	  _:b2  :p         :q .
+	  _:b1  rdf:rest   _:b3 .
+	  _:b3  rdf:first  _:b4 .
+	  _:b4  rdf:first  2 ;
+	        rdf:rest   rdf:nil .
+	  _:b3  rdf:rest   rdf:nil .
+	*/
+	{`
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.               
+@prefix dc: <http://purl.org/dc/elements/1.1/>.        
+@prefix dcterms: <http://purl.org/dc/terms/>.        
+
+<http://www.dlib.org/dlib/may98/05contents.html>
+      dc:title         "DLIB Magazine - The Magazine for Digital Library Research - May 1998";
+      dc:description   "D-LIB magazine is a monthly compilation of contributed stories, commentary, and briefings.";
+      dc:contributor   "Amy Friedlander";
+      dc:publisher     "Corporation for National Research Initiatives";
+      dc:date          "1998-01-05";
+      dc:type          "electronic journal";
+      dc:subject [
+        a rdf:Bag;
+        rdf:_1 "library use studies";
+        rdf:_2 "magazines and newspapers".
+      ];
+      dc:format        "text/html";
+      dc:identifier    <urn:issn:1082-9873>;
+      dcterms:isPartOf <http://www.dlib.org>.`,
+		"", []rdf.Triple{}},
+}
+
+/*
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix ex: <http://example.org/stuff/1.0/> .
+
+<http://www.w3.org/TR/rdf-syntax-grammar>
+  dc:title "RDF/XML Syntax Specification (Revised)" ;
+  ex:editor [
+    ex:fullname "Dave Beckett";
+    ex:homePage <http://purl.org/net/dajobe/>
+  ] .
+
+<http://www.w3.org/TR/rdf-syntax-grammar> <http://purl.org/dc/elements/1.1/title> "RDF/XML Syntax Specification (Revised)" .
+_:genid1 <http://example.org/stuff/1.0/fullName> "Dave Beckett" .
+_:genid1 <http://example.org/stuff/1.0/homePage> <http://purl.org/net/dajobe/> .
+<http://www.w3.org/TR/rdf-syntax-grammar> <http://example.org/stuff/1.0/editor> _:genid1 .
+
+*/
 
 // ttlTestSuite is a representation of the official W3C test suite for Turtle
 // which is found at: http://www.w3.org/2013/TurtleTests/
@@ -49,6 +150,37 @@ var ttlTestSuite = []struct {
 	errWant string
 	want    []rdf.Triple
 }{
+	/*{`@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+	@prefix dc: <http://purl.org/dc/elements/1.1/> .
+	@prefix ex: <http://example.org/stuff/1.0/> .
+
+	<http://www.w3.org/TR/rdf-syntax-grammar>
+	  dc:title "RDF/XML Syntax Specification (Revised)" ;
+	  ex:editor [
+	    ex:fullname "Dave Beckett";
+	    ex:homePage <http://purl.org/net/dajobe/>
+	  ] .`, "", []rdf.Triple{
+			rdf.Triple{
+				Subj: rdf.URI{URI: "http://www.w3.org/TR/rdf-syntax-grammar"},
+				Pred: rdf.URI{URI: "http://purl.org/dc/elements/1.1/title"},
+				Obj:  rdf.Literal{Val: "RDF/XML Syntax Specification (Revised)", DataType: rdf.XSDString},
+			},
+			rdf.Triple{
+				Subj: rdf.URI{URI: "http://www.w3.org/TR/rdf-syntax-grammar"},
+				Pred: rdf.URI{URI: "http://example.org/stuff/1.0/editor"},
+				Obj:  rdf.Blank{ID: "b1"},
+			},
+			rdf.Triple{
+				Subj: rdf.Blank{ID: "b1"},
+				Pred: rdf.URI{URI: "http://example.org/stuff/1.0/fullname"},
+				Obj:  rdf.Literal{Val: "Dave Beckett", DataType: rdf.XSDString},
+			},
+			rdf.Triple{
+				Subj: rdf.Blank{ID: "b1"},
+				Pred: rdf.URI{URI: "http://example.org/stuff/1.0/homepage"},
+				Obj:  rdf.URI{URI: "http://purl.org/net/dajobe/"},
+			},
+		}},*/
 	//# atomic tests
 	//<#IRI_subject> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "IRI_subject" ;
@@ -699,7 +831,23 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <blankNodePropertyList_with_multiple_triples.nt> ;
 	//   .
 
-	{`[ <http://a.example/p1> <http://a.example/o1> ; <http://a.example/p2> <http://a.example/o2> ] <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+	{`[ <http://a.example/p1> <http://a.example/o1> ; <http://a.example/p2> <http://a.example/o2> ] <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p1"},
+			Obj:  rdf.URI{URI: "http://a.example/o1"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p2"},
+			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#nested_blankNodePropertyLists> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "nested_blankNodePropertyLists" ;
@@ -709,7 +857,23 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <nested_blankNodePropertyLists.nt> ;
 	//   .
 
-	{`[ <http://a.example/p1> [ <http://a.example/p2> <http://a.example/o2> ] ; <http://a.example/p> <http://a.example/o> ].`, "", []rdf.Triple{}},
+	{`[ <http://a.example/p1> [ <http://a.example/p2> <http://a.example/o2> ] ; <http://a.example/p> <http://a.example/o> ].`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p1"},
+			Obj:  rdf.Blank{ID: "b2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://a.example/p2"},
+			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#blankNodePropertyList_containing_collection> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "blankNodePropertyList_containing_collection" ;
@@ -719,7 +883,23 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <blankNodePropertyList_containing_collection.nt> ;
 	//   .
 
-	{`[ <http://a.example/p1> (1) ] .`, "", []rdf.Triple{}},
+	{`[ <http://a.example/p1> (1) ] .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p1"},
+			Obj:  rdf.Blank{ID: "b2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+	}},
 
 	//<#collection_subject> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "collection_subject" ;
@@ -729,7 +909,23 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <collection_subject.nt> ;
 	//   .
 
-	{`(1) <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{}},
+	{`(1) <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#collection_object> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "collection_object" ;
@@ -739,7 +935,23 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <collection_object.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> (1) .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> (1) .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Blank{ID: "b1"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+	}},
 
 	//<#empty_collection> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "empty_collection" ;
@@ -749,7 +961,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <empty_collection.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> () .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> () .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+	}},
 
 	//<#nested_collection> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "nested_collection" ;
@@ -759,7 +977,33 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <nested_collection.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> ((1)) .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> ((1)) .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Blank{ID: "b1"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Blank{ID: "b2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+	}},
 
 	//<#first> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "first" ;
@@ -769,7 +1013,43 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <first.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> ((1) 2) .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> ((1) 2) .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Blank{ID: "b1"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Blank{ID: "b2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.Blank{ID: "b3"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b3"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+	}},
 
 	//<#last> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "last" ;

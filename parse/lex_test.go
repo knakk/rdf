@@ -8,17 +8,22 @@ import (
 
 // Make the token types prettyprint.
 var tokenName = map[tokenType]string{
-	tokenNone:              "None",
 	tokenError:             "Error",
 	tokenEOL:               "EOL",
+	tokenEOF:               "EOF",
 	tokenIRIAbs:            "IRI (absolute)",
 	tokenIRIRel:            "IRI (relative)",
 	tokenLiteral:           "Literal",
+	tokenLiteralInteger:    "Literal (integer shorthand syntax)",
+	tokenLiteralDouble:     "Literal (double shorthand syntax)",
+	tokenLiteralDecimal:    "Literal (decimal shorthand syntax)",
 	tokenBNode:             "Blank node",
 	tokenLangMarker:        "Language tag marker",
 	tokenLang:              "Language tag",
 	tokenDataTypeMarker:    "Literal datatype marker",
 	tokenDot:               "Dot",
+	tokenSemicolon:         "Semicolon",
+	tokenComma:             "Comma",
 	tokenRDFType:           "rdf:type",
 	tokenPrefix:            "@prefix",
 	tokenPrefixLabel:       "Prefix label",
@@ -29,6 +34,8 @@ var tokenName = map[tokenType]string{
 	tokenAnonBNode:         "Anonymous blank node",
 	tokenPropertyListStart: "Property list start",
 	tokenPropertyListEnd:   "Property list end",
+	tokenCollectionStart:   "Collection start",
+	tokenCollectionEnd:     "Collection end",
 }
 
 func (t tokenType) String() string {
@@ -47,9 +54,9 @@ type testToken struct {
 func collect(l *lexer) []testToken {
 	tokens := []testToken{}
 	for {
-		tk := l.nextToken() // <- blocking
+		tk := l.nextToken()
 		tokens = append(tokens, testToken{tk.typ, tk.text})
-		if tk.typ == tokenEOL || tk.typ == tokenError {
+		if tk.typ == tokenEOF || tk.typ == tokenError {
 			break
 		}
 
@@ -79,77 +86,91 @@ func TestTokens(t *testing.T) {
 		want []testToken
 	}{
 		{"", []testToken{
-			{tokenEOL, ""}},
+			{tokenEOF, ""}},
 		},
 		{" \t ", []testToken{
-			{tokenEOL, ""}},
-		},
-		{" \n", []testToken{
 			{tokenEOL, ""},
-			{tokenEOL, ""}},
+			{tokenEOF, ""}},
+		},
+		{" \n ", []testToken{
+			{tokenEOL, ""},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{"<a>", []testToken{
 			{tokenIRIRel, "a"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{"<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>", []testToken{
 			{tokenIRIAbs, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`<s:1> a <o:1>`, []testToken{
 			{tokenIRIAbs, "s:1"},
 			{tokenRDFType, "a"},
 			{tokenIRIAbs, "o:1"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`<a>a<b>.`, []testToken{
 			{tokenIRIRel, "a"},
 			{tokenRDFType, "a"},
 			{tokenIRIRel, "b"},
 			{tokenDot, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`  <x><y> <z>  <\u0053> `, []testToken{
 			{tokenIRIRel, "x"},
 			{tokenIRIRel, "y"},
 			{tokenIRIRel, "z"},
 			{tokenIRIRel, "S"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`<s><p><o>.#comment`, []testToken{
 			{tokenIRIRel, "s"},
 			{tokenIRIRel, "p"},
 			{tokenIRIRel, "o"},
 			{tokenDot, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`"a"`, []testToken{
 			{tokenLiteral, "a"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`"""a"""`, []testToken{
 			{tokenLiteral, ""},
 			{tokenLiteral, "a"},
 			{tokenLiteral, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
-		{`"æøå üçgen こんにちは" # comments should be ignored`, []testToken{
+		{`"æøå üçgen こんにちは" # comments text`, []testToken{
 			{tokenLiteral, "æøå üçgen こんにちは"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`"KI\u0053\U00000053ki⚡⚡"`, []testToken{
 			{tokenLiteral, "KISSki⚡⚡"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`"she said: \"hi\""`, []testToken{
 			{tokenLiteral, `she said: "hi"`},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`"escapes:\t\\\"\n\t"`, []testToken{
 			{tokenLiteral, `escapes:	\"
 	`},
 			{tokenEOL, ""},
-		}},
+			{tokenEOF, ""}},
+		},
 		{`"hei"@nb-no "hi"@en #language tags`, []testToken{
 			{tokenLiteral, "hei"},
 			{tokenLangMarker, "@"},
@@ -157,7 +178,8 @@ func TestTokens(t *testing.T) {
 			{tokenLiteral, "hi"},
 			{tokenLangMarker, "@"},
 			{tokenLang, "en"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`"hei"@`, []testToken{
 			{tokenLiteral, "hei"},
@@ -168,7 +190,8 @@ func TestTokens(t *testing.T) {
 			{tokenLiteral, "a"},
 			{tokenDataTypeMarker, "^^"},
 			{tokenIRIAbs, "s://mydatatype"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`"a"^`, []testToken{
 			{tokenLiteral, "a"},
@@ -187,12 +210,14 @@ func TestTokens(t *testing.T) {
 		{`_:a_BlankLabel123.`, []testToken{
 			{tokenBNode, "a_BlankLabel123"},
 			{tokenDot, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`_:a-b.c.`, []testToken{
 			{tokenBNode, "a-b.c"},
 			{tokenDot, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`#comment
 		  <s><p><o>.#comment
@@ -214,43 +239,50 @@ func TestTokens(t *testing.T) {
 			{tokenLiteral, "yo"},
 			{tokenEOL, ""},
 			{tokenEOL, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`@prefix a: <http:/a.org/>.`, []testToken{
 			{tokenPrefix, "prefix"},
 			{tokenPrefixLabel, "a"},
 			{tokenIRIAbs, "http:/a.org/"},
 			{tokenDot, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`p:s <http://a.example/p> <http://a.example/o>`, []testToken{
 			{tokenPrefixLabel, "p"},
 			{tokenIRISuffix, "s"},
 			{tokenIRIAbs, "http://a.example/p"},
 			{tokenIRIAbs, "http://a.example/o"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{"@base <http:/a.org/>.", []testToken{
 			{tokenBase, "base"},
 			{tokenIRIAbs, "http:/a.org/"},
 			{tokenDot, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{"BASE <http:/a.org/>", []testToken{
 			{tokenSparqlBase, "BASE"},
 			{tokenIRIAbs, "http:/a.org/"},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{"[] <a> <b> .", []testToken{
 			{tokenAnonBNode, ""},
 			{tokenIRIRel, "a"},
 			{tokenIRIRel, "b"},
 			{tokenDot, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{"[\t ]", []testToken{
 			{tokenAnonBNode, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`[] foaf:knows [ foaf:name "Bob" ] .`, []testToken{
 			{tokenAnonBNode, ""},
@@ -262,23 +294,44 @@ func TestTokens(t *testing.T) {
 			{tokenLiteral, "Bob"},
 			{tokenPropertyListEnd, ""},
 			{tokenDot, ""},
-			{tokenEOL, ""}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
+		{"( 1 -2 3.14 4.2e9 )", []testToken{
+			{tokenCollectionStart, ""},
+			{tokenLiteralInteger, "1"},
+			{tokenLiteralInteger, "-2"},
+			{tokenLiteralDecimal, "3.14"},
+			{tokenLiteralDouble, "4.2e9"},
+			{tokenCollectionEnd, ""},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
+		{`1+2`, []testToken{
+			{tokenError, "bad literal: illegal number syntax (number followed by '+')"}},
+		},
+		{"<s> <p> 1, 2, 3", []testToken{
+			{tokenIRIRel, "s"},
+			{tokenIRIRel, "p"},
+			{tokenLiteralInteger, "1"},
+			{tokenComma, ","},
+			{tokenLiteralInteger, "2"},
+			{tokenComma, ","},
+			{tokenLiteralInteger, "3"},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 	}
 
-	lex := newLexer()
 	for _, tt := range lexTests {
+		lex := newLexer(strings.NewReader(tt.in))
 		res := []testToken{}
-		for _, l := range strings.Split(tt.in, "\n") {
-			lex.incoming <- []byte(l)
-			for _, t := range collect(lex) {
-				res = append(res, t)
-			}
-
+		for _, t := range collect(lex) {
+			res = append(res, t)
 		}
+
 		if !equalTokens(tt.want, res) {
-			t.Errorf("lexing %v, got:\n\t%v\nexpected:\n\t%v", tt.in, res, tt.want)
+			t.Errorf("lexing %q, got:\n\t%v\nexpected:\n\t%v", tt.in, res, tt.want)
 		}
 	}
-	lex.stop()
 }

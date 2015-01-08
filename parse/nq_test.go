@@ -701,7 +701,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o>, <http://example/o2> .`,
-		"syntax error: illegal character ','", []rdf.Quad{}},
+		"unexpected Comma as graph", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-struct-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-02" ;
@@ -711,7 +711,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o>; <http://example/p2>, <http://example/o2> .`,
-		"syntax error: illegal character ';'", []rdf.Quad{}},
+		"unexpected Semicolon as graph", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-lang-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-lang-01" ;
@@ -769,7 +769,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-02.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0 .`, "syntax error: illegal character '1'", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> 1.0 .`, "unexpected Literal (decimal shorthand syntax) as object", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-string-03> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-03" ;
@@ -778,7 +778,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-03.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0e1 .`, "syntax error: illegal character '1'", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> 1.0e1 .`, "unexpected Literal (double shorthand syntax) as object", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-string-04> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-04" ;
@@ -823,7 +823,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-num-01.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1 .`, "syntax error: illegal character '1'", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> 1 .`, "unexpected Literal (integer shorthand syntax) as object", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-num-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-02" ;
@@ -832,7 +832,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-num-02.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0 .`, "syntax error: illegal character '1'", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> 1.0 .`, "unexpected Literal (decimal shorthand syntax) as object", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-num-03> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-03" ;
@@ -841,7 +841,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-num-03.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0e0 .`, "syntax error: illegal character '1'", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> 1.0e0 .`, "unexpected Literal (double shorthand syntax) as object", []rdf.Quad{}},
 
 	//<#nt-syntax-subm-01> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nt-syntax-subm-01" ;

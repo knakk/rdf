@@ -1,8 +1,10 @@
 package parse
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"strconv"
 )
 
@@ -10,19 +12,24 @@ type tokenType int
 
 const (
 	// special tokens
-	tokenNone  tokenType = iota
-	tokenEOL             // end of line
-	tokenError           // an illegal token
+	tokenEOF   tokenType = iota // end of input
+	tokenEOL                    // end of line
+	tokenError                  // an illegal token
 
 	// turtle tokens
 	tokenIRIAbs            // RDF IRI reference (absolute)
 	tokenIRIRel            // RDF IRI reference (relative)
 	tokenBNode             // RDF blank node
 	tokenLiteral           // RDF literal
+	tokenLiteralInteger    // RDF literal (integer)
+	tokenLiteralDouble     // RDF literal (double-precision floating point)
+	tokenLiteralDecimal    // RDF literal (arbritary-precision decimal)
 	tokenLangMarker        // '@''
 	tokenLang              // literal language tag
-	tokenDataTypeMarker    // '^^''
-	tokenDot               // '.''
+	tokenDataTypeMarker    // '^^'
+	tokenDot               // '.'
+	tokenSemicolon         // ';'
+	tokenComma             // ','
 	tokenRDFType           // 'a' => <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
 	tokenPrefix            // @prefix
 	tokenPrefixLabel       // @prefix tokenPrefixLabel: IRI
@@ -31,8 +38,10 @@ const (
 	tokenSparqlPrefix      // PREFIX
 	tokenSparqlBase        // BASE
 	tokenAnonBNode         // [ws*]
-	tokenPropertyListStart // [
-	tokenPropertyListEnd   // ]
+	tokenPropertyListStart // '['
+	tokenPropertyListEnd   // ']'
+	tokenCollectionStart   // '('
+	tokenCollectionEnd     // ')'
 )
 
 const eof = -1
@@ -148,18 +157,13 @@ type stateFn func(*lexer) stateFn
 
 // lexer for trig/turtle (and their line-based subsets n-triples & n-quads).
 //
-// The lexer is assumed to be working on one line at a time. When end of line
-// is reached, tokenEOL is emitted, and the caller may supply more lines to
-// the incoming channel. If there are no more input to be scanned, the user (parser)
-// must call stop(), which will terminate lexing goroutine.
-//
-// Tokens for whitespace and comments are not emitted.
+// Tokens for whitespace are comments are not not emitted.
 //
 // The design of the lexer and indeed much of the implementation is lifted from
 // the template lexer in Go's standard library, and is governed by a BSD licence
 // and Copyright 2011 The Go Authors.
 type lexer struct {
-	incoming chan []byte
+	rdr *bufio.Reader
 
 	input  []byte     // the input being scanned (should not inlcude newlines)
 	state  stateFn    // the next lexing function to enter
@@ -171,10 +175,10 @@ type lexer struct {
 	tokens chan token // channel of scanned tokens
 }
 
-func newLexer() *lexer {
+func newLexer(r io.Reader) *lexer {
 	l := lexer{
-		incoming: make(chan []byte),
-		tokens:   make(chan token),
+		rdr:    bufio.NewReader(r),
+		tokens: make(chan token),
 	}
 	go l.run()
 	return &l
@@ -295,6 +299,7 @@ func (l *lexer) emit(typ tokenType) {
 		col:  l.start,
 		text: l.unescape(string(l.input[l.start:l.pos]), typ),
 	}
+
 	l.start = l.pos
 }
 
@@ -336,24 +341,31 @@ func (l *lexer) nextToken() token {
 
 // run runs the state machine for the lexer.
 func (l *lexer) run() {
-again:
-	line := <-l.incoming // Block while waiting for more input
-	if line == nil {
-		// The incoming channel is closed; terminate lexer
-		return
-	}
-	l.input = line
-	l.pos = 0
-	l.start = 0
-	l.line++
-	for l.state = lexAny; l.state != nil; {
-		l.state = l.state(l)
-	}
-	goto again
-}
+	for {
+		line, err := l.rdr.ReadBytes('\n')
+		if err != nil && len(line) == 0 {
+			break
+		}
+		line = bytes.TrimSpace(line)
+		if len(line) == 0 || line[0] == '#' {
+			// skip empty lines and lines with comments
+			l.emit(tokenEOL)
+			l.line++
+			continue
+		}
 
-func (l *lexer) stop() {
-	close(l.incoming)
+		l.input = line
+		l.pos = 0
+		l.start = 0
+		l.line++
+		for l.state = lexAny; l.state != nil; {
+			l.state = l.state(l)
+		}
+	}
+
+	// No more input to lex, emit final EOF token and terminate.
+	// The value of the closed tokens channel is tokenEOF.
+	close(l.tokens)
 }
 
 // state functions:
@@ -415,6 +427,9 @@ func lexAny(l *lexer) stateFn {
 	case '"':
 		l.ignore()
 		return lexLiteral
+	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-':
+		l.backup()
+		return lexNumber
 	case ' ', '\t':
 		// whitespace tokens are not emitted, so we ignore and continue
 		l.ignore()
@@ -439,7 +454,19 @@ func lexAny(l *lexer) stateFn {
 		l.ignore()
 		l.emit(tokenPropertyListEnd)
 		return lexAny
+	case '(':
+		l.ignore()
+		l.emit(tokenCollectionStart)
+		return lexAny
+	case ')':
+		l.ignore()
+		l.emit(tokenCollectionEnd)
+		return lexAny
 	case '.':
+		if isDigit(l.peek()) {
+			l.backup()
+			return lexNumber
+		}
 		l.ignore()
 		l.emit(tokenDot)
 		return lexAny
@@ -451,6 +478,12 @@ func lexAny(l *lexer) stateFn {
 		l.ignore()
 		l.emit(tokenEOL)
 		return nil
+	case ';':
+		l.emit(tokenSemicolon)
+		return lexAny
+	case ',':
+		l.emit(tokenComma)
+		return lexAny
 	case '#', eof:
 		// comment tokens are not emitted, so treated as eof
 		l.ignore()
@@ -638,6 +671,67 @@ func lexLiteral(l *lexer) stateFn {
 		l.backup()
 		return lexAny
 	}
+}
+
+func lexNumber(l *lexer) stateFn {
+	// integer: [+-]?[0-9]+
+	// decimal: [+-]?[0-9]*\.[0-9]+
+	// dobule: (([+-]?[0-9]+\.[0-9]+)|
+	//          ([+-]?\.[0-9]+)|
+	//          ([+-]?[0-9]))
+	//         (e|E)[+-]?[0-9]+
+	gotDot := false
+	gotE := false
+	r := l.next()
+	switch r {
+	case '+', '-':
+	case '.':
+		// cannot be an integer
+		gotDot = true
+	default:
+		// a digit
+	outer:
+		for {
+			r = l.next()
+			switch {
+			case isDigit(r):
+				continue
+			case r == '.':
+				if gotDot {
+					return l.errorf("bad literal: illegal number syntax")
+				}
+				gotDot = true
+			case r == 'e', r == 'E':
+				if gotE {
+					return l.errorf("bad literal: illegal number syntax")
+				}
+				gotE = true
+				p := l.peek()
+				if p == '+' || p == '-' {
+					l.next()
+				}
+			default:
+				// TODO can number be followed by something else than whitespace or comma?
+				if r == ' ' || r == ',' || r == eof {
+					l.backup()
+					break outer
+				}
+				l.errorf("bad literal: illegal number syntax (number followed by %q)", r)
+			}
+		}
+
+		switch {
+		case gotE:
+			l.emit(tokenLiteralDouble)
+		case gotDot:
+			l.emit(tokenLiteralDecimal)
+		default:
+			l.emit(tokenLiteralInteger)
+		}
+
+	}
+
+	return lexAny
 }
 
 func lexBNode(l *lexer) stateFn {
