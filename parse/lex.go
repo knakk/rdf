@@ -464,7 +464,7 @@ func lexAny(l *lexer) stateFn {
 		return lexAny
 	case '.':
 		if isDigit(l.peek()) {
-			l.backup()
+			l.pos -= 2 // can only backup once with l.backup()
 			return lexNumber
 		}
 		l.ignore()
@@ -711,8 +711,15 @@ func lexNumber(l *lexer) stateFn {
 					l.next()
 				}
 			default:
-				// TODO can number be followed by something else than whitespace or comma?
-				if r == ' ' || r == ',' || r == eof {
+				// TODO can number be followed by something else than:
+				// - whitespace
+				// - comma (if in a object list)
+				// - semicolon (if in a predicate list)
+				// - eof (end of line/input)
+				// - ')' end of list
+				// - ']' end of list
+				// - What about dot?? as end of triples statement, not part of number
+				if r == ' ' || r == ',' || r == ';' || r == eof || r == ')' || r == ']' {
 					l.backup()
 					break outer
 				}

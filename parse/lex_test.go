@@ -297,8 +297,9 @@ func TestTokens(t *testing.T) {
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
-		{"( 1 -2 3.14 4.2e9 )", []testToken{
+		{"( .99 1 -2 3.14 4.2e9 )", []testToken{
 			{tokenCollectionStart, ""},
+			{tokenLiteralDecimal, ".99"},
 			{tokenLiteralInteger, "1"},
 			{tokenLiteralInteger, "-2"},
 			{tokenLiteralDecimal, "3.14"},
@@ -309,6 +310,9 @@ func TestTokens(t *testing.T) {
 		},
 		{`1+2`, []testToken{
 			{tokenError, "bad literal: illegal number syntax (number followed by '+')"}},
+		},
+		{`0.99a`, []testToken{
+			{tokenError, "bad literal: illegal number syntax (number followed by 'a')"}},
 		},
 		{"<s> <p> 1, 2, 3", []testToken{
 			{tokenIRIRel, "s"},
