@@ -470,11 +470,14 @@ func lexAny(l *lexer) stateFn {
 		l.ignore()
 		l.emit(tokenDot)
 		return lexAny
-	case '\n':
-		l.ignore()
-		if l.next() != eof {
-			panic("lexer got multi-line input")
+	case '\r':
+		if l.peek() == '\n' {
+			l.next()
 		}
+		l.ignore()
+		l.emit(tokenEOL)
+		return lexAny
+	case '\n':
 		l.ignore()
 		l.emit(tokenEOL)
 		return nil

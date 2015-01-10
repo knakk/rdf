@@ -122,6 +122,17 @@ func TestTokens(t *testing.T) {
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
+		{"<a>\r<b>\r\n<c>\n.", []testToken{
+			{tokenIRIRel, "a"},
+			{tokenEOL, ""},
+			{tokenIRIRel, "b"},
+			{tokenEOL, ""},
+			{tokenIRIRel, "c"},
+			{tokenEOL, ""},
+			{tokenDot, ""},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
 		{`  <x><y> <z>  <\u0053> `, []testToken{
 			{tokenIRIRel, "x"},
 			{tokenIRIRel, "y"},
