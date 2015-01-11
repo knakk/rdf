@@ -14,6 +14,7 @@ var tokenName = map[tokenType]string{
 	tokenIRIAbs:            "IRI (absolute)",
 	tokenIRIRel:            "IRI (relative)",
 	tokenLiteral:           "Literal",
+	tokenLiteral3:          "Literal (triple-quoted string)",
 	tokenLiteralInteger:    "Literal (integer shorthand syntax)",
 	tokenLiteralDouble:     "Literal (double shorthand syntax)",
 	tokenLiteralDecimal:    "Literal (decimal shorthand syntax)",
@@ -149,15 +150,42 @@ func TestTokens(t *testing.T) {
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
+		{`""`, []testToken{
+			{tokenLiteral, ""},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
 		{`"a"`, []testToken{
 			{tokenLiteral, "a"},
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
-		{`"""a"""`, []testToken{
-			{tokenLiteral, ""},
+		{"'a'", []testToken{
 			{tokenLiteral, "a"},
-			{tokenLiteral, ""},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
+		{`"""a"""`, []testToken{
+			{tokenLiteral3, "a"},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
+		{`'''xyz'''`, []testToken{
+			{tokenLiteral3, "xyz"},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
+		{`"""multi
+line
+string"""`, []testToken{
+			{tokenLiteral3, "multi\nline\nstring"},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
+		{`'''one
+two
+3'''`, []testToken{
+			{tokenLiteral3, "one\ntwo\n3"},
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},

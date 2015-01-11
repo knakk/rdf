@@ -375,7 +375,7 @@ func parseObject(d *Decoder) parseFn {
 	case tokenAnonBNode:
 		d.bnodeN++
 		d.curTriple().Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
-	case tokenLiteral:
+	case tokenLiteral, tokenLiteral3:
 		val := tok.text
 		l := rdf.Literal{
 			Val:      val,
@@ -515,8 +515,10 @@ func (d *Decoder) expectAs(context string, expected ...tokenType) token {
 func (d *Decoder) parseNT() (t rdf.Triple, err error) {
 	defer d.recover(&err)
 
+again:
 	for d.peek().typ == tokenEOL {
 		d.next()
+		goto again
 	}
 	if d.peek().typ == tokenEOF {
 		return t, io.EOF

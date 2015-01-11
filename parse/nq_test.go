@@ -760,7 +760,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-01.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "abc' .`, "syntax error: bad Literal: no closing '\"'", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> "abc' .`, "syntax error: bad literal: no closing quote: '\"'", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-string-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-02" ;
@@ -787,7 +787,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-04.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> '''abc''' .`, "syntax error: illegal character '\\''", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> '''abc''' .`, " unexpected Literal (triple-quoted string) as object", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-string-05> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-05" ;
@@ -796,7 +796,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-05.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> """abc""" .`, "unexpected Literal as graph", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> """abc""" .`, "unexpected Literal (triple-quoted string) as object", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-string-06> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-06" ;
@@ -805,7 +805,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-06.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "abc .`, "syntax error: bad Literal: no closing '\"'", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> "abc .`, "syntax error: bad literal: no closing quote: '\"'", []rdf.Quad{}},
 
 	//<#nt-syntax-bad-string-07> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-07" ;

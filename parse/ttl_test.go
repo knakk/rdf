@@ -43,7 +43,7 @@ func TestTTL(t *testing.T) {
 }
 
 func TestStack(t *testing.T) {
-	for _, test := range stackSuite[:0] {
+	for _, test := range stackSuite {
 		triples, err := parseAllTTL(test.input)
 		if err != nil {
 			if test.errWant == "" {
@@ -71,77 +71,9 @@ var stackSuite = []struct {
 	errWant string
 	want    []rdf.Triple
 }{
-	/*{`@base <s:> .
-		  @prefix p: <i:> .
-	                                	 	# Stack after emit:
-		<a> <p1> "a" ;						 # {<s:a> nil nil}
-		    <p2> "b" ;						 # {<s:a> nil nil}
-		    <p3> "c" .          	    	 # {nil nil nil}
-		<b> <p1> 2 ;                		 # {<s:b> nil nil}
-		    <p2> [             	     		 # {<s:b> nil nil} {_:b1 nil nil}
-		    	p:name "Odd" ;				 # {<s:b> nil nil} {_:b1 nil nil}
-		    	p:alder 12 ;            	 # {<s:b> nil nil} {_:b1 nil nil}
-		   	    p:friend [					 # {<s:b> nil nil} {_:b1 nil nil} {_:b2 nil nil}
-		          p:name "Knut" ] ;          # {<s:b> nil nil} {_:b1 nil nil}
-		     	p:friend [					 # {<s:b> nil nil} {_:b1 nil nil} {_:b3 nil nil}
-		   	 	  p:name "Frida" ] 			 # {<s:b> nil nil} {_:b1 nil nil}
-		    	]
-		    ] ;
-		    <p3> "ggg" .					 #{_:b1 nil nil}
-		    `, "", []rdf.Triple{}},*/
-
-	/*@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-	  _:b0  rdf:first  1 ;
-	        rdf:rest   _:b1 .
-	  _:b1  rdf:first  _:b2 .
-	  _:b2  :p         :q .
-	  _:b1  rdf:rest   _:b3 .
-	  _:b3  rdf:first  _:b4 .
-	  _:b4  rdf:first  2 ;
-	        rdf:rest   rdf:nil .
-	  _:b3  rdf:rest   rdf:nil .
-	*/
-	{`
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.               
-@prefix dc: <http://purl.org/dc/elements/1.1/>.        
-@prefix dcterms: <http://purl.org/dc/terms/>.        
-
-<http://www.dlib.org/dlib/may98/05contents.html>
-      dc:title         "DLIB Magazine - The Magazine for Digital Library Research - May 1998";
-      dc:description   "D-LIB magazine is a monthly compilation of contributed stories, commentary, and briefings.";
-      dc:contributor   "Amy Friedlander";
-      dc:publisher     "Corporation for National Research Initiatives";
-      dc:date          "1998-01-05";
-      dc:type          "electronic journal";
-      dc:subject [
-        a rdf:Bag;
-        rdf:_1 "library use studies";
-        rdf:_2 "magazines and newspapers".
-      ];
-      dc:format        "text/html";
-      dc:identifier    <urn:issn:1082-9873>;
-      dcterms:isPartOf <http://www.dlib.org>.`,
+	{`<a><b><c>.`,
 		"", []rdf.Triple{}},
 }
-
-/*
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix dc: <http://purl.org/dc/elements/1.1/> .
-@prefix ex: <http://example.org/stuff/1.0/> .
-
-<http://www.w3.org/TR/rdf-syntax-grammar>
-  dc:title "RDF/XML Syntax Specification (Revised)" ;
-  ex:editor [
-    ex:fullname "Dave Beckett";
-    ex:homePage <http://purl.org/net/dajobe/>
-  ] .
-
-<http://www.w3.org/TR/rdf-syntax-grammar> <http://purl.org/dc/elements/1.1/title> "RDF/XML Syntax Specification (Revised)" .
-_:genid1 <http://example.org/stuff/1.0/fullName> "Dave Beckett" .
-_:genid1 <http://example.org/stuff/1.0/homePage> <http://purl.org/net/dajobe/> .
-<http://www.w3.org/TR/rdf-syntax-grammar> <http://example.org/stuff/1.0/editor> _:genid1 .
-
-*/
 
 // ttlTestSuite is a representation of the official W3C test suite for Turtle
 // which is found at: http://www.w3.org/2013/TurtleTests/

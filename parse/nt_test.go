@@ -25,24 +25,24 @@ func TestNT(t *testing.T) {
 	for _, test := range ntTestSuite {
 		triples, err := parseAllNT(test.input)
 		if test.errWant != "" && err == nil {
-			t.Fatalf("parseNT(%s) => <no Fatalnt %q", test.input, test.errWant)
+			t.Errorf("parseNT(%s) => <no error>, want %q", test.input, test.errWant)
 			continue
 		}
 
 		if test.errWant != "" && err != nil {
 			if !strings.HasSuffix(err.Error(), test.errWant) {
-				t.Fatalf("parseNT(%s) => %v, want %q", test.input, err.Error(), test.errWant)
+				t.Errorf("parseNT(%s) => %v, want %q", test.input, err.Error(), test.errWant)
 			}
 			continue
 		}
 
 		if test.errWant == "" && err != nil {
-			t.Fatalf("parseNT(%s) => %v, want %q", test.input, err.Error(), test.want)
+			t.Errorf("parseNT(%s) => %v, want %q", test.input, err.Error(), test.want)
 			continue
 		}
 
 		if !reflect.DeepEqual(triples, test.want) {
-			t.Fatalf("parseNT(%s) => %v, want %v", test.input, triples, test.want)
+			t.Errorf("parseNT(%s) => %v, want %v", test.input, triples, test.want)
 		}
 	}
 }
@@ -463,7 +463,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "abc' .`, "syntax error: bad Literal: no closing '\"'", nil},
+	{`<http://example/s> <http://example/p> "abc' .`, "syntax error: bad literal: no closing quote: '\"'", nil},
 
 	//<#nt-syntax-bad-string-02> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-02" ;
@@ -487,7 +487,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-04.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> '''abc''' .`, "syntax error: illegal character '\\''", nil},
+	{`<http://example/s> <http://example/p> '''abc''' .`, "unexpected Literal (triple-quoted string) as object", nil},
 
 	//<#nt-syntax-bad-string-05> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-05" ;
@@ -495,7 +495,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-05.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> """abc""" .`, "unexpected Literal as dot (.)", nil},
+	{`<http://example/s> <http://example/p> """abc""" .`, "unexpected Literal (triple-quoted string) as object", nil},
 
 	//<#nt-syntax-bad-string-06> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-06" ;
@@ -503,7 +503,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-06.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "abc .`, "syntax error: bad Literal: no closing '\"'", nil},
+	{`<http://example/s> <http://example/p> "abc .`, "syntax error: bad literal: no closing quote: '\"'", nil},
 
 	//<#nt-syntax-bad-string-07> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-07" ;

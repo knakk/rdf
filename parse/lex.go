@@ -21,6 +21,7 @@ const (
 	tokenIRIRel            // RDF IRI reference (relative)
 	tokenBNode             // RDF blank node
 	tokenLiteral           // RDF literal
+	tokenLiteral3          // RDF literal (triple-quoted string)
 	tokenLiteralInteger    // RDF literal (integer)
 	tokenLiteralDouble     // RDF literal (double-precision floating point)
 	tokenLiteralDecimal    // RDF literal (arbritary-precision decimal)
@@ -339,25 +340,39 @@ func (l *lexer) nextToken() token {
 	return token
 }
 
-// run runs the state machine for the lexer.
-func (l *lexer) run() {
-	for {
-		line, err := l.rdr.ReadBytes('\n')
-		if err != nil && len(line) == 0 {
-			break
-		}
-		line = bytes.TrimSpace(line)
-		if len(line) == 0 || line[0] == '#' {
-			// skip empty lines and lines with comments
-			l.emit(tokenEOL)
-			l.line++
-			continue
-		}
+func (l *lexer) feed(overwrite bool) bool {
+again:
+	line, err := l.rdr.ReadBytes('\n')
+	if err != nil && len(line) == 0 {
+		return false
+	}
 
+	l.line++
+	if len(line) == 0 || line[0] == '#' {
+		// skip empty lines and lines starting with comment
+		l.emit(tokenEOL)
+		goto again
+	}
+
+	if overwrite {
+		// multi-line literal, concat to current input
+		l.input = append(l.input, line...)
+	} else {
 		l.input = line
 		l.pos = 0
 		l.start = 0
-		l.line++
+	}
+
+	return true
+}
+
+// run runs the state machine for the lexer.
+func (l *lexer) run() {
+	for {
+		if !l.feed(false) {
+			break
+		}
+
 		for l.state = lexAny; l.state != nil; {
 			l.state = l.state(l)
 		}
@@ -424,8 +439,11 @@ func lexAny(l *lexer) stateFn {
 		// default namespace, no prefix
 		l.backup()
 		return lexPrefixLabel
+	case '\'':
+		l.backup()
+		return lexLiteral
 	case '"':
-		l.ignore()
+		l.backup()
 		return lexLiteral
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-':
 		l.backup()
@@ -473,6 +491,7 @@ func lexAny(l *lexer) stateFn {
 	case '\r':
 		if l.peek() == '\n' {
 			l.next()
+			return lexAny
 		}
 		l.ignore()
 		l.emit(tokenEOL)
@@ -609,51 +628,91 @@ func lexIRI(l *lexer) stateFn {
 }
 
 func lexLiteral(l *lexer) stateFn {
-	for {
-		r := l.next()
-		if r == eof {
-			return l.errorf("bad Literal: no closing '\"'")
+	quote := l.next()
+	quoteCount := 1
+	var r rune
+
+	l.ignore()
+	for quoteCount <= 3 {
+		r = l.next()
+		if r != quote {
+			break
 		}
-		if r == '\\' {
+		l.ignore()
+		quoteCount++
+	}
+	if quoteCount == 2 {
+		// Empty string
+		quoteCount = 0
+		l.pos = l.start
+		goto done
+	}
+outer:
+	for {
+		switch r {
+		case '\n':
+			if quoteCount != 3 {
+				return l.errorf("bad literal: newline not allowed in single-quoted string")
+			}
+			// triple-quoted strings can contain newlines
+			if !l.feed(true) {
+				return l.errorf("bad literal: no closing quote: %q", quote)
+			}
+		case '\r':
+			if quoteCount != 3 {
+				return l.errorf("bad literal: carriage return not allowed in single-quoted string")
+			}
+		case eof:
+			return l.errorf("bad literal: no closing quote: %q", quote)
+		case '\\':
 			// handle numeric escape sequences for unicode points:
-			esc := l.peek()
+			esc := l.next()
 			switch esc {
 			case 't', 'b', 'n', 'r', 'f', '"', '\'', '\\':
-				l.next() // consume '\'
 				l.unEsc = true
 			case 'u':
-				l.next() // cosume 'u'
 				if !l.acceptRunMin(hex, 4) {
 					return l.errorf("bad literal: insufficent hex digits in unicode escape")
 				}
 				l.unEsc = true
 			case 'U':
-				l.next() // cosume 'U'
 				if !l.acceptRunMin(hex, 8) {
 					return l.errorf("bad literal: insufficent hex digits in unicode escape")
 				}
 				l.unEsc = true
 			case eof:
-				return l.errorf("bad literal: no closing '\"'")
+				return l.errorf("bad literal: no closing quote %q", quote)
 			default:
 				return l.errorf("bad literal: disallowed escape character %q", esc)
 			}
-		}
-		if r == '"' {
+		case quote:
 			// reached end of Literal
-			break
+			if quoteCount == 3 {
+				if l.next() != quote {
+					return l.errorf("bad literal: missing triple quote closing %q", quote)
+				}
+				if l.next() != quote {
+					return l.errorf("bad literal: missing triple quote closing %q", quote)
+				}
+			}
+			l.pos -= quoteCount
+			break outer
 		}
+		r = l.next()
 	}
-	l.backup()
+done:
+	if quoteCount == 3 {
+		l.emit(tokenLiteral3)
+	} else {
+		l.emit(tokenLiteral)
+	}
 
-	l.emit(tokenLiteral)
-
-	// ignore '"'
-	l.pos++
+	// ignore quote(s)
+	l.pos += quoteCount
 	l.ignore()
 
 	// check if literal has language tag or datatype URI:
-	r := l.next()
+	r = l.next()
 	switch r {
 	case '@':
 		l.emit(tokenLangMarker)
