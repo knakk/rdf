@@ -336,13 +336,16 @@ two
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
-		{"( .99 1 -2 3.14 4.2e9 )", []testToken{
+		{"( .99. 1, -2 3.14 4.2e9. )", []testToken{
 			{tokenCollectionStart, ""},
 			{tokenLiteralDecimal, ".99"},
+			{tokenDot, ""},
 			{tokenLiteralInteger, "1"},
+			{tokenComma, ","},
 			{tokenLiteralInteger, "-2"},
 			{tokenLiteralDecimal, "3.14"},
 			{tokenLiteralDouble, "4.2e9"},
+			{tokenDot, ""},
 			{tokenCollectionEnd, ""},
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
