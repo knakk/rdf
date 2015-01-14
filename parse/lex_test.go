@@ -175,6 +175,11 @@ func TestTokens(t *testing.T) {
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
+		{`'''a''b'''`, []testToken{
+			{tokenLiteral3, "a''b"},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
 		{`"""multi
 line
 string"""`, []testToken{

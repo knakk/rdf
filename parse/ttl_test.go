@@ -1167,7 +1167,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG1_with_1_squote.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '''x'y''' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '''x'y''' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "x'y", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL_LONG1_with_2_squotes> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL_LONG1_with_2_squotes" ;
@@ -1177,7 +1183,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG1_with_2_squotes.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '''x''y''' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '''x''y''' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "x''y", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL2> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL2" ;
@@ -1187,7 +1199,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL2_ascii_boundaries> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL2_ascii_boundaries" ;
@@ -1197,7 +1215,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL2_ascii_boundaries.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> \"\x00	!#[]\" .", "", []rdf.Triple{}},
+	{"<http://a.example/s> <http://a.example/p> \"\x00	!#[]\" .", "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj: rdf.Literal{Val: "\x00	!#[]", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL2_with_UTF8_boundaries> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL2_with_UTF8_boundaries" ;
@@ -1207,7 +1231,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_with_UTF8_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL_LONG2> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL_LONG2" ;
@@ -1217,7 +1247,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> """x""" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> """x""" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL_LONG2_ascii_boundaries> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL_LONG2_ascii_boundaries" ;
@@ -1227,7 +1263,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG2_ascii_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> \"\x00!#[]\" .`, "", []rdf.Triple{}},
+	{"<http://a.example/s> <http://a.example/p> \"\x00!#[]\" .", "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\x00!#[]", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL_LONG2_with_UTF8_boundaries> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL_LONG2_with_UTF8_boundaries" ;
@@ -1237,7 +1279,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_with_UTF8_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> """߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽""" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> """߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽""" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL_LONG2_with_1_squote> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL_LONG2_with_1_squote" ;
@@ -1247,7 +1295,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG2_with_1_squote.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> """x"y""" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> """x"y""" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: `x"y`, DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL_LONG2_with_2_squotes> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL_LONG2_with_2_squotes" ;
@@ -1257,7 +1311,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG2_with_2_squotes.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> """x""y""" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> """x""y""" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: `x""y`, DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_CHARACTER_TABULATION> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_CHARACTER_TABULATION" ;

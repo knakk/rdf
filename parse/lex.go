@@ -688,11 +688,12 @@ outer:
 		case quote:
 			// reached end of Literal
 			if quoteCount == 3 {
+				// Triple-quoted strings can contain quotes, as long as not 3 in a row.
 				if l.next() != quote {
-					return l.errorf("bad literal: missing triple quote closing %q", quote)
+					break
 				}
 				if l.next() != quote {
-					return l.errorf("bad literal: missing triple quote closing %q", quote)
+					break
 				}
 			}
 			l.pos -= quoteCount
