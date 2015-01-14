@@ -356,7 +356,7 @@ two
 		{`0.99a`, []testToken{
 			{tokenError, "bad literal: illegal number syntax (number followed by 'a')"}},
 		},
-		{"<s> <p> 1, 2, 3", []testToken{
+		{"<s> <p> 1, 2, 3.", []testToken{
 			{tokenIRIRel, "s"},
 			{tokenIRIRel, "p"},
 			{tokenLiteralInteger, "1"},
@@ -364,6 +364,7 @@ two
 			{tokenLiteralInteger, "2"},
 			{tokenComma, ","},
 			{tokenLiteralInteger, "3"},
+			{tokenDot, ""},
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},

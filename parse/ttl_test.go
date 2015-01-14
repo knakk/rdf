@@ -71,7 +71,9 @@ var stackSuite = []struct {
 	errWant string
 	want    []rdf.Triple
 }{
-	{`<a><b><c>.`,
+	{`PREFIX : <http://example.org/stuff/1.0/>
+:a :b ( "apple" "banana" ) .
+ `,
 		"", []rdf.Triple{}},
 }
 
@@ -969,12 +971,12 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 		rdf.Triple{
 			Subj: rdf.Blank{ID: "b1"},
 			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+			Obj:  rdf.Blank{ID: "b3"},
 		},
 		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b3"},
+			Subj: rdf.Blank{ID: "b3"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
 		},
 		rdf.Triple{
 			Subj: rdf.Blank{ID: "b3"},
@@ -991,7 +993,43 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <last.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> (1 (2)) .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> (1 (2)) .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Blank{ID: "b1"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.Blank{ID: "b2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Blank{ID: "b3"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b3"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b3"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+	}},
 
 	//<#LITERAL1> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL1" ;
@@ -1001,7 +1039,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 'x' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> 'x' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL1_ascii_boundaries> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL1_ascii_boundaries" ;
@@ -1011,7 +1055,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1_ascii_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\x00	&([]' .`, "", []rdf.Triple{}},
+	{"<http://a.example/s> <http://a.example/p> '\x00	&([]' .", "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\u0000\t\u000B\u000C\u000E&([]\u007F", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL1_with_UTF8_boundaries> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL1_with_UTF8_boundaries" ;
@@ -1021,7 +1071,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_with_UTF8_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL1_all_controls> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL1_all_controls" ;
@@ -1031,7 +1087,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1_all_controls.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL1_all_punctuation> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL1_all_punctuation" ;
@@ -1041,7 +1103,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1_all_punctuation.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> ' !\"#$%&():;<=>?@[]^_`{|}~' .", "", []rdf.Triple{}},
+	{"<http://a.example/s> <http://a.example/p> ' !\"#$%&():;<=>?@[]^_`{|}~' .", "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL_LONG1> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL_LONG1" ;
@@ -1051,7 +1119,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '''x''' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '''x''' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL_LONG1_ascii_boundaries> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL_LONG1_ascii_boundaries" ;
@@ -1061,7 +1135,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG1_ascii_boundaries.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> '\x00&([]' .", "", []rdf.Triple{}},
+	{"<http://a.example/s> <http://a.example/p> '\x00&([]' .", "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\x00&([]", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL_LONG1_with_UTF8_boundaries> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL_LONG1_with_UTF8_boundaries" ;
@@ -1071,7 +1151,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_with_UTF8_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '''߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽''' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '''߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽''' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#LITERAL_LONG1_with_1_squote> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "LITERAL_LONG1_with_1_squote" ;

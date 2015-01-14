@@ -764,6 +764,11 @@ func lexNumber(l *lexer) stateFn {
 					l.backup()
 					break outer
 				}
+				if !isDigit(l.peek()) {
+					// integer followed by end-of-statement dot
+					l.pos-- // backup() may allready be called
+					break outer
+				}
 				gotDot = true
 			case r == 'e', r == 'E':
 				if gotE {

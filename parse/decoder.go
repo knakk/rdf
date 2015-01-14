@@ -1,7 +1,6 @@
 package parse
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"runtime"
@@ -39,35 +38,67 @@ func (f format) String() string {
 	}
 }
 
+// ctxTriple contains a Triple, plus the context in which the Triple appears.
+type ctxTriple struct {
+	rdf.Triple
+	Ctx context
+}
+
+type context int
+
+const (
+	ctxTop context = iota
+	ctxCollection
+	ctxList
+)
+
+// TODO remove when done
+func (ctx context) String() string {
+	switch ctx {
+	case ctxTop:
+		return "top context"
+	case ctxList:
+		return "list"
+	case ctxCollection:
+		return "collection"
+
+	default:
+		return "unknown context"
+	}
+}
+
 // Decoder implements a Turtle/Trig parser
 type Decoder struct {
-	r *bufio.Reader
 	l *lexer
 	f format
 
-	state      parseFn           // state of parser
-	startState parseFn           // start state (parseOutsideTriple, or, parseListItem if in a recursive structure)
-	base       string            // base (default IRI)
-	bnodeN     int               // anonymous blank node counter
-	g          rdf.Term          // default graph
-	ns         map[string]string // map[prefix]namespace
-	tokens     [3]token          // 3 token lookahead
-	peekCount  int               // number of tokens peeked at (position in tokens)
-	lineMode   bool              // true if parsing line-based formats (N-Triples and N-Quads)
+	state     parseFn           // state of parser
+	base      string            // base (default IRI)
+	bnodeN    int               // anonymous blank node counter
+	g         rdf.Term          // default graph
+	ns        map[string]string // map[prefix]namespace
+	tokens    [3]token          // 3 token lookahead
+	peekCount int               // number of tokens peeked at (position in tokens lookahead array)
+	lineMode  bool              // true if parsing line-based formats (N-Triples and N-Quads)
+	current   ctxTriple         // the current triple beeing parsed
 
-	// stack to keep track of nested patterns (collections, blank node property lists)
-	// the top of the stack is always the next triple to be emitted
-	tripleStack []rdf.Triple
+	// ctxStack keeps track of current and parent triple contexts,
+	// needed for parsing recursive structures (list/collections).
+	ctxStack []ctxTriple
+
+	// triples contains complete triples ready to be emitted. Usually it will have just one triple,
+	// but can have more when parsing nested list/collections. DecodeTriple() will always return the first item.
+	triples []rdf.Triple
 }
 
 // NewTTLDecoder creates a Turtle decoder
 func NewTTLDecoder(r io.Reader) *Decoder {
 	d := Decoder{
-		l:           newLexer(r),
-		f:           formatTTL,
-		ns:          make(map[string]string),
-		tripleStack: make([]rdf.Triple, 1, 4),
-		startState:  parseOutsideTriple,
+		l:        newLexer(r),
+		f:        formatTTL,
+		ns:       make(map[string]string),
+		ctxStack: make([]ctxTriple, 0, 8),
+		triples:  make([]rdf.Triple, 0, 4),
 	}
 	return &d
 }
@@ -117,26 +148,43 @@ func (d *Decoder) DecodeQuad() (rdf.Quad, error) {
 
 // Private parsing helpers:
 
-// curTriple returns a pointer to the next triple to be emitted (the top of tripleStack).
-func (d *Decoder) curTriple() *rdf.Triple {
-	return &d.tripleStack[len(d.tripleStack)-1]
+// pushContext pushes the current triple and context to the context stack.
+func (d *Decoder) pushContext() {
+	d.ctxStack = append(d.ctxStack, d.current)
 }
 
-// insertBeforeTop a triple to the position before top of the stack
-func (d *Decoder) insertBeforeTop(t rdf.Triple) {
-	d.tripleStack = append(d.tripleStack, rdf.Triple{})
-	d.tripleStack[len(d.tripleStack)-1] = d.tripleStack[len(d.tripleStack)-2]
-	d.tripleStack[len(d.tripleStack)-2] = t
-}
-
-// remove the top-1 triple from the stack
-func (d *Decoder) removeBeforeTop() {
-	if len(d.tripleStack) >= 2 {
-		i := len(d.tripleStack) - 2
-		d.tripleStack = d.tripleStack[:i+copy(d.tripleStack[i:], d.tripleStack[i+1:])]
-	} else {
-		println("removeBeforeTop called with len(d.tripleStack) < 2") // TODO panic?
+// popContext restores the next context on the stack as the current context.
+// If allready at the topmost context, it clears the current triple.
+func (d *Decoder) popContext() {
+	switch len(d.ctxStack) {
+	case 0:
+		d.current.Ctx = ctxTop
+		d.current.Subj = nil
+		d.current.Pred = nil
+		d.current.Obj = nil
+	case 1:
+		d.current = d.ctxStack[0]
+		d.ctxStack = d.ctxStack[:0]
+	default:
+		d.current = d.ctxStack[len(d.ctxStack)-1]
+		d.ctxStack = d.ctxStack[:len(d.ctxStack)-1]
 	}
+}
+
+func (d *Decoder) discardContext() {
+	if len(d.ctxStack) > 1 {
+		d.ctxStack = d.ctxStack[:len(d.ctxStack)-1]
+	} else {
+		d.current.Ctx = ctxTop
+		d.current.Subj = nil
+		d.current.Pred = nil
+		d.current.Obj = nil
+	}
+}
+
+// emit adds the current triple to the slice of completed triples.
+func (d *Decoder) emit() {
+	d.triples = append(d.triples, d.current.Triple)
 }
 
 // next returns the next token, or the next non-EOL token if the
@@ -195,24 +243,9 @@ func (d *Decoder) backup3(t2, t1 token) {
 // parseFn represents the state of the parser as a function that returns the next state.
 type parseFn func(*Decoder) parseFn
 
-// parseOutsideTriple parses entering a new triple, or after a triple (before punctuation)
-func parseOutsideTriple(d *Decoder) parseFn {
+// parseStart parses top context
+func parseStart(d *Decoder) parseFn {
 	switch d.next().typ {
-	case tokenSemicolon:
-		// We have a full triple, entering a predicate list.
-		// Push to stack a triple with current subject set.
-		d.insertBeforeTop(rdf.Triple{
-			Subj: d.curTriple().Subj,
-		})
-		return nil // emit current triple
-	case tokenComma:
-		// We have a full triple, entering a object list.
-		// Push to stack a triple with current subject and predicate set.
-		d.insertBeforeTop(rdf.Triple{
-			Subj: d.curTriple().Subj,
-			Pred: d.curTriple().Pred,
-		})
-		return nil // emit current triple
 	case tokenPrefix:
 		label := d.expect1As("prefix label", tokenPrefixLabel)
 		uri := d.expect1As("prefix URI", tokenIRIAbs)
@@ -229,45 +262,80 @@ func parseOutsideTriple(d *Decoder) parseFn {
 	case tokenSparqlBase:
 		uri := d.expect1As("base URI", tokenIRIAbs)
 		d.base = uri.text
-	case tokenPropertyListEnd:
-		// If not entering a predicate list or object list, we must
-		// discard the previous entry in the stack.
-		// TODO but what if last object was end of list? then top-1 will be { bnode rdf:rest rdf:nil }
-		switch d.peek().typ {
-		case tokenIRIAbs, tokenIRIRel, tokenPrefixLabel:
-			// property list is subject, continue with predicate and object after this triple is emitted
-		case tokenSemicolon, tokenComma:
-			d.removeBeforeTop()
-			d.next() // consume ';'
-			fmt.Printf("%v\n", d.tripleStack)
-			// property list is object,
-		case tokenPropertyListEnd:
-			d.removeBeforeTop()
-			return parseOutsideTriple
-		case tokenDot:
-			d.next() // consume '.'
-		default:
-			d.removeBeforeTop()
-		}
-
-		return nil
-	case tokenCollectionEnd:
-		// insert { bnode rdf:last rdf:nil } in the stack, so that it will be emitted after current triple.
-		d.removeBeforeTop()
-		d.insertBeforeTop(
-			rdf.Triple{
-				Subj: d.curTriple().Subj,
-				Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-				Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
-			})
-		return nil
-	case tokenDot:
-		return nil // emit triple
 	default:
 		d.backup()
 		return parseTriple
 	}
-	return parseOutsideTriple
+	return parseStart
+}
+
+// parseEnd parses punctuation [.,;\])] before emitting the current triple.
+func parseEnd(d *Decoder) parseFn {
+	tok := d.next()
+	switch tok.typ {
+	case tokenSemicolon:
+		d.current.Pred = nil
+		d.current.Obj = nil
+		d.pushContext()
+		return nil
+	case tokenComma:
+		d.current.Obj = nil
+		d.pushContext()
+		return nil
+	case tokenPropertyListEnd:
+		d.popContext()
+		if d.peek().typ == tokenDot {
+			// Reached end of statement
+			d.next()
+			return nil
+		}
+		if d.current.Pred == nil {
+			// Property list was subject, push context with subject to stack.
+			d.pushContext()
+			return nil
+		}
+		// Property list was object, need to check for more closing property lists.
+		return parseEnd
+	case tokenCollectionEnd:
+		// Emit collection closing triple { bnode rdf:rest rdf:nil }
+		d.current.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
+		d.current.Obj = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+		d.emit()
+
+		// Restore parent triple
+		d.popContext()
+		if d.current.Pred == nil {
+			// Collection was subject, push context with subject to stack.
+			d.pushContext()
+			return nil
+		}
+		// Collection was object, need to check for more closing collection.
+		return parseEnd
+	case tokenDot:
+		if d.current.Ctx == ctxCollection {
+			return parseEnd
+		}
+		return nil
+
+	default:
+		if d.current.Ctx == ctxCollection {
+			d.backup() // unread collection item, to be parsed on next iteration
+
+			d.bnodeN++
+			d.current.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
+			d.current.Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+			d.emit()
+
+			d.current.Subj = d.current.Obj
+			d.current.Obj = nil
+			d.current.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
+			d.pushContext()
+			return nil
+		}
+		d.errorf("expected triple termination, got %v", tok.typ)
+		return nil
+	}
+
 }
 
 func parseTriple(d *Decoder) parseFn {
@@ -275,47 +343,47 @@ func parseTriple(d *Decoder) parseFn {
 }
 
 func parseSubject(d *Decoder) parseFn {
-	if d.curTriple().Subj != nil {
+	// restore triple context, or clear current
+	d.popContext()
+
+	if d.current.Subj != nil {
 		return parsePredicate
 	}
 	tok := d.next()
 	switch tok.typ {
 	case tokenIRIAbs:
-		d.curTriple().Subj = rdf.URI{URI: tok.text}
+		d.current.Subj = rdf.URI{URI: tok.text}
 	case tokenIRIRel:
-		d.curTriple().Subj = rdf.URI{URI: d.base + tok.text}
-		// TODO err if d.base == ""
+		d.current.Subj = rdf.URI{URI: d.base + tok.text}
 	case tokenBNode:
-		d.curTriple().Subj = rdf.Blank{ID: tok.text}
+		d.current.Subj = rdf.Blank{ID: tok.text}
 	case tokenAnonBNode:
 		d.bnodeN++
-		d.curTriple().Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.current.Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
 		if !ok {
 			d.errorf("missing namespace for prefix: %s", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
-		d.curTriple().Subj = rdf.URI{URI: ns + suf.text}
+		d.current.Subj = rdf.URI{URI: ns + suf.text}
 	case tokenPropertyListStart:
+		// Blank node is subject of a new triple
 		d.bnodeN++
-		d.curTriple().Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
-		// Blank node is subject.
-		// insert triple with subj of property list, to be restored when property list ends
-		d.insertBeforeTop(rdf.Triple{Subj: d.curTriple().Subj})
+		d.current.Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.pushContext() // Subj = bnode, top context
+		d.current.Ctx = ctxList
 	case tokenCollectionStart:
 		if d.peek().typ == tokenCollectionEnd {
-			d.curTriple().Subj = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+			// An empty collection
+			d.current.Subj = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
 			break
 		}
 		d.bnodeN++
-		d.curTriple().Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
-		d.curTriple().Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
-
-		d.insertBeforeTop(
-			rdf.Triple{
-				Subj: d.curTriple().Subj,
-			})
+		d.current.Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.pushContext()
+		d.current.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
+		d.current.Ctx = ctxList
 		return parseObject
 	case tokenError:
 		d.errorf("%d:%d: syntax error: %v", tok.line, tok.col, tok.text)
@@ -327,54 +395,49 @@ func parseSubject(d *Decoder) parseFn {
 }
 
 func parsePredicate(d *Decoder) parseFn {
-	if d.curTriple().Pred != nil {
+	if d.current.Pred != nil {
 		return parseObject
 	}
 	tok := d.next()
 	switch tok.typ {
 	case tokenIRIAbs:
-		d.curTriple().Pred = rdf.URI{URI: tok.text}
+		d.current.Pred = rdf.URI{URI: tok.text}
 	case tokenIRIRel:
-		d.curTriple().Pred = rdf.URI{URI: d.base + tok.text}
+		d.current.Pred = rdf.URI{URI: d.base + tok.text}
 		// TODO err if d.base == ""
 	case tokenRDFType:
-		d.curTriple().Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
+		d.current.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
 	case tokenBNode:
-		d.curTriple().Pred = rdf.Blank{ID: tok.text}
+		d.current.Pred = rdf.Blank{ID: tok.text}
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
 		if !ok {
 			d.errorf("missing namespace for prefix: %s", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
-		d.curTriple().Pred = rdf.URI{URI: ns + suf.text}
+		d.current.Pred = rdf.URI{URI: ns + suf.text}
 	case tokenError:
 		d.errorf("syntax error: %v", tok.text)
 	default:
 		d.errorf("%d:%d: unexpected %v as predicate", tok.line, tok.col, tok.typ)
 	}
 
-	//	d.tripleStack[len(d.tripleStack)-1].Pred = d.curTriple().Pred
-
 	return parseObject
 }
 
 func parseObject(d *Decoder) parseFn {
-	if d.curTriple().Obj != nil {
-		return nil
-	}
 	tok := d.next()
 	switch tok.typ {
 	case tokenIRIAbs:
-		d.curTriple().Obj = rdf.URI{URI: tok.text}
+		d.current.Obj = rdf.URI{URI: tok.text}
 	case tokenIRIRel:
-		d.curTriple().Obj = rdf.URI{URI: d.base + tok.text}
+		d.current.Obj = rdf.URI{URI: d.base + tok.text}
 		// TODO err if d.base == ""
 	case tokenBNode:
-		d.curTriple().Obj = rdf.Blank{ID: tok.text}
+		d.current.Obj = rdf.Blank{ID: tok.text}
 	case tokenAnonBNode:
 		d.bnodeN++
-		d.curTriple().Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.current.Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
 	case tokenLiteral, tokenLiteral3:
 		val := tok.text
 		l := rdf.Literal{
@@ -396,18 +459,18 @@ func parseObject(d *Decoder) parseFn {
 			}
 			l.DataType = rdf.URI{URI: tok.text}
 		}
-		d.curTriple().Obj = l
+		d.current.Obj = l
 	case tokenLiteralDecimal:
 		// we can ignore the error, because we know it's an correctly lexed decimal value:
 		f, _ := strconv.ParseFloat(tok.text, 64) // TODO math/bigINt?
-		d.curTriple().Obj = rdf.Literal{
+		d.current.Obj = rdf.Literal{
 			Val:      f,
 			DataType: rdf.XSDDecimal,
 		}
 	case tokenLiteralInteger:
 		// we can ignore the error, because we know it's an correctly lexed integer value:
 		i, _ := strconv.Atoi(tok.text)
-		d.curTriple().Obj = rdf.Literal{
+		d.current.Obj = rdf.Literal{
 			Val:      i,
 			DataType: rdf.XSDInteger,
 		}
@@ -417,27 +480,42 @@ func parseObject(d *Decoder) parseFn {
 			d.errorf("missing namespace for prefix: %s", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
-		d.curTriple().Obj = rdf.URI{URI: ns + suf.text}
+		d.current.Obj = rdf.URI{URI: ns + suf.text}
 	case tokenPropertyListStart:
+		// Blank node is object of current triple
+		// Save current context, to be restored after the list ends
+		d.pushContext()
+
 		d.bnodeN++
-		d.curTriple().Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
-		d.insertBeforeTop(rdf.Triple{Subj: d.curTriple().Subj})
-		d.insertBeforeTop(rdf.Triple{Subj: d.curTriple().Obj})
+		d.current.Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.emit()
+
+		// Set blank node as subject of the next triple. Push to stack and return.
+		d.current.Subj = d.current.Obj
+		d.current.Pred = nil
+		d.current.Obj = nil
+		d.current.Ctx = ctxList
+		d.pushContext()
 		return nil
 	case tokenCollectionStart:
 		if d.peek().typ == tokenCollectionEnd {
+			// an empty collection
 			d.next() // consume ')'
-			d.curTriple().Obj = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+			d.current.Obj = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
 			break
 		}
-		d.bnodeN++
-		d.curTriple().Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		// Blank node is object of current triple
+		// Save current context, to be restored after the collection ends
+		d.pushContext()
 
-		d.insertBeforeTop(
-			rdf.Triple{
-				Subj: d.curTriple().Obj,
-				Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			})
+		d.bnodeN++
+		d.current.Obj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.emit()
+		d.current.Subj = d.current.Obj
+		d.current.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
+		d.current.Obj = nil
+		d.current.Ctx = ctxCollection
+		d.pushContext()
 		return nil
 	case tokenError:
 		d.errorf("%d:%d: syntax error: %v", tok.line, tok.col, tok.text)
@@ -445,15 +523,10 @@ func parseObject(d *Decoder) parseFn {
 		d.errorf("%d:%d: unexpected %v as object", tok.line, tok.col, tok.typ)
 	}
 
-	return d.startState //parseOutsideTriple | parseListItem
-}
+	// We now have a full tripe, emit it.
+	d.emit()
 
-func parseCollectionItem(d *Decoder) parseFn {
-	switch d.next().typ {
-	case tokenCollectionEnd:
-
-	}
-	return nil
+	return parseEnd
 }
 
 // errorf formats the error and terminates parsing.
@@ -679,26 +752,26 @@ func (d *Decoder) parseNQ() (q rdf.Quad, err error) {
 // parseTTL parses a Turtle document, and returns the first available triple.
 func (d *Decoder) parseTTL() (t rdf.Triple, err error) {
 	defer d.recover(&err)
+
+	// Check if there is allready a triple in the pipeline:
+	if len(d.triples) >= 1 {
+		goto done
+	}
+
+	// Return io.EOF when there is no more tokens to parse.
 	if d.next().typ == tokenEOF {
-		//fmt.Printf("final stack: %v\n", d.tripleStack)
 		return t, io.EOF
 	}
 	d.backup()
 
-	if len(d.tripleStack) > 1 {
-		// Remove the last emitted triple from stack.
-		d.tripleStack = d.tripleStack[:len(d.tripleStack)-1]
-	} else {
-		// Clear the only triple on stack.
-		d.tripleStack[0] = rdf.Triple{}
-	}
-
-	//fmt.Printf("start stack: %v\n", d.tripleStack)
-	for d.state = d.startState; d.state != nil; {
+	// Run the parser state machine.
+	for d.state = parseStart; d.state != nil; {
 		d.state = d.state(d)
 	}
-	t = *d.curTriple()
-	//fmt.Printf("emit: %v\n\n", t)
+
+done:
+	t = d.triples[0]
+	d.triples = d.triples[1:]
 	return t, err
 }
 
