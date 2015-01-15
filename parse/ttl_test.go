@@ -1840,7 +1840,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-file-01.ttl> ;
 	//   .
 
-	{``, "", []rdf.Triple{}},
+	{``, "", nil},
 
 	//<#turtle-syntax-file-02> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-file-02" ;
@@ -1849,7 +1849,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-file-02.ttl> ;
 	//   .
 
-	{`#Empty file.`, "", []rdf.Triple{}},
+	{`#Empty file.`, "", nil},
 
 	//<#turtle-syntax-file-03> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-file-03" ;
@@ -1859,7 +1859,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`#One comment, one empty line.
-`, "", []rdf.Triple{}},
+`, "", nil},
 
 	//<#turtle-syntax-uri-01> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-uri-01" ;
@@ -1868,7 +1868,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-uri-01.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+	}},
 
 	//<#turtle-syntax-uri-02> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-uri-02" ;
@@ -1878,7 +1884,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`# x53 is capital S
-<http://www.w3.org/2013/TurtleTests/\u0053> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/\u0053> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/S"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+	}},
 
 	//<#turtle-syntax-uri-03> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-uri-03" ;
@@ -1888,7 +1900,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`# x53 is capital S
-<http://www.w3.org/2013/TurtleTests/\U00000053> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/\U00000053> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/S"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+	}},
 
 	//<#turtle-syntax-uri-04> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-uri-04" ;
@@ -1899,7 +1917,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 
 	{`# IRI with all chars in it.
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p>
-<scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []rdf.Triple{}},
+<scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
+		},
+	}},
 
 	//<#turtle-syntax-base-01> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-base-01" ;
@@ -1908,7 +1932,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-base-01.ttl> ;
 	//   .
 
-	{`@base <http://www.w3.org/2013/TurtleTests/> .`, "", []rdf.Triple{}},
+	{`@base <http://www.w3.org/2013/TurtleTests/> .`, "", nil},
 
 	//<#turtle-syntax-base-02> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-base-02" ;
@@ -1917,7 +1941,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-base-02.ttl> ;
 	//   .
 
-	{`BASE <http://www.w3.org/2013/TurtleTests/>`, "", []rdf.Triple{}},
+	{`BASE <http://www.w3.org/2013/TurtleTests/>`, "", nil},
 
 	//<#turtle-syntax-base-03> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-base-03" ;

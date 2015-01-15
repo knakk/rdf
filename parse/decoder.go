@@ -262,6 +262,8 @@ func parseStart(d *Decoder) parseFn {
 	case tokenSparqlBase:
 		uri := d.expect1As("base URI", tokenIRIAbs)
 		d.base = uri.text
+	case tokenEOF:
+		return nil
 	default:
 		d.backup()
 		return parseTriple
@@ -803,6 +805,11 @@ func (d *Decoder) parseTTL() (t rdf.Triple, err error) {
 	// Run the parser state machine.
 	for d.state = parseStart; d.state != nil; {
 		d.state = d.state(d)
+	}
+
+	if len(d.triples) == 0 {
+		// No triples to emit, i.e only comments and possibly directives was parsed.
+		return t, io.EOF
 	}
 
 done:
