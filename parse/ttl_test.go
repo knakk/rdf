@@ -2001,7 +2001,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`PREFIX : <http://www.w3.org/2013/TurtleTests/>
-:s :p :123 .`, "", []rdf.Triple{}},
+:s :p :123 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/123"},
+		},
+	}},
 
 	//<#turtle-syntax-prefix-04> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-prefix-04" ;
@@ -2011,7 +2017,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :%20 .`, "", []rdf.Triple{}},
+:s :p :%20 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/%20"},
+		},
+	}},
 
 	//<#turtle-syntax-prefix-05> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-prefix-05" ;
@@ -2021,7 +2033,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-: : : .`, "", []rdf.Triple{}},
+: : : .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/"},
+		},
+	}},
 
 	//<#turtle-syntax-prefix-06> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-prefix-06" ;
@@ -2033,7 +2051,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	{`# colon is a legal pname character
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
-:a:b:c  x:d:e:f :::: .`, "", []rdf.Triple{}},
+:a:b:c  x:d:e:f :::: .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/a:b:c"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/d:e:f"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:::"},
+		},
+	}},
 
 	//<#turtle-syntax-prefix-07> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-prefix-07" ;
