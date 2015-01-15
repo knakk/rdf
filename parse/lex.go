@@ -812,7 +812,8 @@ func lexNumber(l *lexer) stateFn {
 					l.backup()
 					break outer
 				}
-				if !isDigit(l.peek()) {
+				p := l.peek()
+				if !isDigit(p) && p != 'E' && p != 'e' {
 					// integer followed by end-of-statement dot
 					l.pos-- // backup() may allready be called
 					break outer
