@@ -723,11 +723,12 @@ done:
 			return l.errorf("bad literal: invalid datatype IRI")
 		}
 		l.emit(tokenDataTypeMarker)
-		if l.next() != '<' {
+		/*if l.next() != '<' {
 			return l.errorf("bad literal: invalid datatype IRI")
 		}
 		l.ignore() // ignore '<'
-		return lexIRI
+		return lexIRI*/
+		return lexAny
 	case ' ', '\t':
 		return lexAny
 	default:

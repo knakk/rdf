@@ -452,12 +452,26 @@ func parseObject(d *Decoder) parseFn {
 			l.Lang = tok.text
 		case tokenDataTypeMarker:
 			d.next() // consume peeked token
-			tok = d.expect1As("literal datatype", tokenIRIAbs)
-			v, err := parseLiteral(val, tok.text)
-			if err == nil {
-				l.Val = v
+			tok = d.expectAs("literal datatype", tokenIRIAbs, tokenPrefixLabel)
+			switch tok.typ {
+			case tokenIRIAbs:
+				v, err := parseLiteral(val, tok.text)
+				if err == nil {
+					l.Val = v
+					l.DataType = rdf.URI{URI: tok.text}
+				} // TODO else set to xsd:string?
+			case tokenPrefixLabel:
+				ns, ok := d.ns[tok.text]
+				if !ok {
+					d.errorf("missing namespace for prefix: %s", tok.text)
+				}
+				tok2 := d.expect1As("IRI suffix", tokenIRISuffix)
+				v, err := parseLiteral(val, ns+tok2.text)
+				if err == nil {
+					l.Val = v
+					l.DataType = rdf.URI{URI: ns + tok2.text}
+				} // TODO else set to xsd:string?
 			}
-			l.DataType = rdf.URI{URI: tok.text}
 		}
 		d.current.Obj = l
 	case tokenLiteralDecimal:

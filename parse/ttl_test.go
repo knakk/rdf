@@ -43,7 +43,7 @@ func TestTTL(t *testing.T) {
 }
 
 func TestStack(t *testing.T) {
-	for _, test := range stackSuite {
+	for _, test := range stackSuite[:0] {
 		triples, err := parseAllTTL(test.input)
 		if err != nil {
 			if test.errWant == "" {
@@ -1327,7 +1327,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_CHARACTER_TABULATION.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '	' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '	' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj: rdf.Literal{Val: `	`, DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_BACKSPACE> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_BACKSPACE" ;
@@ -1337,7 +1343,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_BACKSPACE.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj: rdf.Literal{Val: "", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_LINE_FEED> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_LINE_FEED" ;
@@ -1348,7 +1360,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`<http://a.example/s> <http://a.example/p> '''
-''' .`, "", []rdf.Triple{}},
+''' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\n", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_CARRIAGE_RETURN> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_CARRIAGE_RETURN" ;
@@ -1358,8 +1376,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_CARRIAGE_RETURN.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '''
-''' .`, "", []rdf.Triple{}},
+	{"<http://a.example/s> <http://a.example/p> '''\r''' .", "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\r", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_FORM_FEED> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_FORM_FEED" ;
@@ -1369,7 +1392,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_FORM_FEED.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj: rdf.Literal{Val: "", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_REVERSE_SOLIDUS> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_REVERSE_SOLIDUS" ;
@@ -1379,7 +1408,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_REVERSE_SOLIDUS.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\\' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '\\' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: `\`, DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_escaped_CHARACTER_TABULATION> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_escaped_CHARACTER_TABULATION" ;
@@ -1389,7 +1424,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_CHARACTER_TABULATION.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\t' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '\t' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\t", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_escaped_BACKSPACE> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_escaped_BACKSPACE" ;
@@ -1399,7 +1440,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_BACKSPACE.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\b' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '\b' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\b", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_escaped_LINE_FEED> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_escaped_LINE_FEED" ;
@@ -1409,7 +1456,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_LINE_FEED.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\n' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '\n' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\n", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_escaped_CARRIAGE_RETURN> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_escaped_CARRIAGE_RETURN" ;
@@ -1419,7 +1472,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_CARRIAGE_RETURN.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\r' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '\r' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\r", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_escaped_FORM_FEED> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_escaped_FORM_FEED" ;
@@ -1429,7 +1488,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_FORM_FEED.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\f' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '\f' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "\f", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_numeric_escape4> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_numeric_escape4" ;
@@ -1439,7 +1504,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_numeric_escape4.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\u006F' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '\u006F' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "o", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#literal_with_numeric_escape8> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_with_numeric_escape8" ;
@@ -1449,7 +1520,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_numeric_escape4.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\U0000006F' .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> '\U0000006F' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "o", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#IRIREF_datatype> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "IRIREF_datatype" ;
@@ -1459,7 +1536,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <IRIREF_datatype.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+	}},
 
 	//<#prefixed_name_datatype> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "prefixed_name_datatype" ;
@@ -1470,7 +1553,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-<http://a.example/s> <http://a.example/p> "1"^^xsd:integer .`, "", []rdf.Triple{}},
+<http://a.example/s> <http://a.example/p> "1"^^xsd:integer .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+	}},
 
 	//<#bareword_integer> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "bareword_integer" ;
@@ -1480,7 +1569,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <IRIREF_datatype.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 1 .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> 1 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+	}},
 
 	//<#bareword_decimal> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "bareword_decimal" ;
@@ -1490,7 +1585,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <bareword_decimal.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 1.0 .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> 1.0 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDecimal},
+		},
+	}},
 
 	//<#bareword_double> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "bareword_double" ;

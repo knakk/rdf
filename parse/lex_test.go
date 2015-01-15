@@ -237,6 +237,14 @@ two
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
+		{`"1"^^xsd:integer`, []testToken{
+			{tokenLiteral, "1"},
+			{tokenDataTypeMarker, "^^"},
+			{tokenPrefixLabel, "xsd"},
+			{tokenIRISuffix, "integer"},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
 		{`"a"^`, []testToken{
 			{tokenLiteral, "a"},
 			{tokenError, "bad literal: invalid datatype IRI"}},
@@ -244,12 +252,13 @@ two
 		{`"a"^^`, []testToken{
 			{tokenLiteral, "a"},
 			{tokenDataTypeMarker, "^^"},
-			{tokenError, "bad literal: invalid datatype IRI"}},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
 		},
 		{`"a"^^xyz`, []testToken{
 			{tokenLiteral, "a"},
 			{tokenDataTypeMarker, "^^"},
-			{tokenError, "bad literal: invalid datatype IRI"}},
+			{tokenError, "illegal token: xyz"}},
 		},
 		{`_:a_BlankLabel123.`, []testToken{
 			{tokenBNode, "a_BlankLabel123"},
