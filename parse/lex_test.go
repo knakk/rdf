@@ -336,6 +336,16 @@ two
 			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
+		{"basE <a>\nPReFiX p:<b>", []testToken{
+			{tokenSparqlBase, "basE"},
+			{tokenIRIRel, "a"},
+			{tokenEOL, ""},
+			{tokenSparqlPrefix, "PReFiX"},
+			{tokenPrefixLabel, "p"},
+			{tokenIRIRel, "b"},
+			{tokenEOL, ""},
+			{tokenEOF, ""}},
+		},
 		{"[] <a> <b> .", []testToken{
 			{tokenAnonBNode, ""},
 			{tokenIRIRel, "a"},

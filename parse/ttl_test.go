@@ -1951,7 +1951,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@base <http://www.w3.org/2013/TurtleTests/> .
-<s> <p> <o> .`, "", []rdf.Triple{}},
+<s> <p> <o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+	}},
 
 	//<#turtle-syntax-base-04> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-base-04" ;
@@ -1961,7 +1967,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`base <http://www.w3.org/2013/TurtleTests/>
-<s> <p> <o> .`, "", []rdf.Triple{}},
+<s> <p> <o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+	}},
 
 	//<#turtle-syntax-prefix-01> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-prefix-01" ;
@@ -1970,7 +1982,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-prefix-01.ttl> ;
 	//   .
 
-	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .`, "", []rdf.Triple{}},
+	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .`, "", nil},
 
 	//<#turtle-syntax-prefix-02> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-prefix-02" ;
@@ -1979,7 +1991,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-prefix-02.ttl> ;
 	//   .
 
-	{`PreFIX : <http://www.w3.org/2013/TurtleTests/>`, "", []rdf.Triple{}},
+	{`PreFIX : <http://www.w3.org/2013/TurtleTests/>`, "", nil},
 
 	//<#turtle-syntax-prefix-03> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-prefix-03" ;

@@ -335,6 +335,35 @@ func (l *lexer) acceptExact(s string) bool {
 	return false
 }
 
+// acceptCaseInsensitive consumes the given string in l.input, disregarding case,
+// and returns true, or otherwise false if the string is not matched in l.input.
+// It only works on the ASCII subset.
+func (l *lexer) acceptCaseInsensitive(s string) bool {
+	if len(l.input[l.start:]) < len(s) {
+		return false
+	}
+	for i := 0; i < len(s); i++ {
+		r := l.input[l.start+i]
+		if r == s[i] {
+			continue
+		}
+		if r < 'A' {
+			// r is lowercase, s[i] can be uppercase
+			if r == s[i]-32 {
+				continue
+			}
+			return false
+		}
+		// r is uppercase, s[i] can be lowercase
+		if r == s[i]+32 {
+			continue
+		}
+		return false
+	}
+	l.pos = l.pos + len(s) - 1
+	return true
+}
+
 // nextToken returns the next token from the input.
 func (l *lexer) nextToken() token {
 	token := <-l.tokens
@@ -512,8 +541,8 @@ func lexAny(l *lexer) stateFn {
 		l.ignore()
 		l.emit(tokenEOL)
 		return nil // This parks the lexer until it gets more input
-	case 'P':
-		if l.acceptExact("PREFIX") {
+	case 'P', 'p':
+		if l.acceptCaseInsensitive("PREFIX") {
 			l.emit(tokenSparqlPrefix)
 			// consume and ignore any whitespace before localname
 			for r := l.next(); r == ' ' || r == '\t'; r = l.next() {
@@ -524,8 +553,8 @@ func lexAny(l *lexer) stateFn {
 		}
 		l.backup()
 		return lexPrefixLabel
-	case 'B':
-		if l.acceptExact("BASE") {
+	case 'B', 'b':
+		if l.acceptCaseInsensitive("BASE") {
 			l.emit(tokenSparqlBase)
 			return lexAny
 		}
