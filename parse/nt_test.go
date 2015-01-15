@@ -290,7 +290,7 @@ var ntTestSuite = []struct {
 		rdf.Triple{
 			Subj: rdf.URI{URI: "http://example/s"},
 			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "123", DataType: rdf.URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}},
+			Obj:  rdf.Literal{Val: []byte("123"), DataType: rdf.URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}},
 		},
 	}},
 

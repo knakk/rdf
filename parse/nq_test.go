@@ -564,7 +564,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 		rdf.Quad{
 			Subj:  rdf.URI{URI: "http://example/s"},
 			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "123", DataType: rdf.URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}},
+			Obj:   rdf.Literal{Val: []byte("123"), DataType: rdf.URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}},
 			Graph: defaultGraph,
 		},
 	}},

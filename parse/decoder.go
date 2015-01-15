@@ -847,6 +847,8 @@ func parseLiteral(val, datatype string) (interface{}, error) {
 			return nil, err
 		}
 		return t, nil
+	case rdf.XSDByte.URI:
+		return []byte(val), nil
 		// TODO: other xsd dataypes that maps to Go data types
 	default:
 		return nil, fmt.Errorf("don't know how to represent %q with datatype %q as a Go type", val, datatype)

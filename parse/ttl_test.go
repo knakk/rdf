@@ -2771,7 +2771,13 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
-<s> <p> "123"^^xsd:byte .`, "", []rdf.Triple{}},
+<s> <p> "123"^^xsd:byte .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "s"},
+			Pred: rdf.URI{URI: "p"},
+			Obj:  rdf.Literal{Val: []byte("123"), DataType: rdf.XSDByte},
+		},
+	}},
 
 	//<#turtle-syntax-datatypes-02> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-datatypes-02" ;
