@@ -1713,7 +1713,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <langtagged_non_LONG.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "chat", Lang: "en", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#langtagged_LONG> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "langtagged_LONG" ;
@@ -1723,7 +1729,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <langtagged_non_LONG.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> """chat"""@en .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> """chat"""@en .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "chat", Lang: "en", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#lantag_with_subtag> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "lantag_with_subtag" ;
@@ -1733,7 +1745,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <lantag_with_subtag.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "chat"@en-us .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> "chat"@en-us .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: "chat", Lang: "en-us", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#objectList_with_two_objects> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "objectList_with_two_objects" ;
@@ -1743,7 +1761,18 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <objectList_with_two_objects.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> <http://a.example/o1>, <http://a.example/o2> .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> <http://a.example/o1>, <http://a.example/o2> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o1"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		},
+	}},
 
 	//<#predicateObjectList_with_two_objectLists> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "predicateObjectList_with_two_objectLists" ;
@@ -1753,7 +1782,18 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <predicateObjectList_with_two_objectLists.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>; <http://a.example/p2> <http://a.example/o2> .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>; <http://a.example/p2> <http://a.example/o2> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p1"},
+			Obj:  rdf.URI{URI: "http://a.example/o1"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p2"},
+			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		},
+	}},
 
 	//<#repeated_semis_at_end> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "repeated_semis_at_end" ;
@@ -1763,7 +1803,18 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <predicateObjectList_with_two_objectLists.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>;; <http://a.example/p2> <http://a.example/o2> .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>;; <http://a.example/p2> <http://a.example/o2> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p1"},
+			Obj:  rdf.URI{URI: "http://a.example/o1"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p2"},
+			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		},
+	}},
 
 	//<#repeated_semis_not_at_end> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "repeated_semis_not_at_end" ;
@@ -1773,7 +1824,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <repeated_semis_not_at_end.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>;; .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>;; .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p1"},
+			Obj:  rdf.URI{URI: "http://a.example/o1"},
+		},
+	}},
 
 	//# original tests-ttl
 	//<#turtle-syntax-file-01> rdf:type rdft:TestTurtlePositiveSyntax ;

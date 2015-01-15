@@ -274,6 +274,14 @@ func parseEnd(d *Decoder) parseFn {
 	tok := d.next()
 	switch tok.typ {
 	case tokenSemicolon:
+		switch d.peek().typ {
+		case tokenSemicolon:
+			// parse multiple semicolons in a row
+			return parseEnd
+		case tokenDot:
+			// parse trailing semicolon
+			return parseEnd
+		}
 		d.current.Pred = nil
 		d.current.Obj = nil
 		d.pushContext()
