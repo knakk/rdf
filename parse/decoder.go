@@ -779,7 +779,7 @@ done:
 
 // parseLiteral
 func parseLiteral(val, datatype string) (interface{}, error) {
-	switch val {
+	switch datatype {
 	case rdf.XSDInteger.URI:
 		i, err := strconv.Atoi(val)
 		if err != nil {
