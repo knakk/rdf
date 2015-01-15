@@ -25,6 +25,7 @@ const (
 	tokenLiteralInteger    // RDF literal (integer)
 	tokenLiteralDouble     // RDF literal (double-precision floating point)
 	tokenLiteralDecimal    // RDF literal (arbritary-precision decimal)
+	tokenLiteralBoolean    // RDF literal (boolean)
 	tokenLangMarker        // '@''
 	tokenLang              // literal language tag
 	tokenDataTypeMarker    // '^^'
@@ -521,13 +522,29 @@ func lexAny(l *lexer) stateFn {
 			l.ignore()
 			return lexPrefixLabelInDirective
 		}
-		fallthrough // continue to default
+		l.backup()
+		return lexPrefixLabel
 	case 'B':
 		if l.acceptExact("BASE") {
 			l.emit(tokenSparqlBase)
 			return lexAny
 		}
-		fallthrough // continue to default
+		l.backup()
+		return lexPrefixLabel
+	case 't':
+		if l.acceptExact("true") {
+			l.emit(tokenLiteralBoolean)
+			return lexAny
+		}
+		l.backup()
+		return lexPrefixLabel
+	case 'f':
+		if l.acceptExact("false") {
+			l.emit(tokenLiteralBoolean)
+			return lexAny
+		}
+		l.backup()
+		return lexPrefixLabel
 	default:
 		if isPnCharsBase(r) {
 			l.backup()

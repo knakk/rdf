@@ -495,6 +495,13 @@ func parseObject(d *Decoder) parseFn {
 			Val:      i,
 			DataType: rdf.XSDInteger,
 		}
+	case tokenLiteralBoolean:
+		// we can ignore the error, because we know from the lexer it's either "true" or "false":
+		i, _ := strconv.ParseBool(tok.text)
+		d.current.Obj = rdf.Literal{
+			Val:      i,
+			DataType: rdf.XSDBoolean,
+		}
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
 		if !ok {

@@ -1681,7 +1681,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_true.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> true .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> true .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: true, DataType: rdf.XSDBoolean},
+		},
+	}},
 
 	//<#literal_false> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_false" ;
@@ -1691,7 +1697,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_false.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> false .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> false .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: false, DataType: rdf.XSDBoolean},
+		},
+	}},
 
 	//<#langtagged_non_LONG> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "langtagged_non_LONG" ;
