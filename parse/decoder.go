@@ -474,9 +474,16 @@ func parseObject(d *Decoder) parseFn {
 			}
 		}
 		d.current.Obj = l
+	case tokenLiteralDouble:
+		// we can ignore the error, because we know it's an correctly lexed dobule value:
+		f, _ := strconv.ParseFloat(tok.text, 64)
+		d.current.Obj = rdf.Literal{
+			Val:      f,
+			DataType: rdf.XSDDouble,
+		}
 	case tokenLiteralDecimal:
 		// we can ignore the error, because we know it's an correctly lexed decimal value:
-		f, _ := strconv.ParseFloat(tok.text, 64) // TODO math/bigINt?
+		f, _ := strconv.ParseFloat(tok.text, 64)
 		d.current.Obj = rdf.Literal{
 			Val:      f,
 			DataType: rdf.XSDDecimal,
@@ -800,7 +807,7 @@ func parseLiteral(val, datatype string) (interface{}, error) {
 			return nil, err
 		}
 		return i, nil
-	case rdf.XSDFloat.URI: // TODO also XSDDouble ?
+	case rdf.XSDFloat.URI, rdf.XSDDouble.URI, rdf.XSDDecimal.URI:
 		f, err := strconv.ParseFloat(val, 64)
 		if err != nil {
 			return nil, err

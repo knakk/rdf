@@ -1601,7 +1601,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <bareword_double.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 1E0 .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> 1E0 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDouble},
+		},
+	}},
 
 	//<#double_lower_case_e> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "double_lower_case_e" ;
@@ -1611,7 +1617,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <double_lower_case_e.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 1e0 .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> 1e0 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDouble},
+		},
+	}},
 
 	//<#negative_numeric> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "negative_numeric" ;
@@ -1621,7 +1633,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <negative_numeric.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> -1 .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> -1 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: -1, DataType: rdf.XSDInteger},
+		},
+	}},
 
 	//<#positive_numeric> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "positive_numeric" ;
@@ -1631,7 +1649,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <positive_numeric.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> +1 .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> +1 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+	}},
 
 	//<#numeric_with_leading_0> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "numeric_with_leading_0" ;
@@ -1641,7 +1665,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <numeric_with_leading_0.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 01 .`, "", []rdf.Triple{}},
+	{`<http://a.example/s> <http://a.example/p> 01 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+	}},
 
 	//<#literal_true> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "literal_true" ;
