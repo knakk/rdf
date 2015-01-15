@@ -414,7 +414,7 @@ two
 		}
 
 		if !equalTokens(tt.want, res) {
-			t.Errorf("lexing %q, got:\n\t%v\nexpected:\n\t%v", tt.in, res, tt.want)
+			t.Fatalf("lexing %q, got:\n\t%v\nexpected:\n\t%v", tt.in, res, tt.want)
 		}
 	}
 }

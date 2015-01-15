@@ -1004,15 +1004,23 @@ func lexIRISuffix(l *lexer) stateFn {
 	if !isPnLocalFirst(r) {
 		return l.errorf("invalid character %q", r)
 	}
+	if r == '\\' {
+		// Need to check that escaped char is in pnLocalEsc,
+		// so do it in main loop below
+		l.backup()
+	}
+
+outerLoop:
 	for r = l.next(); isPnLocalMid(r); r = l.next() {
 		if r == '\\' {
 			p := l.next()
 			for _, esc := range pnLocalEsc {
 				if esc == p {
 					l.unEsc = true
-					continue
+					continue outerLoop
 				}
 			}
+			return l.errorf("invalid escape charater %q", p)
 		}
 		// TODO check validity of:
 		// - ('%' hex hex)

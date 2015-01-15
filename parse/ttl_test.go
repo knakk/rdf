@@ -2068,7 +2068,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 
 	{`# dash is a legal pname character
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
-x:a-b-c  x:p x:o .`, "", []rdf.Triple{}},
+x:a-b-c  x:p x:o .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/a-b-c"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+	}},
 
 	//<#turtle-syntax-prefix-08> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-prefix-08" ;
@@ -2079,7 +2085,13 @@ x:a-b-c  x:p x:o .`, "", []rdf.Triple{}},
 
 	{`# underscore is a legal pname character
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
-x:_  x:p_1 x:o .`, "", []rdf.Triple{}},
+x:_  x:p_1 x:o .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/_"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p_1"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+	}},
 
 	//<#turtle-syntax-prefix-09> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-prefix-09" ;
@@ -2091,7 +2103,13 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{}},
 	{`# percents
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
-:a%3E  x:%25 :a%3Eb .`, "", []rdf.Triple{}},
+:a%3E  x:%25 :a%3Eb .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/a%3E"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/%25"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/a%3Eb"},
+		},
+	}},
 
 	//<#turtle-syntax-string-01> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-01" ;
@@ -2100,7 +2118,13 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-string-01.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string" .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-syntax-string-02> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-02" ;
@@ -2109,7 +2133,13 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-string-02.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@en .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@en .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en"},
+		},
+	}},
 
 	//<#turtle-syntax-string-03> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-03" ;
@@ -2118,7 +2148,13 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-string-03.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@en-uk .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@en-uk .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en-uk"},
+		},
+	}},
 
 	//<#turtle-syntax-string-04> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-04" ;
@@ -2127,7 +2163,13 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-string-04.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string' .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-syntax-string-05> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-05" ;
@@ -2136,7 +2178,13 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-string-05.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string'@en .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string'@en .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en"},
+		},
+	}},
 
 	//<#turtle-syntax-string-06> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-06" ;
@@ -2145,7 +2193,13 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-string-06.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string'@en-uk .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string'@en-uk .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en-uk"},
+		},
+	}},
 
 	//<#turtle-syntax-string-07> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-07" ;
@@ -2154,7 +2208,13 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-string-07.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc""def''ghi""" .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc""def''ghi""" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: `abc""def''ghi`, DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-syntax-string-08> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-08" ;
@@ -2164,7 +2224,13 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc
-def""" .`, "", []rdf.Triple{}},
+def""" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "abc\ndef", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-syntax-string-09> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-09" ;
@@ -2174,7 +2240,13 @@ def""" .`, "", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> '''abc
-def''' .`, "", []rdf.Triple{}},
+def''' .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "abc\ndef", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-syntax-string-10> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-10" ;
@@ -2184,7 +2256,13 @@ def''' .`, "", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc
-def"""@en .`, "", []rdf.Triple{}},
+def"""@en .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "abc\ndef", DataType: rdf.XSDString, Lang: "en"},
+		},
+	}},
 
 	//<#turtle-syntax-string-11> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-string-11" ;
@@ -2194,7 +2272,13 @@ def"""@en .`, "", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> '''abc
-def'''@en .`, "", []rdf.Triple{}},
+def'''@en .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "abc\ndef", DataType: rdf.XSDString, Lang: "en"},
+		},
+	}},
 
 	//<#turtle-syntax-str-esc-01> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-str-esc-01" ;
@@ -2203,7 +2287,13 @@ def'''@en .`, "", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-str-esc-01.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\n" .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\n" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "a\n", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-syntax-str-esc-02> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-str-esc-02" ;
@@ -2212,7 +2302,13 @@ def'''@en .`, "", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-str-esc-02.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\u0020b" .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\u0020b" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "a b", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-syntax-str-esc-03> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-str-esc-03" ;
@@ -2221,7 +2317,13 @@ def'''@en .`, "", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-str-esc-03.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\U00000020b" .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\U00000020b" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Literal{Val: "a b", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-syntax-pname-esc-01> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-pname-esc-01" ;
@@ -2231,7 +2333,13 @@ def'''@en .`, "", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\_\%AA .`, "", []rdf.Triple{}},
+:s :p :\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\_\%AA .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/~.-!$&'()*+,;=/?#@_%AA"},
+		},
+	}},
 
 	//<#turtle-syntax-pname-esc-02> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-pname-esc-02" ;
@@ -2241,7 +2349,13 @@ def'''@en .`, "", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :0123\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\_\%AA123 .`, "", []rdf.Triple{}},
+:s :p :0123\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\_\%AA123 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/0123~.-!$&'()*+,;=/?#@_%AA123"},
+		},
+	}},
 
 	//<#turtle-syntax-pname-esc-03> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-pname-esc-03" ;
@@ -2251,7 +2365,13 @@ def'''@en .`, "", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:xyz\~ :abc\.:  : .`, "", []rdf.Triple{}},
+:xyz\~ :abc\.:  : .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/xyz~"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/abc.:"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/"},
+		},
+	}},
 
 	//<#turtle-syntax-bnode-01> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-bnode-01" ;
