@@ -233,6 +233,9 @@ func parseStart(d *Decoder) parseFn {
 	switch d.next().typ {
 	case tokenPrefix:
 		label := d.expect1As("prefix label", tokenPrefixLabel)
+		if label.text == "" {
+			println("empty label")
+		}
 		uri := d.expect1As("prefix URI", tokenIRIAbs)
 		d.ns[label.text] = uri.text
 		d.expect1As("directive trailing dot", tokenDot)
@@ -358,7 +361,7 @@ func parseSubject(d *Decoder) parseFn {
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
 		if !ok {
-			d.errorf("missing namespace for prefix: %s", tok.text)
+			d.errorf("missing namespace for prefix: '%s'", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
 		d.current.Subj = rdf.URI{URI: ns + suf.text}
@@ -407,7 +410,7 @@ func parsePredicate(d *Decoder) parseFn {
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
 		if !ok {
-			d.errorf("missing namespace for prefix: %s", tok.text)
+			d.errorf("missing namespace for prefix: '%s'", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
 		d.current.Pred = rdf.URI{URI: ns + suf.text}
@@ -458,7 +461,7 @@ func parseObject(d *Decoder) parseFn {
 			case tokenPrefixLabel:
 				ns, ok := d.ns[tok.text]
 				if !ok {
-					d.errorf("missing namespace for prefix: %s", tok.text)
+					d.errorf("missing namespace for prefix: '%s'", tok.text)
 				}
 				tok2 := d.expect1As("IRI suffix", tokenIRISuffix)
 				v, err := parseLiteral(val, ns+tok2.text)
@@ -500,7 +503,7 @@ func parseObject(d *Decoder) parseFn {
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
 		if !ok {
-			d.errorf("missing namespace for prefix: %s", tok.text)
+			d.errorf("missing namespace for prefix: '%s'", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
 		d.current.Obj = rdf.URI{URI: ns + suf.text}

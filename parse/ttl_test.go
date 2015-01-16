@@ -2918,7 +2918,18 @@ _:a  :p :o .`, "", []rdf.Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p1 :o1 ;;
    :p2 :o2 
-   .`, "", []rdf.Triple{}},
+   .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		},
+	}},
 
 	//<#turtle-syntax-struct-05> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-struct-05" ;
@@ -2930,7 +2941,18 @@ _:a  :p :o .`, "", []rdf.Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p1 :o1 ;
    :p2 :o2 ;;
-   .`, "", []rdf.Triple{}},
+   .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		},
+	}},
 
 	//<#turtle-syntax-lists-01> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-lists-01" ;
@@ -2940,7 +2962,13 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p () .`, "", []rdf.Triple{}},
+:s :p () .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+	}},
 
 	//<#turtle-syntax-lists-02> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-lists-02" ;
@@ -2950,7 +2978,43 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p (1 "2" :o) .`, "", []rdf.Triple{}},
+:s :p (1 "2" :o) .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.Blank{ID: "b1"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.Blank{ID: "b2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: "2", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.Blank{ID: "b3"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b3"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b3"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+	}},
 
 	//<#turtle-syntax-lists-03> rdf:type rdft:TestTurtlePositiveSyntax ;
 	//   mf:name    "turtle-syntax-lists-03" ;

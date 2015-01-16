@@ -979,6 +979,7 @@ func lexPrefixLabelInDirective(l *lexer) stateFn {
 }
 
 func lexPrefixLabel(l *lexer) stateFn {
+	l.ignore() // TODO why? is this needed here
 	r := l.next()
 	if r == ':' {
 		//PN_PREFIX can be empty
