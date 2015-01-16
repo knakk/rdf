@@ -79,7 +79,6 @@ type Decoder struct {
 	ns        map[string]string // map[prefix]namespace
 	tokens    [3]token          // 3 token lookahead
 	peekCount int               // number of tokens peeked at (position in tokens lookahead array)
-	lineMode  bool              // true if parsing line-based formats (N-Triples and N-Quads)
 	current   ctxTriple         // the current triple beeing parsed
 
 	// ctxStack keeps track of current and parent triple contexts,
@@ -106,9 +105,8 @@ func NewTTLDecoder(r io.Reader) *Decoder {
 // NewNTDecoder creates a N-Triples decoder
 func NewNTDecoder(r io.Reader) *Decoder {
 	d := Decoder{
-		l:        newLexer(r),
-		f:        formatNT,
-		lineMode: true,
+		l: newLineLexer(r),
+		f: formatNT,
 	}
 	return &d
 }
@@ -120,10 +118,9 @@ func NewNQDecoder(r io.Reader, defaultGraph rdf.Term) *Decoder {
 		panic("defaultGraph must be either an URI or Blank node")
 	}
 	return &Decoder{
-		l:        newLexer(r),
-		f:        formatNQ,
-		g:        defaultGraph,
-		lineMode: true,
+		l: newLineLexer(r),
+		f: formatNQ,
+		g: defaultGraph,
 	}
 }
 
@@ -187,36 +184,24 @@ func (d *Decoder) emit() {
 	d.triples = append(d.triples, d.current.Triple)
 }
 
-// next returns the next token, or the next non-EOL token if the
-// parser is not in linemode.
+// next returns the next token.
 func (d *Decoder) next() token {
-	for {
-		if d.peekCount > 0 {
-			d.peekCount--
-		} else {
-			d.tokens[0] = d.l.nextToken()
-		}
-		if !d.lineMode && d.tokens[d.peekCount].typ == tokenEOL {
-			continue
-		}
-		break
+	if d.peekCount > 0 {
+		d.peekCount--
+	} else {
+		d.tokens[0] = d.l.nextToken()
 	}
+
 	return d.tokens[d.peekCount]
 }
 
 // peek returns but does not consume the next token.
 func (d *Decoder) peek() token {
-	for {
-		if d.peekCount > 0 {
-			return d.tokens[d.peekCount-1]
-		}
-		d.peekCount = 1
-		d.tokens[0] = d.l.nextToken()
-		if !d.lineMode && d.tokens[0].typ == tokenEOL {
-			continue
-		}
-		break
+	if d.peekCount > 0 {
+		return d.tokens[d.peekCount-1]
 	}
+	d.peekCount = 1
+	d.tokens[0] = d.l.nextToken()
 	return d.tokens[0]
 }
 

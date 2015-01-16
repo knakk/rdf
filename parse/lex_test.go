@@ -91,29 +91,23 @@ func TestTokens(t *testing.T) {
 			{tokenEOF, ""}},
 		},
 		{" \t ", []testToken{
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{" \n ", []testToken{
-			{tokenEOL, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{"<a>", []testToken{
 			{tokenIRIRel, "a"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{"<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>", []testToken{
 			{tokenIRIAbs, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`<s:1> a <o:1>`, []testToken{
 			{tokenIRIAbs, "s:1"},
 			{tokenRDFType, "a"},
 			{tokenIRIAbs, "o:1"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`<a>a<b>.`, []testToken{
@@ -121,18 +115,13 @@ func TestTokens(t *testing.T) {
 			{tokenRDFType, "a"},
 			{tokenIRIRel, "b"},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{"<a>\r<b>\r\n<c>\n.", []testToken{
 			{tokenIRIRel, "a"},
-			{tokenEOL, ""},
 			{tokenIRIRel, "b"},
-			{tokenEOL, ""},
 			{tokenIRIRel, "c"},
-			{tokenEOL, ""},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`  <x><y> <z>  <\u0053> `, []testToken{
@@ -140,7 +129,6 @@ func TestTokens(t *testing.T) {
 			{tokenIRIRel, "y"},
 			{tokenIRIRel, "z"},
 			{tokenIRIRel, "S"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`<s><p><o>.#comment`, []testToken{
@@ -148,72 +136,59 @@ func TestTokens(t *testing.T) {
 			{tokenIRIRel, "p"},
 			{tokenIRIRel, "o"},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`""`, []testToken{
 			{tokenLiteral, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"a"`, []testToken{
 			{tokenLiteral, "a"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{"'a'", []testToken{
 			{tokenLiteral, "a"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"""a"""`, []testToken{
 			{tokenLiteral3, "a"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`'''xyz'''`, []testToken{
 			{tokenLiteral3, "xyz"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`'''a''b'''`, []testToken{
 			{tokenLiteral3, "a''b"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"""multi
 line
 string"""`, []testToken{
 			{tokenLiteral3, "multi\nline\nstring"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`'''one
 two
 3'''`, []testToken{
 			{tokenLiteral3, "one\ntwo\n3"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"æøå üçgen こんにちは" # comments text`, []testToken{
 			{tokenLiteral, "æøå üçgen こんにちは"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"KI\u0053\U00000053ki⚡⚡"`, []testToken{
 			{tokenLiteral, "KISSki⚡⚡"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"she said: \"hi\""`, []testToken{
 			{tokenLiteral, `she said: "hi"`},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"escapes:\t\\\"\n\t"`, []testToken{
 			{tokenLiteral, `escapes:	\"
 	`},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"hei"@nb-no "hi"@en #language tags`, []testToken{
@@ -223,7 +198,6 @@ two
 			{tokenLiteral, "hi"},
 			{tokenLangMarker, "@"},
 			{tokenLang, "en"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"hei"@`, []testToken{
@@ -235,7 +209,6 @@ two
 			{tokenLiteral, "a"},
 			{tokenDataTypeMarker, "^^"},
 			{tokenIRIAbs, "s://mydatatype"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"1"^^xsd:integer`, []testToken{
@@ -243,7 +216,6 @@ two
 			{tokenDataTypeMarker, "^^"},
 			{tokenPrefixLabel, "xsd"},
 			{tokenIRISuffix, "integer"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"a"^`, []testToken{
@@ -253,7 +225,6 @@ two
 		{`"a"^^`, []testToken{
 			{tokenLiteral, "a"},
 			{tokenDataTypeMarker, "^^"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`"a"^^xyz`, []testToken{
@@ -264,7 +235,6 @@ two
 		{`_:a_BlankLabel123.`, []testToken{
 			{tokenBNode, "a_BlankLabel123"},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`<s> <p> true; <p2> false.`, []testToken{
@@ -275,13 +245,11 @@ two
 			{tokenIRIRel, "p2"},
 			{tokenLiteralBoolean, "false"},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`_:a-b.c.`, []testToken{
 			{tokenBNode, "a-b.c"},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`#comment
@@ -291,20 +259,13 @@ two
 		  <s><p2> "yo"
 		  ####
 		  `, []testToken{
-			{tokenEOL, ""},
 			{tokenIRIRel, "s"},
 			{tokenIRIRel, "p"},
 			{tokenIRIRel, "o"},
 			{tokenDot, ""},
-			{tokenEOL, ""},
-			{tokenEOL, ""},
-			{tokenEOL, ""},
 			{tokenIRIRel, "s"},
 			{tokenIRIRel, "p2"},
 			{tokenLiteral, "yo"},
-			{tokenEOL, ""},
-			{tokenEOL, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`@prefix a: <http:/a.org/>.`, []testToken{
@@ -312,7 +273,6 @@ two
 			{tokenPrefixLabel, "a"},
 			{tokenIRIAbs, "http:/a.org/"},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`p:s <http://a.example/p> <http://a.example/o>`, []testToken{
@@ -320,30 +280,25 @@ two
 			{tokenIRISuffix, "s"},
 			{tokenIRIAbs, "http://a.example/p"},
 			{tokenIRIAbs, "http://a.example/o"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{"@base <http:/a.org/>.", []testToken{
 			{tokenBase, "base"},
 			{tokenIRIAbs, "http:/a.org/"},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{"BASE <http:/a.org/>", []testToken{
 			{tokenSparqlBase, "BASE"},
 			{tokenIRIAbs, "http:/a.org/"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{"basE <a>\nPReFiX p:<b>", []testToken{
 			{tokenSparqlBase, "basE"},
 			{tokenIRIRel, "a"},
-			{tokenEOL, ""},
 			{tokenSparqlPrefix, "PReFiX"},
 			{tokenPrefixLabel, "p"},
 			{tokenIRIRel, "b"},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{"[] <a> <b> .", []testToken{
@@ -351,12 +306,10 @@ two
 			{tokenIRIRel, "a"},
 			{tokenIRIRel, "b"},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{"[\t ]", []testToken{
 			{tokenAnonBNode, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`[] foaf:knows [ foaf:name "Bob" ] .`, []testToken{
@@ -369,7 +322,6 @@ two
 			{tokenLiteral, "Bob"},
 			{tokenPropertyListEnd, ""},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{"( .99. 1, -2 3.14 4.2e9. )", []testToken{
@@ -383,7 +335,6 @@ two
 			{tokenLiteralDouble, "4.2e9"},
 			{tokenDot, ""},
 			{tokenCollectionEnd, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 		{`1+2`, []testToken{
@@ -401,7 +352,6 @@ two
 			{tokenComma, ","},
 			{tokenLiteralInteger, "3"},
 			{tokenDot, ""},
-			{tokenEOL, ""},
 			{tokenEOF, ""}},
 		},
 	}

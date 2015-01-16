@@ -167,20 +167,31 @@ type stateFn func(*lexer) stateFn
 type lexer struct {
 	rdr *bufio.Reader
 
-	input  []byte     // the input being scanned (should not inlcude newlines)
-	state  stateFn    // the next lexing function to enter
-	line   int        // the current line number
-	pos    int        // the current position in input
-	width  int        // width of the last rune read from input
-	start  int        // start of current token
-	unEsc  bool       // true when current token needs to be unescaped
-	tokens chan token // channel of scanned tokens
+	input    []byte     // the input being scanned (should not inlcude newlines)
+	lineMode bool       // true when lexing line-based formats (N-Triples & N-Quads)
+	state    stateFn    // the next lexing function to enter
+	line     int        // the current line number
+	pos      int        // the current position in input
+	width    int        // width of the last rune read from input
+	start    int        // start of current token
+	unEsc    bool       // true when current token needs to be unescaped
+	tokens   chan token // channel of scanned tokens
 }
 
 func newLexer(r io.Reader) *lexer {
 	l := lexer{
 		rdr:    bufio.NewReader(r),
 		tokens: make(chan token),
+	}
+	go l.run()
+	return &l
+}
+
+func newLineLexer(r io.Reader) *lexer {
+	l := lexer{
+		rdr:      bufio.NewReader(r),
+		tokens:   make(chan token),
+		lineMode: true,
 	}
 	go l.run()
 	return &l
@@ -295,6 +306,11 @@ func unescapeReservedChars(s string) string {
 
 // emit publishes a token back to the comsumer.
 func (l *lexer) emit(typ tokenType) {
+	if typ == tokenEOL && !l.lineMode {
+		// Don't emit EOL tokens in linemode
+		l.start = l.pos
+		return
+	}
 	l.tokens <- token{
 		typ:  typ,
 		line: l.line,
