@@ -381,7 +381,7 @@ func parseSubject(d *Decoder) parseFn {
 		d.current.Subj = rdf.Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
 		d.pushContext()
 		d.current.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
-		d.current.Ctx = ctxList
+		d.current.Ctx = ctxCollection
 		return parseObject
 	case tokenError:
 		d.errorf("%d:%d: syntax error: %v", tok.line, tok.col, tok.text)
