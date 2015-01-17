@@ -5116,7 +5116,7 @@ _:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-ln-dash-start.ttl> .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :-o .`, "Local name must not begin with dash", []rdf.Triple{}},
+:s :p :-o .`, "unexpected character: '-'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-ln-escape>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;

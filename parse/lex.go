@@ -94,14 +94,14 @@ var (
 		0xFDF0, 0xFFFD,
 		0x10000, 0xEFFFF, // last of PN_CHARS_BASE
 		'_', '_', // last of PN_CHARS_U
-		'-', '-',
+		':', ':',
 		'0', '9',
+		'%', '%',
+		'\\', '\\', // last of PN_LOCAL first character
+		'-', '-',
 		0x00B7, 0x00B7,
 		0x0300, 0x036F,
-		0x203F, 0x2040, // last of PN_CHARS
-		'%', '%',
-		'\\', '\\',
-		':', ':', // last of PN_LOCAL first character
+		0x203F, 0x2040,
 		'.', '.', // last of PN_LOCAL (except last character)
 	}
 )
@@ -140,7 +140,7 @@ func isPnChars(r rune) bool {
 }
 
 func isPnLocalFirst(r rune) bool {
-	return check(r, plTab[:2*23])
+	return check(r, plTab[:2*19])
 }
 
 func isPnLocalMid(r rune) bool {
