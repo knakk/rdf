@@ -3911,7 +3911,7 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 123abc .`,
-		"Bad number format (negative test)", []rdf.Triple{}},
+		" bad literal: illegal number syntax (number followed by 'a')", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-num-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-04" ;
@@ -3921,7 +3921,7 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 0x123 .`,
-		"Bad number format (negative test)", []rdf.Triple{}},
+		" bad literal: illegal number syntax (number followed by 'x')", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-num-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-05" ;
@@ -3931,7 +3931,7 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> +-1 .`,
-		"Bad number format (negative test)", []rdf.Triple{}},
+		"bad literal: illegal number syntax: ('+' not followed by number)", []rdf.Triple{}},
 
 	//<#turtle-eval-struct-01> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-eval-struct-01" ;

@@ -491,7 +491,13 @@ func lexAny(l *lexer) stateFn {
 	case '"':
 		l.backup()
 		return lexLiteral
-	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-':
+	case '+', '-':
+		if !isDigit(l.peek()) {
+			return l.errorf("bad literal: illegal number syntax: (%q not followed by number)", r)
+		}
+		l.backup()
+		return lexNumber
+	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 		l.backup()
 		return lexNumber
 	case ' ', '\t':
