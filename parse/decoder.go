@@ -330,7 +330,7 @@ func parseEnd(d *Decoder) parseFn {
 			d.pushContext()
 			return nil
 		}
-		d.errorf("expected triple termination, got %v", tok.typ)
+		d.errorf("%d:%d: expected triple termination, got %v", tok.line, tok.col, tok.typ)
 		return nil
 	}
 

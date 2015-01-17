@@ -3416,7 +3416,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s A :C .`, "'A' is not a keyword (negative test)", []rdf.Triple{}},
+:s A :C .`, `illegal token: "A "`, []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-kw-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-kw-02" ;
@@ -3426,7 +3426,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-a :p :o .`, "'a' cannot be used as subject (negative test)", []rdf.Triple{}},
+a :p :o .`, "unexpected rdf:type as subject", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-kw-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-kw-03" ;
@@ -3436,7 +3436,7 @@ a :p :o .`, "'a' cannot be used as subject (negative test)", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p a .`, "'a' cannot be used as object (negative test)", []rdf.Triple{}},
+:s :p a .`, "unexpected rdf:type as object", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-kw-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-kw-04" ;
@@ -3446,7 +3446,7 @@ a :p :o .`, "'a' cannot be used as subject (negative test)", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-true :p :o .`, "'true' cannot be used as subject (negative test)", []rdf.Triple{}},
+true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-kw-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-kw-05" ;
@@ -3456,7 +3456,7 @@ true :p :o .`, "'true' cannot be used as subject (negative test)", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s true :o .`, "'true' cannot be used as object (negative test)", []rdf.Triple{}},
+:s true :o .`, "unexpected Literal (boolean shorthand syntax) as predicate", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-01" ;
@@ -3469,7 +3469,7 @@ true :p :o .`, "'true' cannot be used as subject (negative test)", []rdf.Triple{
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 
 { :a :q :c . } :p :z .
-`, "{} fomulae not in Turtle (negative test)", []rdf.Triple{}},
+`, "unexpected character: '{'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-02" ;
@@ -3481,7 +3481,7 @@ true :p :o .`, "'true' cannot be used as subject (negative test)", []rdf.Triple{
 	{`# = is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 
-:a = :b .`, "= is not Turtle (negative test)", []rdf.Triple{}},
+:a = :b .`, "unexpected character: '='", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-03" ;
@@ -3496,7 +3496,7 @@ true :p :o .`, "'true' cannot be used as subject (negative test)", []rdf.Triple{
 
 :x.
   ns:p.
-    ns:q :p :z .`, "N3 paths not in Turtle (negative test)", []rdf.Triple{}},
+    ns:q :p :z .`, "expected triple termination, got Prefix label", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-04" ;
@@ -3509,7 +3509,7 @@ true :p :o .`, "'true' cannot be used as subject (negative test)", []rdf.Triple{
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 @prefix ns: <http://www.w3.org/2013/TurtleTests/p#> .
 
-:x^ns:p :p :z .`, "N3 paths not in Turtle (negative test)", []rdf.Triple{}},
+:x^ns:p :p :z .`, "syntax error: unexpected character: '^'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-05" ;
@@ -3521,7 +3521,7 @@ true :p :o .`, "'true' cannot be used as subject (negative test)", []rdf.Triple{
 	{`# N3 is...of
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 
-:z is :p of :x .`, "N3 is...of not in Turtle (negative test)", []rdf.Triple{}},
+:z is :p of :x .`, `illegal token: "is "`, []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-06> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-06" ;
@@ -3533,7 +3533,7 @@ true :p :o .`, "'true' cannot be used as subject (negative test)", []rdf.Triple{
 	{`# = is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 
-:a.:b.:c .`, "N3 paths not in Turtle (negative test)", []rdf.Triple{}},
+:a.:b.:c .`, "unexpected Dot as predicate", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-07> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-07" ;
@@ -3544,7 +3544,7 @@ true :p :o .`, "'true' cannot be used as subject (negative test)", []rdf.Triple{
 
 	{`# @keywords is not Turtle
 @keywords a .
-x a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
+x a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-08> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-08" ;
@@ -3555,7 +3555,7 @@ x a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
 
 	{`# @keywords is not Turtle
 @keywords a .
-x a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
+x a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-09> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-09" ;
@@ -3566,7 +3566,7 @@ x a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
 
 	{`# => is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s => :o .`, "=> is not Turtle (negative test)", []rdf.Triple{}},
+:s => :o .`, "unexpected character: '='", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-10> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-10" ;
@@ -3577,7 +3577,7 @@ x a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
 
 	{`# <= is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s <= :o .`, "<= is not Turtle (negative test)", []rdf.Triple{}},
+:s <= :o .`, "bad IRI: disallowed character ' '", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-11> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-11" ;
@@ -3588,7 +3588,7 @@ x a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
 
 	{`# @forSome is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-@forSome :x .`, "@forSome is not Turtle (negative test)", []rdf.Triple{}},
+@forSome :x .`, "unrecognized directive", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-12> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-12" ;
@@ -3599,7 +3599,7 @@ x a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
 
 	{`# @forAll is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-@forAll :x .`, "@forAll is not Turtle (negative test)", []rdf.Triple{}},
+@forAll :x .`, "unrecognized directive", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-13> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-13" ;
@@ -3610,7 +3610,7 @@ x a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
 
 	{`# @keywords is not Turtle
 @keywords .
-x @a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
+x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-08> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-08" ;
@@ -3620,7 +3620,8 @@ x @a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
 	//   .
 
 	{`# No DOT
-<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o>`, "missing '.' (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o>`,
+		"expected triple termination, got EOF", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-09> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-09" ;
@@ -3630,7 +3631,8 @@ x @a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
 	//   .
 
 	{`# Too many DOT
-<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> . .`, "extra '.' (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> . .`,
+		"unexpected Dot as subject", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-10> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-10" ;
@@ -3641,7 +3643,8 @@ x @a Item .`, "@keywords is not Turtle (negative test)", []rdf.Triple{}},
 
 	{`# Too many DOT
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> . .
-<http://www.w3.org/2013/TurtleTests/s1> <http://www.w3.org/2013/TurtleTests/p1> <http://www.w3.org/2013/TurtleTests/o1> .`, "extra '.' (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s1> <http://www.w3.org/2013/TurtleTests/p1> <http://www.w3.org/2013/TurtleTests/o1> .`,
+		"unexpected Dot as subject", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-11> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-11" ;
