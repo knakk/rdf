@@ -701,7 +701,7 @@ func lexLiteral(l *lexer) stateFn {
 	var r rune
 
 	l.ignore()
-	for quoteCount <= 3 {
+	for quoteCount < 6 {
 		r = l.next()
 		if r != quote {
 			break
@@ -709,8 +709,13 @@ func lexLiteral(l *lexer) stateFn {
 		l.ignore()
 		quoteCount++
 	}
+	if quoteCount == 6 {
+		// Empty triple-quoted string
+		l.pos = l.start
+		goto done
+	}
 	if quoteCount == 2 {
-		// Empty string
+		// Empty single-quoted string
 		quoteCount = 0
 		l.pos = l.start
 		goto done
@@ -770,14 +775,16 @@ outer:
 		r = l.next()
 	}
 done:
-	if quoteCount == 3 {
+	if quoteCount == 3 || quoteCount == 6 {
 		l.emit(tokenLiteral3)
 	} else {
 		l.emit(tokenLiteral)
 	}
 
 	// ignore quote(s)
-	l.pos += quoteCount
+	if quoteCount != 6 {
+		l.pos += quoteCount
+	}
 	l.ignore()
 
 	// check if literal has language tag or datatype URI:

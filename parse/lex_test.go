@@ -150,7 +150,8 @@ func TestTokens(t *testing.T) {
 			{tokenLiteral, "a"},
 			{tokenEOF, ""}},
 		},
-		{`"""a"""`, []testToken{
+		{`"""""" """a"""`, []testToken{
+			{tokenLiteral3, ""},
 			{tokenLiteral3, "a"},
 			{tokenEOF, ""}},
 		},

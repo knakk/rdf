@@ -4493,7 +4493,18 @@ one
 :a :b "" .
 
 :c :d """""" .
-`, "", []rdf.Triple{}},
+`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/#a"},
+			Pred: rdf.URI{URI: "http://example.org/#b"},
+			Obj:  rdf.Literal{Val: "", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/#c"},
+			Pred: rdf.URI{URI: "http://example.org/#d"},
+			Obj:  rdf.Literal{Val: "", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-subm-19> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-19" ;
