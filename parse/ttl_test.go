@@ -11,7 +11,7 @@ import (
 )
 
 func parseAllTTL(s string) (r []rdf.Triple, err error) {
-	dec := NewTTLDecoder(bytes.NewBufferString(s))
+	dec := NewTTLDecoder(bytes.NewBufferString(s), "")
 	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {
 		if err != nil {
 			return r, err
@@ -3941,7 +3941,13 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   mf:result    <turtle-eval-struct-01.nt> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+	}},
 
 	//<#turtle-eval-struct-02> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-eval-struct-02" ;
@@ -3954,7 +3960,18 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	{`<http://www.w3.org/2013/TurtleTests/s> 
       <http://www.w3.org/2013/TurtleTests/p1> <http://www.w3.org/2013/TurtleTests/o1> ;
       <http://www.w3.org/2013/TurtleTests/p2> <http://www.w3.org/2013/TurtleTests/o2> ; 
-      .`, "", []rdf.Triple{}},
+      .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		},
+	}},
 
 	//<#turtle-subm-01> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-01" ;
@@ -3965,7 +3982,13 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <#> .
-[] :x :y .`, "", []rdf.Triple{}},
+[] :x :y .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "#x"},
+			Obj:  rdf.URI{URI: "#y"},
+		},
+	}},
 
 	//<#turtle-subm-02> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-02" ;

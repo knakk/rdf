@@ -91,13 +91,14 @@ type Decoder struct {
 }
 
 // NewTTLDecoder creates a Turtle decoder
-func NewTTLDecoder(r io.Reader) *Decoder {
+func NewTTLDecoder(r io.Reader, baseURI string) *Decoder {
 	d := Decoder{
 		l:        newLexer(r),
 		f:        formatTTL,
 		ns:       make(map[string]string),
 		ctxStack: make([]ctxTriple, 0, 8),
 		triples:  make([]rdf.Triple, 0, 4),
+		base:     baseURI,
 	}
 	return &d
 }
@@ -236,8 +237,13 @@ func parseStart(d *Decoder) parseFn {
 		if label.text == "" {
 			println("empty label")
 		}
-		uri := d.expect1As("prefix URI", tokenIRIAbs)
-		d.ns[label.text] = uri.text
+		tok := d.expectAs("prefix URI", tokenIRIAbs, tokenIRIRel)
+		if tok.typ == tokenIRIRel {
+			// Resolve against document base URI
+			d.ns[label.text] = d.base + tok.text
+		} else {
+			d.ns[label.text] = tok.text
+		}
 		d.expect1As("directive trailing dot", tokenDot)
 	case tokenSparqlPrefix:
 		label := d.expect1As("prefix label", tokenPrefixLabel)
