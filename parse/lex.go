@@ -1059,7 +1059,7 @@ func lexIRISuffix(l *lexer) stateFn {
 	if !isPnLocalFirst(r) {
 		return l.errorf("unexpected character: %q", r)
 	}
-	if r == '\\' {
+	if r == '\\' || r == '%' {
 		// Need to check that escaped char is in pnLocalEsc,
 		// so do it in main loop below
 		l.backup()

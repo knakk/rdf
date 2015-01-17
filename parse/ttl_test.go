@@ -5126,7 +5126,7 @@ _:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-ln-escape.ttl> .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :o%2 .`, "Bad hex escape in local name", []rdf.Triple{}},
+:s :p :o%2 .`, "invalid hex escape sequence", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-ln-escape-start>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5136,7 +5136,7 @@ _:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-ln-escape-start.ttl> .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :%2o .`, "Bad hex escape at start of local name", []rdf.Triple{}},
+:s :p :%2o .`, "invalid hex escape sequence", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-ns-dot-end>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
