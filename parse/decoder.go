@@ -250,8 +250,13 @@ func parseStart(d *Decoder) parseFn {
 		uri := d.expect1As("prefix URI", tokenIRIAbs)
 		d.ns[label.text] = uri.text
 	case tokenBase:
-		uri := d.expect1As("base URI", tokenIRIAbs)
-		d.base = uri.text
+		tok := d.expectAs("base URI", tokenIRIAbs, tokenIRIRel)
+		if tok.typ == tokenIRIRel {
+			// Resolve against document base URI
+			d.base = d.base + tok.text
+		} else {
+			d.base = tok.text
+		}
 		d.expect1As("directive trailing dot", tokenDot)
 	case tokenSparqlBase:
 		uri := d.expect1As("base URI", tokenIRIAbs)
