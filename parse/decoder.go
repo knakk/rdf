@@ -319,7 +319,9 @@ func parseEnd(d *Decoder) parseFn {
 			return parseEnd
 		}
 		return nil
-
+	case tokenError:
+		d.errorf("%d:%d: syntax error: %v", tok.line, tok.col, tok.text)
+		return nil
 	default:
 		if d.current.Ctx == ctxCollection {
 			d.backup() // unread collection item, to be parsed on next iteration

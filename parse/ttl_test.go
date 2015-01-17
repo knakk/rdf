@@ -3807,7 +3807,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# No \u (x39 is "9")
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:a\u0039 :p :o .`, "Bad unicode escape in pname (negative test)", []rdf.Triple{}},
+:a\u0039 :p :o .`, "invalid escape charater 'u'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-string-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-01" ;
@@ -3817,7 +3817,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p "abc' .`, "mismatching string literal open/close (negative test)", []rdf.Triple{}},
+:s :p "abc' .`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-string-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-02" ;
@@ -3827,7 +3827,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p 'abc" .`, "mismatching string literal open/close (negative test)", []rdf.Triple{}},
+:s :p 'abc" .`, "bad literal: no closing quote: '\\''", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-string-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-03" ;
@@ -3837,7 +3837,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p '''abc' .`, "mismatching string literal long/short (negative test)", []rdf.Triple{}},
+:s :p '''abc' .`, "bad literal: no closing quote: '\\''", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-string-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-04" ;
@@ -3847,7 +3847,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p """abc''' .`, "mismatching long string literal open/close (negative test)", []rdf.Triple{}},
+:s :p """abc''' .`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-string-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-05" ;
@@ -3859,7 +3859,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	{`# Long literal with missing end
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p """abc
-def`, "Long literal with missing end (negative test)", []rdf.Triple{}},
+def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-string-06> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-06" ;
@@ -3870,7 +3870,7 @@ def`, "Long literal with missing end (negative test)", []rdf.Triple{}},
 
 	{`# Long literal with 4"
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p """abc""""@en .`, "Long literal with extra quote (negative test)", []rdf.Triple{}},
+:s :p """abc""""@en .`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-string-07> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-07" ;
@@ -3881,7 +3881,7 @@ def`, "Long literal with missing end (negative test)", []rdf.Triple{}},
 
 	{`# Long literal with 4'
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p '''abc''''@en .`, "Long literal with extra squote (negative test)", []rdf.Triple{}},
+:s :p '''abc''''@en .`, "bad literal: no closing quote: '\\''", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-num-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-01" ;
@@ -3890,7 +3890,8 @@ def`, "Long literal with missing end (negative test)", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-bad-num-01.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 123.abc .`, "Bad number format (negative test)", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 123.abc .`,
+		"illegal token: \"abc \"", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-num-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-02" ;
