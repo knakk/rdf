@@ -3654,7 +3654,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`# Trailing ;
-<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> ;`, "trailing ';' no '.' (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> ;`,
+		"expected triple termination, got Semicolon", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-12> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-12" ;

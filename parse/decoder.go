@@ -271,6 +271,11 @@ func parseEnd(d *Decoder) parseFn {
 		case tokenDot:
 			// parse trailing semicolon
 			return parseEnd
+		case tokenEOF:
+			// trailing semicolon without final dot not allowed
+			// TODO only allowed in property lists?
+			d.errorf("%d:%d: expected triple termination, got %v", tok.line, tok.col, tok.typ)
+			return nil
 		}
 		d.current.Pred = nil
 		d.current.Obj = nil
