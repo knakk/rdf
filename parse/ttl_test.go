@@ -4004,7 +4004,23 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 @prefix b: <http://example.org/base3#> .
 :a :b :c .
 a:a a:b a:c .
-:a a:a b:a .`, "", []rdf.Triple{}},
+:a a:a b:a .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base1#a"},
+			Pred: rdf.URI{URI: "http://example.org/base1#b"},
+			Obj:  rdf.URI{URI: "http://example.org/base1#c"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base2#a"},
+			Pred: rdf.URI{URI: "http://example.org/base2#b"},
+			Obj:  rdf.URI{URI: "http://example.org/base2#c"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base1#a"},
+			Pred: rdf.URI{URI: "http://example.org/base2#a"},
+			Obj:  rdf.URI{URI: "http://example.org/base3#a"},
+		},
+	}},
 
 	//<#turtle-subm-03> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-03" ;
@@ -4018,7 +4034,23 @@ a:a a:b a:c .
 @prefix : <http://example.org/base#> .
 :a :b :c,
       :d,
-      :e .`, "", []rdf.Triple{}},
+      :e .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base#a"},
+			Pred: rdf.URI{URI: "http://example.org/base#b"},
+			Obj:  rdf.URI{URI: "http://example.org/base#c"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base#a"},
+			Pred: rdf.URI{URI: "http://example.org/base#b"},
+			Obj:  rdf.URI{URI: "http://example.org/base#d"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base#a"},
+			Pred: rdf.URI{URI: "http://example.org/base#b"},
+			Obj:  rdf.URI{URI: "http://example.org/base#e"},
+		},
+	}},
 
 	//<#turtle-subm-04> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-04" ;
@@ -4032,7 +4064,23 @@ a:a a:b a:c .
 @prefix : <http://example.org/base#> .
 :a :b :c ;
    :d :e ;
-   :f :g .`, "", []rdf.Triple{}},
+   :f :g .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base#a"},
+			Pred: rdf.URI{URI: "http://example.org/base#b"},
+			Obj:  rdf.URI{URI: "http://example.org/base#c"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base#a"},
+			Pred: rdf.URI{URI: "http://example.org/base#d"},
+			Obj:  rdf.URI{URI: "http://example.org/base#e"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base#a"},
+			Pred: rdf.URI{URI: "http://example.org/base#f"},
+			Obj:  rdf.URI{URI: "http://example.org/base#g"},
+		},
+	}},
 
 	//<#turtle-subm-05> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-05" ;
@@ -4045,7 +4093,18 @@ a:a a:b a:c .
 	{`# Test empty [] operator; not allowed as predicate
 @prefix : <http://example.org/base#> .
 [] :a :b .
-:c :d [] .`, "", []rdf.Triple{}},
+:c :d [] .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://example.org/base#a"},
+			Obj:  rdf.URI{URI: "http://example.org/base#b"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base#c"},
+			Pred: rdf.URI{URI: "http://example.org/base#d"},
+			Obj:  rdf.Blank{ID: "b2"},
+		},
+	}},
 
 	//<#turtle-subm-06> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-06" ;
@@ -4058,7 +4117,28 @@ a:a a:b a:c .
 	{`# Test non empty [] operator; not allowed as predicate
 @prefix : <http://example.org/base#> .
 [ :a :b ] :c :d .
-:e :f [ :g :h ] .`, "", []rdf.Triple{}},
+:e :f [ :g :h ] .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://example.org/base#a"},
+			Obj:  rdf.URI{URI: "http://example.org/base#b"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://example.org/base#c"},
+			Obj:  rdf.URI{URI: "http://example.org/base#d"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base#e"},
+			Pred: rdf.URI{URI: "http://example.org/base#f"},
+			Obj:  rdf.Blank{ID: "b2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://example.org/base#g"},
+			Obj:  rdf.URI{URI: "http://example.org/base#h"},
+		},
+	}},
 
 	//<#turtle-subm-07> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-07" ;
@@ -4070,7 +4150,13 @@ a:a a:b a:c .
 
 	{`# 'a' only allowed as a predicate
 @prefix : <http://example.org/base#> .
-:a a :b .`, "", []rdf.Triple{}},
+:a a :b .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/base#a"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  rdf.URI{URI: "http://example.org/base#b"},
+		},
+	}},
 
 	//<#turtle-subm-08> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-08" ;
@@ -4082,7 +4168,33 @@ a:a a:b a:c .
 
 	{`@prefix : <http://example.org/stuff/1.0/> .
 :a :b ( "apple" "banana" ) .
-`, "", []rdf.Triple{}},
+`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/stuff/1.0/a"},
+			Pred: rdf.URI{URI: "http://example.org/stuff/1.0/b"},
+			Obj:  rdf.Blank{ID: "b1"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: "apple", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.Blank{ID: "b2"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  rdf.Literal{Val: "banana", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+	}},
 
 	//<#turtle-subm-09> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-09" ;
@@ -4094,7 +4206,13 @@ a:a a:b a:c .
 
 	{`@prefix : <http://example.org/stuff/1.0/> .
 :a :b ( ) .
-`, "", []rdf.Triple{}},
+`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/stuff/1.0/a"},
+			Pred: rdf.URI{URI: "http://example.org/stuff/1.0/b"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		},
+	}},
 
 	//<#turtle-subm-10> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-10" ;
@@ -4113,7 +4231,28 @@ _:hasParent a owl:ObjectProperty .
 
 [] a owl:Restriction ;
   owl:onProperty _:hasParent ;
-  owl:maxCardinality 2 .`, "", []rdf.Triple{}},
+  owl:maxCardinality 2 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "hasParent"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2002/07/owl#ObjectProperty"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2002/07/owl#Restriction"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2002/07/owl#onProperty"},
+			Obj:  rdf.Blank{ID: "hasParent"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2002/07/owl#maxCardinality"},
+			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+		},
+	}},
 
 	//<#turtle-subm-11> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-11" ;
@@ -4127,7 +4266,33 @@ _:hasParent a owl:ObjectProperty .
 <http://example.org/res2> <http://example.org/prop2> 0 .
 <http://example.org/res3> <http://example.org/prop3> 000001 .
 <http://example.org/res4> <http://example.org/prop4> 2 .
-<http://example.org/res5> <http://example.org/prop5> 4 .`, "", []rdf.Triple{}},
+<http://example.org/res5> <http://example.org/prop5> 4 .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/res1"},
+			Pred: rdf.URI{URI: "http://example.org/prop1"},
+			Obj:  rdf.Literal{Val: 0, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/res2"},
+			Pred: rdf.URI{URI: "http://example.org/prop2"},
+			Obj:  rdf.Literal{Val: 0, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/res3"},
+			Pred: rdf.URI{URI: "http://example.org/prop3"},
+			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/res4"},
+			Pred: rdf.URI{URI: "http://example.org/prop4"},
+			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/res5"},
+			Pred: rdf.URI{URI: "http://example.org/prop5"},
+			Obj:  rdf.Literal{Val: 4, DataType: rdf.XSDInteger},
+		},
+	}},
 
 	//<#turtle-subm-12> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-12" ;
@@ -4146,7 +4311,28 @@ _:hasParent a owl:ObjectProperty .
 ex1:foo-bar ex1:foo_bar "a" .
 ex-2:foo-bar ex-2:foo_bar "b" .
 ex3_:foo-bar ex3_:foo_bar "c" .
-ex4-:foo-bar ex4-:foo_bar "d" .`, "", []rdf.Triple{}},
+ex4-:foo-bar ex4-:foo_bar "d" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex1#foo-bar"},
+			Pred: rdf.URI{URI: "http://example.org/ex1#foo_bar"},
+			Obj:  rdf.Literal{Val: "a", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex2#foo-bar"},
+			Pred: rdf.URI{URI: "http://example.org/ex2#foo_bar"},
+			Obj:  rdf.Literal{Val: "b", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex3#foo-bar"},
+			Pred: rdf.URI{URI: "http://example.org/ex3#foo_bar"},
+			Obj:  rdf.Literal{Val: "c", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex4#foo-bar"},
+			Pred: rdf.URI{URI: "http://example.org/ex4#foo_bar"},
+			Obj:  rdf.Literal{Val: "d", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-subm-13> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-13" ;
@@ -4164,7 +4350,28 @@ ex4-:foo-bar ex4-:foo_bar "d" .`, "", []rdf.Triple{}},
 ex:foo rdf:_1 "1" .
 ex:foo rdf:_2 "2" .
 ex:foo :_abc "def" .
-ex:foo :_345 "678" .`, "", []rdf.Triple{}},
+ex:foo :_345 "678" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex#foo"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_1"},
+			Obj:  rdf.Literal{Val: "1", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex#foo"},
+			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_2"},
+			Obj:  rdf.Literal{Val: "2", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex#foo"},
+			Pred: rdf.URI{URI: "http://example.org/myprop#_abc"},
+			Obj:  rdf.Literal{Val: "def", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex#foo"},
+			Pred: rdf.URI{URI: "http://example.org/myprop#_345"},
+			Obj:  rdf.Literal{Val: "678", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-subm-14> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-14" ;
@@ -4180,7 +4387,18 @@ ex:foo :_345 "678" .`, "", []rdf.Triple{}},
 [] : [] .
 
 : : : .
-`, "", []rdf.Triple{}},
+`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b1"},
+			Pred: rdf.URI{URI: "http://example.org/ron"},
+			Obj:  rdf.Blank{ID: "b2"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ron"},
+			Pred: rdf.URI{URI: "http://example.org/ron"},
+			Obj:  rdf.URI{URI: "http://example.org/ron"},
+		},
+	}},
 
 	//<#turtle-subm-15> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-15" ;
@@ -4195,7 +4413,13 @@ ex:foo :_345 "678" .`, "", []rdf.Triple{}},
 :a :b """a long
 	literal
 with
-newlines""" .`, "", []rdf.Triple{}},
+newlines""" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex#a"},
+			Pred: rdf.URI{URI: "http://example.org/ex#b"},
+			Obj:  rdf.Literal{Val: "a long\n\tliteral\nwith\nnewlines", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-subm-16> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-16" ;
@@ -4224,7 +4448,18 @@ literal\uABCD
 
 :d :e """\tThis \uABCDis\r \U00012451another\n
 one
-""" .`, "", []rdf.Triple{}},
+""" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/foo#a"},
+			Pred: rdf.URI{URI: "http://example.org/foo#b"},
+			Obj:  rdf.Literal{Val: "\nthis \ris a \U00012451long\t\nliteral\uABCD\n", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/foo#d"},
+			Pred: rdf.URI{URI: "http://example.org/foo#e"},
+			Obj:  rdf.Literal{Val: "\tThis \uABCDis\r \U00012451another\n\none\n", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-subm-17> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-17" ;
@@ -4237,7 +4472,13 @@ one
 	{`@prefix : <http://example.org/#> .
 
 :a :b  1.0 .
-`, "", []rdf.Triple{}},
+`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/#a"},
+			Pred: rdf.URI{URI: "http://example.org/#b"},
+			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDecimal},
+		},
+	}},
 
 	//<#turtle-subm-18> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-subm-18" ;
