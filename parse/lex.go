@@ -1037,6 +1037,12 @@ func lexPrefixLabel(l *lexer) stateFn {
 	l.next()
 	l.ignore()
 
+	if l.peek() == '#' {
+		// emit empty IRI suffix, easier than dealing with special case in parser
+		l.emit(tokenIRISuffix)
+		return lexAny
+	}
+
 	return lexIRISuffix
 
 }

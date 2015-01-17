@@ -4933,7 +4933,8 @@ foo:blah foo:blah foo:blah .
 	//   .
 
 	{`# Bad IRI
-<http://www.w3.org/2013/TurtleTests/{abc}> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/{abc}> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
+		"bad IRI: disallowed character '{'", []rdf.Triple{}},
 
 	//# tests requested by Jeremy Carroll
 	//# http://www.w3.org/2011/rdf-wg/wiki/Turtle_Candidate_Recommendation_Comments#c35
@@ -4947,7 +4948,13 @@ foo:blah foo:blah foo:blah .
 
 	{`@prefix p: <http://a.example/> .
 <http://a.example/s> <http://a.example/p> p:o#comment
-.`, "", []rdf.Triple{}},
+.`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o"},
+		},
+	}},
 
 	//<#number_sign_following_localName> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "number_sign_following_localName" ;
@@ -4959,7 +4966,13 @@ foo:blah foo:blah foo:blah .
 
 	{`@prefix p: <http://a.example/> .
 <http://a.example/s> <http://a.example/p> p:o\#numbersign
-.`, "", []rdf.Triple{}},
+.`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/o#numbersign"},
+		},
+	}},
 
 	//<#comment_following_PNAME_NS> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "comment_following_PNAME_NS" ;
@@ -4971,7 +4984,13 @@ foo:blah foo:blah foo:blah .
 
 	{`@prefix p: <http://a.example/> .
 <http://a.example/s> <http://a.example/p> p:#comment
-.`, "", []rdf.Triple{}},
+.`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/"},
+		},
+	}},
 
 	//<#number_sign_following_PNAME_NS> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "number_sign_following_PNAME_NS" ;
@@ -4983,7 +5002,13 @@ foo:blah foo:blah foo:blah .
 
 	{`@prefix p: <http://a.example/>.
 <http://a.example/s> <http://a.example/p> p:\#numbersign
-.`, "", []rdf.Triple{}},
+.`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://a.example/s"},
+			Pred: rdf.URI{URI: "http://a.example/p"},
+			Obj:  rdf.URI{URI: "http://a.example/#numbersign"},
+		},
+	}},
 
 	//# tests from Dave Beckett
 	//# http://www.w3.org/2011/rdf-wg/wiki/Turtle_Candidate_Recommendation_Comments#c28
@@ -4997,7 +5022,13 @@ foo:blah foo:blah foo:blah .
 
 	{`@prefix : <http://example.org/ns#> .
 
-:s :p1 """test-\\""" .`, "", []rdf.Triple{}},
+:s :p1 """test-\\""" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ns#s"},
+			Pred: rdf.URI{URI: "http://example.org/ns#p1"},
+			Obj:  rdf.Literal{Val: "test-\\", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#turtle-syntax-bad-LITERAL2_with_langtag_and_datatype> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-05" ;
@@ -5006,7 +5037,8 @@ foo:blah foo:blah foo:blah .
 	//   mf:action    <turtle-syntax-bad-LITERAL2_with_langtag_and_datatype.ttl> ;
 	//   .
 
-	{`<http://example.org/resource> <http://example.org#pred> "value"@en^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral> .`, "Bad number format (negative test)", []rdf.Triple{}},
+	{`<http://example.org/resource> <http://example.org#pred> "value"@en^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral> .`,
+		"syntax error: unexpected character: '^'", []rdf.Triple{}},
 
 	//<#two_LITERAL_LONG2s> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "two_LITERAL_LONG2s" ;
@@ -5019,7 +5051,18 @@ foo:blah foo:blah foo:blah .
 	{`# Test long literal twice to ensure it does not over-quote
 @prefix :  <http://example.org/ex#> .
 :a :b """first long literal""" .
-:c :d """second long literal""" .`, "", []rdf.Triple{}},
+:c :d """second long literal""" .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex#a"},
+			Pred: rdf.URI{URI: "http://example.org/ex#b"},
+			Obj:  rdf.Literal{Val: "first long literal", DataType: rdf.XSDString},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex#c"},
+			Pred: rdf.URI{URI: "http://example.org/ex#d"},
+			Obj:  rdf.Literal{Val: "second long literal", DataType: rdf.XSDString},
+		},
+	}},
 
 	//<#langtagged_LONG_with_subtag> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "langtagged_LONG_with_subtag" ;
@@ -5031,7 +5074,13 @@ foo:blah foo:blah foo:blah .
 
 	{`# Test long literal with lang tag
 @prefix :  <http://example.org/ex#> .
-:a :b """Cheers"""@en-UK .`, "", []rdf.Triple{}},
+:a :b """Cheers"""@en-UK .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://example.org/ex#a"},
+			Pred: rdf.URI{URI: "http://example.org/ex#b"},
+			Obj:  rdf.Literal{Val: "Cheers", Lang: "en-UK", DataType: rdf.XSDString},
+		},
+	}},
 
 	//# tests from David Robillard
 	//# http://www.w3.org/2011/rdf-wg/wiki/Turtle_Candidate_Recommendation_Comments#c21
@@ -5043,7 +5092,7 @@ foo:blah foo:blah foo:blah .
 	//	mf:action <turtle-syntax-bad-blank-label-dot-end.ttl> .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-_:b1. :p :o .`, "Blank node label must not end in dot", []rdf.Triple{}},
+_:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-number-dot-in-anon>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5057,7 +5106,7 @@ _:b1. :p :o .`, "Blank node label must not end in dot", []rdf.Triple{}},
 :s
 	:p [
 		:p1 27.
-	] .`, "Dot delimeter may not appear in anonymous nodes", []rdf.Triple{}},
+	] .`, "unexpected Property list end as object", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-ln-dash-start>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
