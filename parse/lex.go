@@ -53,6 +53,7 @@ var (
 	hex            = []byte("0123456789ABCDEFabcdef")
 	pnLocalEsc     = [...]rune{'_', '~', '.', '-', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=', '/', '?', '#', '@', '%'}
 	badIRIRunes    = [...]rune{' ', '<', '"', '{', '}', '|', '^', '`'}
+	badIRIRunesEsc = [...]rune{' ', '<', '"', '{', '}', '|', '^', '`', '>'}
 	okAfterRDFType = [...]rune{' ', '\t', '<', '"', '\''}
 	pnTab          = []rune{
 		'A', 'Z',
@@ -648,12 +649,29 @@ func _lexIRI(l *lexer) (stateFn, bool) {
 				if !l.acceptRunMin(hex, 4) {
 					return l.errorf("bad IRI: insufficent hex digits in unicode escape"), false
 				}
+				// Ensure that escaped character is not in badIRIRunes.
+				// We can ignore the error, because we know it's a correctly lexed hex value.
+				i, _ := strconv.ParseInt(string(l.input[l.pos-4:l.pos]), 16, 0)
+				for _, bad := range badIRIRunesEsc {
+					if rune(i) == bad {
+						return l.errorf("bad IRI: disallowed character in unicode escape: %q", string(l.input[l.pos-6:l.pos])), false
+					}
+				}
 				l.unEsc = true
 			case 'U':
 				l.next() // cosume 'U'
 				if !l.acceptRunMin(hex, 8) {
 					return l.errorf("bad IRI: insufficent hex digits in unicode escape"), false
 				}
+				// Ensure that escaped character is not in badIRIRunes.
+				// We can ignore the error, because we know it's a correctly lexed hex value.
+				i, _ := strconv.ParseInt(string(l.input[l.pos-4:l.pos]), 16, 0)
+				for _, bad := range badIRIRunesEsc {
+					if rune(i) == bad {
+						return l.errorf("bad IRI: disallowed character in unicode escape: %q", string(l.input[l.pos-9:l.pos])), false
+					}
+				}
+
 				l.unEsc = true
 			case eof:
 				return l.errorf("bad IRI: no closing '>'"), false

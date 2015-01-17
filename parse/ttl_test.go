@@ -4900,7 +4900,8 @@ foo:blah foo:blah foo:blah .
 	//   .
 
 	{`# Bad IRI : good escape, bad charcater
-<http://www.w3.org/2013/TurtleTests/\u0020> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/\u0020> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
+		`bad IRI: disallowed character in unicode escape: "\\u0020"`, []rdf.Triple{}},
 
 	//<#turtle-eval-bad-02> rdf:type rdft:TestTurtleNegativeEval ;
 	//   mf:name    "turtle-eval-bad-02" ;
@@ -4910,7 +4911,8 @@ foo:blah foo:blah foo:blah .
 	//   .
 
 	{`# Bad IRI : hex 3C is <
-<http://www.w3.org/2013/TurtleTests/\u003C> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/\u003C> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
+		`bad IRI: disallowed character in unicode escape: "\\u003C"`, []rdf.Triple{}},
 
 	//<#turtle-eval-bad-03> rdf:type rdft:TestTurtleNegativeEval ;
 	//   mf:name    "turtle-eval-bad-03" ;
@@ -4920,7 +4922,8 @@ foo:blah foo:blah foo:blah .
 	//   .
 
 	{`# Bad IRI : hex 3E is >
-<http://www.w3.org/2013/TurtleTests/\u003E> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/\u003E> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
+		`bad IRI: disallowed character in unicode escape: "\\u003E"`, []rdf.Triple{}},
 
 	//<#turtle-eval-bad-04> rdf:type rdft:TestTurtleNegativeEval ;
 	//   mf:name    "turtle-eval-bad-04" ;
