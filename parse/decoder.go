@@ -589,7 +589,7 @@ func (d *Decoder) expect1As(context string, expected tokenType) token {
 	t := d.next()
 	if t.typ != expected {
 		if t.typ == tokenError {
-			d.errorf("syntax error: %s", t.text)
+			d.errorf("%d:%d: syntax error: %s", t.line, t.col, t.text)
 		} else {
 			d.unexpected(t, context)
 		}

@@ -1036,8 +1036,13 @@ outerLoop:
 			}
 			return l.errorf("invalid escape charater %q", p)
 		}
-		// TODO check validity of:
+
 		// - ('%' hex hex)
+		if r == '%' {
+			if !l.acceptRunMin(hex, 2) {
+				return l.errorf("invalid hex escape sequence")
+			}
+		}
 	}
 	l.backup()
 	if r != eof && l.input[l.pos] == '.' {

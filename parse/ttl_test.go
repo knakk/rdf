@@ -3796,7 +3796,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Bad %-sequence
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:a%2 :p :o .`, "Bad %-sequence in pname (negative test)", []rdf.Triple{}},
+:a%2 :p :o .`, "invalid hex escape sequence", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-pname-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-pname-03" ;
