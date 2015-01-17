@@ -3664,7 +3664,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-bad-struct-12.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> `, "subject, predicate, no object (negative test)", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> `,
+		"unexpected EOF as object", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-13> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-13" ;
@@ -3673,7 +3674,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-bad-struct-13.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> `, "subject, predicate, no object (negative test)", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> `,
+		"unexpected EOF as object", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-14> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-14" ;
@@ -3683,7 +3685,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`# Literal as subject
-"abc" <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/p>  .`, "literal as subject (negative test)", []rdf.Triple{}},
+"abc" <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/p>  .`,
+		"unexpected Literal as subject", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-15> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-15" ;
@@ -3693,7 +3696,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`# Literal as predicate
-<http://www.w3.org/2013/TurtleTests/s> "abc" <http://www.w3.org/2013/TurtleTests/p>  .`, "literal as predicate (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> "abc" <http://www.w3.org/2013/TurtleTests/p>  .`,
+		"unexpected Literal as predicate", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-16> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-16" ;
@@ -3703,7 +3707,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`# BNode as predicate
-<http://www.w3.org/2013/TurtleTests/s> [] <http://www.w3.org/2013/TurtleTests/p>  .`, "bnode as predicate (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> [] <http://www.w3.org/2013/TurtleTests/p>  .`,
+		"unexpected Anonymous blank node as predicate", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-17> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-17" ;
@@ -3713,7 +3718,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`# BNode as predicate
-<http://www.w3.org/2013/TurtleTests/s> _:a <http://www.w3.org/2013/TurtleTests/p>  .`, "labeled bnode as predicate (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> _:a <http://www.w3.org/2013/TurtleTests/p>  .`,
+		"unexpected Blank node as predicate", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-lang-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-lang-01" ;
@@ -3723,7 +3729,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`# Bad lang tag
-<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@1 .`, "langString with bad lang (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@1 .`,
+		"bad literal: invalid language tag", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-esc-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-esc-01" ;
@@ -3733,7 +3740,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`# Bad string escape
-<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\zb" .`, "Bad string escape (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\zb" .`,
+		"bad literal: disallowed escape character 'z'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-esc-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-esc-02" ;
@@ -3743,7 +3751,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`# Bad string escape
-<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "\uWXYZ" .`, "Bad string escape (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "\uWXYZ" .`,
+		"bad literal: insufficent hex digits in unicode escape", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-esc-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-esc-03" ;
@@ -3753,7 +3762,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`# Bad string escape
-<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "\U0000WXYZ" .`, "Bad string escape (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "\U0000WXYZ" .`,
+		"bad literal: insufficent hex digits in unicode escape", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-esc-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-esc-04" ;
@@ -3763,7 +3773,8 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`# Bad string escape
-<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "\U0000WXYZ" .`, "Bad string escape (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "\U0000WXYZ" .`,
+		"bad literal: insufficent hex digits in unicode escape", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-pname-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-pname-01" ;
@@ -3774,7 +3785,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# ~ must be escaped.
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:a~b :p :o .`, "'~' must be escaped in pname (negative test)", []rdf.Triple{}},
+:a~b :p :o .`, "unexpected character: '~'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-pname-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-pname-02" ;
