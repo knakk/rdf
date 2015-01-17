@@ -457,7 +457,7 @@ func lexAny(l *lexer) stateFn {
 			return lexBase
 		default:
 			l.backup()
-			return l.errorf("illegal character %q", r)
+			return l.errorf("unrecognized directive")
 		}
 	case '_':
 		if l.peek() != ':' {
@@ -595,7 +595,7 @@ func lexAny(l *lexer) stateFn {
 			l.backup()
 			return lexPrefixLabel
 		}
-		return l.errorf("illegal character %q", r)
+		return l.errorf("unexpected character: %q", r)
 	}
 }
 
@@ -948,7 +948,7 @@ func lexPrefixLabelInDirective(l *lexer) stateFn {
 		return lexAny
 	}
 	if !isPnCharsBase(r) {
-		return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
+		return l.errorf("unexpected character: %q", r)
 	}
 	for {
 		r = l.next()
@@ -957,7 +957,7 @@ func lexPrefixLabelInDirective(l *lexer) stateFn {
 			break
 		}
 		if !(isPnChars(r) || (r == '.' && l.peek() != ':')) {
-			return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
+			return l.errorf("illegal token: %q", string(l.input[l.start:l.pos]))
 		}
 	}
 
@@ -969,13 +969,9 @@ func lexPrefixLabelInDirective(l *lexer) stateFn {
 	// consume and ignore any whitespace
 	for r = l.next(); r == ' ' || r == '\t'; r = l.next() {
 	}
-	if r == '<' {
-		l.ignore()
-		return lexIRI
-	}
 
 	l.backup()
-	return lexIRISuffix
+	return lexAny
 }
 
 func lexPrefixLabel(l *lexer) stateFn {
@@ -987,7 +983,7 @@ func lexPrefixLabel(l *lexer) stateFn {
 		return lexIRISuffix
 	}
 	if !isPnCharsBase(r) {
-		return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
+		return l.errorf("unexpected character: %q", r)
 	}
 	for {
 		r = l.next()
@@ -996,7 +992,7 @@ func lexPrefixLabel(l *lexer) stateFn {
 			break
 		}
 		if !(isPnChars(r) || (r == '.' && l.peek() != ':')) {
-			return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
+			return l.errorf("illegal token: %q", string(l.input[l.start:l.pos]))
 		}
 	}
 
@@ -1020,7 +1016,7 @@ func lexIRISuffix(l *lexer) stateFn {
 		return lexAny
 	}
 	if !isPnLocalFirst(r) {
-		return l.errorf("invalid character %q", r)
+		return l.errorf("unexpected character: %q", r)
 	}
 	if r == '\\' {
 		// Need to check that escaped char is in pnLocalEsc,

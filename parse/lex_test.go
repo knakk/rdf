@@ -230,7 +230,7 @@ two
 		{`"a"^^xyz`, []testToken{
 			{tokenLiteral, "a"},
 			{tokenDataTypeMarker, "^^"},
-			{tokenError, "illegal token: xyz"}},
+			{tokenError, `illegal token: "xyz"`}},
 		},
 		{`_:a_BlankLabel123.`, []testToken{
 			{tokenBNode, "a_BlankLabel123"},

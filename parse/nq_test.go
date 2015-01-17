@@ -814,7 +814,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-07.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> abc" .`, "syntax error: illegal token: abc\"", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> abc" .`, `syntax error: illegal token: "abc\""`, []rdf.Quad{}},
 
 	//<#nt-syntax-bad-num-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-01" ;

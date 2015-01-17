@@ -3202,7 +3202,8 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# Bad IRI : space.
-<http://www.w3.org/2013/TurtleTests/ space> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "Bad IRI : space (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/ space> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
+		"bad IRI: disallowed character ' '", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-uri-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-uri-02" ;
@@ -3212,7 +3213,8 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# Bad IRI : bad escape
-<http://www.w3.org/2013/TurtleTests/\u00ZZ11> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "Bad IRI : bad escape (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/\u00ZZ11> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
+		"bad IRI: insufficent hex digits in unicode escape", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-uri-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-uri-03" ;
@@ -3222,7 +3224,8 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# Bad IRI : bad escape
-<http://www.w3.org/2013/TurtleTests/\U00ZZ1111> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "Bad IRI : bad long escape (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/\U00ZZ1111> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
+		"bad IRI: insufficent hex digits in unicode escape", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-uri-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-uri-04" ;
@@ -3232,7 +3235,8 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# Bad IRI : character escapes not allowed.
-<http://www.w3.org/2013/TurtleTests/\n> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "Bad IRI : character escapes not allowed (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/\n> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
+		"bad IRI: disallowed escape character 'n'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-uri-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-uri-05" ;
@@ -3242,7 +3246,8 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# Bad IRI : character escapes not allowed.
-<http://www.w3.org/2013/TurtleTests/\/> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "Bad IRI : character escapes not allowed (2) (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/\/> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
+		`bad IRI: disallowed escape character '/'`, []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-prefix-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-01" ;
@@ -3252,7 +3257,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# No prefix
-:s <http://www.w3.org/2013/TurtleTests/p> "x" .`, "No prefix (negative test)", []rdf.Triple{}},
+:s <http://www.w3.org/2013/TurtleTests/p> "x" .`, "missing namespace for prefix: ':'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-prefix-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-02" ;
@@ -3263,7 +3268,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`# No prefix
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-<http://www.w3.org/2013/TurtleTests/s> rdf:type :C .`, "No prefix (2) (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> rdf:type :C .`, "missing namespace for prefix: ':'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-prefix-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-03" ;
@@ -3273,7 +3278,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# @prefix without URI.
-@prefix ex: .`, "@prefix without URI (negative test)", []rdf.Triple{}},
+@prefix ex: .`, "unexpected Dot as prefix URI", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-prefix-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-04" ;
@@ -3283,7 +3288,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# @prefix without prefix name .
-@prefix <http://www.w3.org/2013/TurtleTests/> .`, "@prefix without prefix name (negative test)", []rdf.Triple{}},
+@prefix <http://www.w3.org/2013/TurtleTests/> .`, "unexpected character: '<'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-prefix-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-05" ;
@@ -3293,7 +3298,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# @prefix without :
-@prefix x <http://www.w3.org/2013/TurtleTests/> .`, "@prefix without ':' (negative test)", []rdf.Triple{}},
+@prefix x <http://www.w3.org/2013/TurtleTests/> .`, `illegal token: "x "`, []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-base-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-base-01" ;
@@ -3303,7 +3308,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# @base without URI.
-@base .`, "@base without URI (negative test)", []rdf.Triple{}},
+@base .`, "unexpected Dot as base URI", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-base-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-base-02" ;
@@ -3313,7 +3318,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# @base in wrong case.
-@BASE <http://www.w3.org/2013/TurtleTests/> .`, "@base in wrong case (negative test)", []rdf.Triple{}},
+@BASE <http://www.w3.org/2013/TurtleTests/> .`, "unrecognized directive", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-base-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-base-03" ;
@@ -3324,7 +3329,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`# FULL STOP used after SPARQL BASE
 BASE <http://www.w3.org/2013/TurtleTests/> .
-<s> <p> <o> .`, "BASE without URI (negative test)", []rdf.Triple{}},
+<s> <p> <o> .`, "unexpected Dot as subject", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-01" ;
@@ -3334,7 +3339,8 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`# Turtle is not TriG
-{ <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> }`, "Turtle is not TriG (negative test)", []rdf.Triple{}},
+{ <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> }`,
+		"unexpected character: '{'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-02" ;
@@ -3344,7 +3350,8 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`# Turtle is not N3
-<http://www.w3.org/2013/TurtleTests/s> = <http://www.w3.org/2013/TurtleTests/o> .`, "Turtle is not N3 (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> = <http://www.w3.org/2013/TurtleTests/o> .`,
+		"unexpected character: '='", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-03" ;
@@ -3354,7 +3361,8 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`# Turtle is not NQuads
-<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> <http://www.w3.org/2013/TurtleTests/g> .`, "Turtle is not NQuads (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> <http://www.w3.org/2013/TurtleTests/g> .`,
+		"expected triple termination, got IRI (absolute)", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-04" ;
@@ -3364,7 +3372,8 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`# Turtle does not allow literals-as-subjects
-"hello" <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "Turtle does not allow literals-as-subjects (negative test)", []rdf.Triple{}},
+"hello" <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
+		"unexpected Literal as subject", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-05" ;
@@ -3374,7 +3383,8 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`# Turtle does not allow literals-as-predicates
-<http://www.w3.org/2013/TurtleTests/s> "hello" <http://www.w3.org/2013/TurtleTests/o> .`, "Turtle does not allow literals-as-predicates (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> "hello" <http://www.w3.org/2013/TurtleTests/o> .`,
+		"unexpected Literal as predicate", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-06> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-06" ;
@@ -3384,7 +3394,8 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`# Turtle does not allow bnodes-as-predicates
-<http://www.w3.org/2013/TurtleTests/s> [] <http://www.w3.org/2013/TurtleTests/o> .`, "Turtle does not allow bnodes-as-predicates (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> [] <http://www.w3.org/2013/TurtleTests/o> .`,
+		"unexpected Anonymous blank node as predicate", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-struct-07> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-07" ;

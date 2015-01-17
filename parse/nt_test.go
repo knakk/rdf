@@ -511,7 +511,7 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bad-string-07.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> abc" .`, "syntax error: illegal token: abc\"", nil},
+	{`<http://example/s> <http://example/p> abc" .`, `syntax error: illegal token: "abc\""`, nil},
 
 	//<#nt-syntax-bad-num-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-01" ;
