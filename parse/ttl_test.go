@@ -42,41 +42,6 @@ func TestTTL(t *testing.T) {
 	}
 }
 
-func TestStack(t *testing.T) {
-	for _, test := range stackSuite[:0] {
-		triples, err := parseAllTTL(test.input)
-		if err != nil {
-			if test.errWant == "" {
-				t.Fatalf("ParseTTL(%s) => %v, want %v\ntriples:%v", test.input, err, test.want, triples)
-				continue
-			}
-			if strings.HasSuffix(err.Error(), test.errWant) {
-				continue
-			}
-			t.Fatalf("ParseTTL(%s) => %q, want %q", test.input, err, test.errWant)
-			continue
-		}
-
-		if !reflect.DeepEqual(triples, test.want) {
-			for _, tr := range triples {
-				t.Logf("\t%v", tr)
-			}
-			t.Fail()
-		}
-	}
-}
-
-var stackSuite = []struct {
-	input   string
-	errWant string
-	want    []rdf.Triple
-}{
-	{`PREFIX : <http://example.org/stuff/1.0/>
-:a :b ( "apple" "banana" ) .
- `,
-		"", []rdf.Triple{}},
-}
-
 // ttlTestSuite is a representation of the official W3C test suite for Turtle
 // which is found at: http://www.w3.org/2013/TurtleTests/
 var ttlTestSuite = []struct {
@@ -84,37 +49,6 @@ var ttlTestSuite = []struct {
 	errWant string
 	want    []rdf.Triple
 }{
-	/*{`@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-	@prefix dc: <http://purl.org/dc/elements/1.1/> .
-	@prefix ex: <http://example.org/stuff/1.0/> .
-
-	<http://www.w3.org/TR/rdf-syntax-grammar>
-	  dc:title "RDF/XML Syntax Specification (Revised)" ;
-	  ex:editor [
-	    ex:fullname "Dave Beckett";
-	    ex:homePage <http://purl.org/net/dajobe/>
-	  ] .`, "", []rdf.Triple{
-			rdf.Triple{
-				Subj: rdf.URI{URI: "http://www.w3.org/TR/rdf-syntax-grammar"},
-				Pred: rdf.URI{URI: "http://purl.org/dc/elements/1.1/title"},
-				Obj:  rdf.Literal{Val: "RDF/XML Syntax Specification (Revised)", DataType: rdf.XSDString},
-			},
-			rdf.Triple{
-				Subj: rdf.URI{URI: "http://www.w3.org/TR/rdf-syntax-grammar"},
-				Pred: rdf.URI{URI: "http://example.org/stuff/1.0/editor"},
-				Obj:  rdf.Blank{ID: "b1"},
-			},
-			rdf.Triple{
-				Subj: rdf.Blank{ID: "b1"},
-				Pred: rdf.URI{URI: "http://example.org/stuff/1.0/fullname"},
-				Obj:  rdf.Literal{Val: "Dave Beckett", DataType: rdf.XSDString},
-			},
-			rdf.Triple{
-				Subj: rdf.Blank{ID: "b1"},
-				Pred: rdf.URI{URI: "http://example.org/stuff/1.0/homepage"},
-				Obj:  rdf.URI{URI: "http://purl.org/net/dajobe/"},
-			},
-		}},*/
 	//# atomic tests
 	//<#IRI_subject> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "IRI_subject" ;
