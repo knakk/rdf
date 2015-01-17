@@ -3405,7 +3405,8 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`# Turtle does not allow bnodes-as-predicates
-<http://www.w3.org/2013/TurtleTests/s> _:p <http://www.w3.org/2013/TurtleTests/o> .`, "Turtle does not allow labeled bnodes-as-predicates (negative test)", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> _:p <http://www.w3.org/2013/TurtleTests/o> .`,
+		"unexpected Blank node as predicate", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-kw-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-kw-01" ;

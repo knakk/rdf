@@ -405,8 +405,6 @@ func parsePredicate(d *Decoder) parseFn {
 		// TODO err if d.base == ""
 	case tokenRDFType:
 		d.current.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
-	case tokenBNode:
-		d.current.Pred = rdf.Blank{ID: tok.text}
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
 		if !ok {
