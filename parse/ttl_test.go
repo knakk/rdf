@@ -5146,7 +5146,7 @@ _:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-ns-dot-end.ttl> .
 
 	{`@prefix eg. : <http://www.w3.org/2013/TurtleTests/> .
-eg.:s eg.:p eg.:o .`, "Prefix must not end in dot", []rdf.Triple{}},
+eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-ns-dot-start>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5156,7 +5156,7 @@ eg.:s eg.:p eg.:o .`, "Prefix must not end in dot", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-ns-dot-start.ttl> .
 
 	{`@prefix .eg : <http://www.w3.org/2013/TurtleTests/> .
-.eg:s .eg:p .eg:o .`, "Prefix must not start with dot", []rdf.Triple{}},
+.eg:s .eg:p .eg:o .`, "unexpected character: '.'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-missing-ns-dot-end>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5165,7 +5165,8 @@ eg.:s eg.:p eg.:o .`, "Prefix must not end in dot", []rdf.Triple{}},
 	//        rdft:approval rdft:Approved ;
 	//	mf:action <turtle-syntax-bad-missing-ns-dot-end.ttl> .
 
-	{`valid:s valid:p invalid.:o .`, "Prefix must not end in dot (error in triple, not prefix directive like turtle-syntax-bad-ns-dot-end)", []rdf.Triple{}},
+	{`valid:s valid:p invalid.:o .`,
+		"missing namespace for prefix: 'valid'", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-missing-ns-dot-start>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5174,7 +5175,8 @@ eg.:s eg.:p eg.:o .`, "Prefix must not end in dot", []rdf.Triple{}},
 	//        rdft:approval rdft:Approved ;
 	//	mf:action <turtle-syntax-bad-missing-ns-dot-start.ttl> .
 
-	{`.undefined:s .undefined:p .undefined:o .`, "Prefix must not start with dot (error in triple, not prefix directive like turtle-syntax-bad-ns-dot-end)", []rdf.Triple{}},
+	{`.undefined:s .undefined:p .undefined:o .`,
+		"unexpected Dot as subject", []rdf.Triple{}},
 
 	//<#turtle-syntax-ln-dots>
 	//	rdf:type rdft:TestTurtlePositiveSyntax ;
