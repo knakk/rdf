@@ -3900,7 +3900,8 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-bad-num-02.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 123e .`, "Bad number format (negative test)", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 123e .`,
+		"bad literal: illegal number syntax: missing exponent", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-num-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-03" ;
@@ -3909,7 +3910,8 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-bad-num-03.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 123abc .`, "Bad number format (negative test)", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 123abc .`,
+		"Bad number format (negative test)", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-num-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-04" ;
@@ -3918,7 +3920,8 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-bad-num-04.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 0x123 .`, "Bad number format (negative test)", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 0x123 .`,
+		"Bad number format (negative test)", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-num-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-05" ;
@@ -3927,7 +3930,8 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   mf:action    <turtle-syntax-bad-num-05.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> +-1 .`, "Bad number format (negative test)", []rdf.Triple{}},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> +-1 .`,
+		"Bad number format (negative test)", []rdf.Triple{}},
 
 	//<#turtle-eval-struct-01> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-eval-struct-01" ;

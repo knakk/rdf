@@ -337,6 +337,9 @@ two
 			{tokenCollectionEnd, ""},
 			{tokenEOF, ""}},
 		},
+		{`123e`, []testToken{
+			{tokenError, "bad literal: illegal number syntax: missing exponent"}},
+		},
 		{`1+2`, []testToken{
 			{tokenError, "bad literal: illegal number syntax (number followed by '+')"}},
 		},

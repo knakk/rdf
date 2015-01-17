@@ -843,6 +843,10 @@ func lexNumber(l *lexer) stateFn {
 				p := l.peek()
 				if p == '+' || p == '-' {
 					l.next()
+				} else {
+					if !isDigit(p) {
+						return l.errorf("bad literal: illegal number syntax: missing exponent")
+					}
 				}
 			default:
 				if r == ' ' || r == ',' || r == ';' || r == eof || r == ')' || r == ']' {
