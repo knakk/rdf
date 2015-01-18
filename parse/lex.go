@@ -106,6 +106,13 @@ var (
 	}
 )
 
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 func isAlpha(r rune) bool {
 	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
 }
@@ -1086,9 +1093,9 @@ outerLoop:
 		}
 	}
 	l.backup()
-	if r != eof && l.input[l.pos] == '.' {
+	if l.input[min(len(l.input)-1, l.pos-1)] == '.' {
 		// last rune cannot be dot, otherwise isPnLocalMid(r) is valid for last position as well
-		return l.errorf("illegal token: %s", string(l.input[l.start:l.pos]))
+		l.pos--
 	}
 	l.emit(tokenIRISuffix)
 	return lexAny

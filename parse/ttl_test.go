@@ -50,6 +50,7 @@ var ttlTestSuite = []struct {
 	want    []rdf.Triple
 }{
 	//# atomic tests
+	//
 	//<#IRI_subject> rdf:type rdft:TestTurtleEval ;
 	//   mf:name      "IRI_subject" ;
 	//   rdfs:comment "IRI subject" ;
@@ -3430,7 +3431,7 @@ true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf
 
 :x.
   ns:p.
-    ns:q :p :z .`, "expected triple termination, got Prefix label", []rdf.Triple{}},
+    ns:q :p :z .`, "unexpected Dot as predicate", []rdf.Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-04" ;
@@ -5122,7 +5123,23 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s.1 :p.1 :o.1 .
 :s..2 :p..2 :o..2.
-:3.s :3.p :3.`, "", []rdf.Triple{}},
+:3.s :3.p :3.`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s.1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p.1"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o.1"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s..2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p..2"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o..2"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3.s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3.p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3"},
+		},
+	}},
 
 	//<#turtle-syntax-ln-colons>
 	//	rdf:type rdft:TestTurtlePositiveSyntax ;
@@ -5136,7 +5153,33 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
 :s::2 :p::2 :o::2 .
 :3:s :3:p :3 .
 ::s ::p ::o .
-::s: ::p: ::o: .`, "", []rdf.Triple{}},
+::s: ::p: ::o: .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s:1"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p:1"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o:1"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s::2"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p::2"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o::2"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3:s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3:p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:o"},
+		},
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:s:"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:p:"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:o:"},
+		},
+	}},
 
 	//<#turtle-syntax-ns-dots>
 	//	rdf:type rdft:TestTurtlePositiveSyntax ;
@@ -5146,7 +5189,13 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-ns-dots.ttl> .
 
 	{`@prefix e.g: <http://www.w3.org/2013/TurtleTests/> .
-e.g:s e.g:p e.g:o .`, "", []rdf.Triple{}},
+e.g:s e.g:p e.g:o .`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+	}},
 
 	//<#turtle-syntax-blank-label>
 	//	rdf:type rdft:TestTurtlePositiveSyntax ;
@@ -5158,5 +5207,21 @@ e.g:s e.g:p e.g:o .`, "", []rdf.Triple{}},
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 _:0b :p :o . # Starts with digit
 _:_b :p :o . # Starts with underscore
-_:b.0 :p :o . # Contains dot, ends with digit`, "", []rdf.Triple{}},
+_:b.0 :p :o . # Contains dot, ends with digit`, "", []rdf.Triple{
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "0b"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "_b"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+		rdf.Triple{
+			Subj: rdf.Blank{ID: "b.0"},
+			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		},
+	}},
 }
