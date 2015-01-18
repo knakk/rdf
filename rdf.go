@@ -25,20 +25,20 @@ var (
 // it if you need another layout.
 var DateFormat = time.RFC3339
 
-// The XML schema built-in datatypes (xsd). See here for documentation:
+// The XML schema built-in datatypes (xsd):
 // https://dvcs.w3.org/hg/rdf/raw-file/default/rdf-concepts/index.html#xsd-datatypes
 var (
-	// Core types:
+	// Core types:                                                    // Corresponding Go datatype:
 
-	XSDString  = URI{URI: "http://www.w3.org/2001/XMLSchema#string"}
-	XSDBoolean = URI{URI: "http://www.w3.org/2001/XMLSchema#boolean"}
-	XSDDecimal = URI{URI: "http://www.w3.org/2001/XMLSchema#decimal"}
-	XSDInteger = URI{URI: "http://www.w3.org/2001/XMLSchema#integer"}
+	XSDString  = URI{URI: "http://www.w3.org/2001/XMLSchema#string"}  // string
+	XSDBoolean = URI{URI: "http://www.w3.org/2001/XMLSchema#boolean"} // bool
+	XSDDecimal = URI{URI: "http://www.w3.org/2001/XMLSchema#decimal"} // float64
+	XSDInteger = URI{URI: "http://www.w3.org/2001/XMLSchema#integer"} // int
 
 	// IEEE floating-point numbers:
 
-	XSDDouble = URI{URI: "http://www.w3.org/2001/XMLSchema#double"}
-	XSDFloat  = URI{URI: "http://www.w3.org/2001/XMLSchema#float"}
+	XSDDouble = URI{URI: "http://www.w3.org/2001/XMLSchema#double"} // float64
+	XSDFloat  = URI{URI: "http://www.w3.org/2001/XMLSchema#float"}  // float64
 
 	// Time and date:
 
@@ -58,6 +58,8 @@ var (
 	XSDDayTimeDuration   = URI{URI: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
 
 	// Limited-range integer numbers
+
+	XSDByte = URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}
 
 	// TODO
 
