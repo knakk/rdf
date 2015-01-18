@@ -152,17 +152,6 @@ func (d *Decoder) popContext() {
 	}
 }
 
-func (d *Decoder) discardContext() {
-	if len(d.ctxStack) > 1 {
-		d.ctxStack = d.ctxStack[:len(d.ctxStack)-1]
-	} else {
-		d.current.Ctx = ctxTop
-		d.current.Subj = nil
-		d.current.Pred = nil
-		d.current.Obj = nil
-	}
-}
-
 // emit adds the current triple to the slice of completed triples.
 func (d *Decoder) emit() {
 	d.triples = append(d.triples, d.current.Triple)
