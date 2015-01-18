@@ -21,23 +21,6 @@ const (
 	formatTriG
 )
 
-func (f format) String() string {
-	switch f {
-	case formatRDFXML:
-		return "RDF/XML"
-	case formatTTL:
-		return "Turtle"
-	case formatNT:
-		return "N-Triples"
-	case formatNQ:
-		return "N-Quads"
-	case formatTriG:
-		return "Tri-G"
-	default:
-		return "Unknown format"
-	}
-}
-
 // ctxTriple contains a Triple, plus the context in which the Triple appears.
 type ctxTriple struct {
 	rdf.Triple
@@ -420,7 +403,6 @@ func parsePredicate(d *Decoder) parseFn {
 		d.current.Pred = rdf.URI{URI: tok.text}
 	case tokenIRIRel:
 		d.current.Pred = rdf.URI{URI: d.base + tok.text}
-		// TODO err if d.base == ""
 	case tokenRDFType:
 		d.current.Pred = rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
 	case tokenPrefixLabel:
@@ -446,7 +428,6 @@ func parseObject(d *Decoder) parseFn {
 		d.current.Obj = rdf.URI{URI: tok.text}
 	case tokenIRIRel:
 		d.current.Obj = rdf.URI{URI: d.base + tok.text}
-		// TODO err if d.base == ""
 	case tokenBNode:
 		d.current.Obj = rdf.Blank{ID: tok.text}
 	case tokenAnonBNode:

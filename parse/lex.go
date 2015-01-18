@@ -1017,10 +1017,10 @@ func lexPrefixLabelInDirective(l *lexer) stateFn {
 }
 
 func lexPrefixLabel(l *lexer) stateFn {
-	l.ignore() // TODO why? is this needed here
+	l.ignore() // TODO why is this needed here?
 	r := l.next()
 	if r == ':' {
-		//PN_PREFIX can be empty
+		// PN_PREFIX can be empty, in which case use ':' as namespace key.
 		l.emit(tokenPrefixLabel)
 		return lexIRISuffix
 	}
@@ -1068,7 +1068,7 @@ func lexIRISuffix(l *lexer) stateFn {
 	}
 	if r == '\\' || r == '%' {
 		// Need to check that escaped char is in pnLocalEsc,
-		// so do it in main loop below
+		// so we do it outerLoop below.
 		l.backup()
 	}
 
