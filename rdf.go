@@ -265,8 +265,6 @@ func (t Triple) NT() string {
 
 // Quad represents a RDF quad; that is, a triple with a named graph.
 type Quad struct {
-	Subj  Term
-	Pred  Term
-	Obj   Term
+	Triple
 	Graph Term // IRI or BNode (Literal not valid as graph)
 }
