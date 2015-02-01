@@ -909,11 +909,6 @@ func lexPrefixLabelInDirective(l *lexer) stateFn {
 	// consume and ignore ':'
 	l.next()
 	l.ignore()
-	// consume and ignore any whitespace
-	for r = l.next(); r == ' ' || r == '\t'; r = l.next() {
-	}
-
-	l.backup()
 	return lexAny
 }
 
@@ -1005,11 +1000,6 @@ outerLoop:
 func lexBase(l *lexer) stateFn {
 	if l.acceptExact("base") {
 		l.emit(tokenBase)
-		// consume and ignore any whitespace before base IRI
-		for r := l.next(); r == ' ' || r == '\t'; r = l.next() {
-		}
-		l.backup()
-		l.ignore()
 		return lexAny
 	}
 	return l.errorf("invalid character 'b'")
