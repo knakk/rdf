@@ -136,11 +136,6 @@ func NewBlank(id string) (Blank, error) {
 	return Blank{ID: id}, nil
 }
 
-// NewBlankUnsafe is like NewBlank, except it doesn't fail on invalid input.
-func NewBlankUnsafe(id string) Blank {
-	return Blank{ID: id}
-}
-
 // URI represents a RDF URI resource.
 //
 // The URI term type is actially an IRI, meaning it can consist of non-latin
@@ -184,11 +179,6 @@ func NewURI(uri string) (URI, error) {
 		}
 	}
 	return URI{URI: uri}, nil
-}
-
-// NewURIUnsafe returns a new URI, with no validation performed on input.
-func NewURIUnsafe(uri string) URI {
-	return URI{uri}
 }
 
 // Literal represents a RDF literal; a value with a datatype and
@@ -253,9 +243,6 @@ func (l Literal) Type() TermType {
 
 // NewLiteral returns a new Literal, or an error on invalid input. It tries
 // to map the given Go values to a corresponding xsd datatype.
-// If you need a custom datatype, you must create the literal with the normal
-// struct syntax:
-//    l := Literal{Val: "my-val", DataType: NewURIUnsafe("my uri")}
 func NewLiteral(v interface{}) (Literal, error) {
 	switch t := v.(type) {
 	case bool:
@@ -271,16 +258,6 @@ func NewLiteral(v interface{}) (Literal, error) {
 	default:
 		return Literal{}, fmt.Errorf("cannot infer xsd:datatype from %v", t)
 	}
-}
-
-// NewLiteralUnsafe returns a new literal without performing any validation
-// on input. Any input on which type cannot be inferred, will be forced to xsd:string.
-func NewLiteralUnsafe(v interface{}) Literal {
-	l, err := NewLiteral(v)
-	if err != nil {
-		l, _ = NewLiteral(fmt.Sprintf("%v", v))
-	}
-	return l
 }
 
 // NewLangLiteral creates a RDF literal with a givne language tag.

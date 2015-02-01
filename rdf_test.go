@@ -26,8 +26,8 @@ func TestTermTypeBlank(t *testing.T) {
 		t.Errorf("NewBlank(\"a\").String() => %v; want %v", b.String(), want)
 	}
 
-	b2 := NewBlankUnsafe("a")
-	b3 := NewBlankUnsafe("b")
+	b2 := Blank{ID: "a"}
+	b3 := Blank{ID: "b"}
 
 	if !b.Eq(b2) {
 		t.Errorf("two blank nodes with same ID should be equal")
@@ -39,7 +39,7 @@ func TestTermTypeBlank(t *testing.T) {
 }
 
 func TestTermTypeURI(t *testing.T) {
-	uri := NewURIUnsafe("x://y/z")
+	uri := URI{URI: "x://y/z"}
 	want := "<x://y/z>"
 	if uri.String() != want {
 		t.Errorf("NewURI(\"x://y/z\").String() => %s; want %s", uri.String(), want)
@@ -55,9 +55,9 @@ func TestTermTypeURI(t *testing.T) {
 		t.Errorf("NewURI(\"<&http.dott\") => %v; want errURIInvalidCharacters", err)
 	}
 
-	a := NewURIUnsafe("abba")
-	b := NewURIUnsafe("ABBA")
-	c := NewURIUnsafe("abba")
+	a := URI{URI: "abba"}
+	b := URI{URI: "ABBA"}
+	c := URI{URI: "abba"}
 
 	if a.Eq(b) {
 		t.Errorf("two different URIs should not be equal")
@@ -75,14 +75,14 @@ func TestTermTypeLiteral(t *testing.T) {
 		t.Errorf("Expected an error creating Literal, got nil")
 	}
 
-	l1 := NewLiteralUnsafe(42)
-	l2 := NewLiteralUnsafe(42.00001)
-	l3 := NewLiteralUnsafe(true)
-	l4 := NewLiteralUnsafe(false)
+	l1, _ := NewLiteral(42)
+	l2, _ := NewLiteral(42.00001)
+	l3, _ := NewLiteral(true)
+	l4, _ := NewLiteral(false)
 	l5 := NewLangLiteral("fisk", "nno")
 	l6 := NewLangLiteral("fisk", "no")
-	l7 := NewLiteralUnsafe("fisk")
-	l8 := NewLiteralUnsafe(time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))
+	l7, _ := NewLiteral("fisk")
+	l8, _ := NewLiteral(time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))
 
 	var eqTests = []struct {
 		a, b Literal

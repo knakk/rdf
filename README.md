@@ -79,18 +79,3 @@ type Quad struct {
 	Graph URI
 }
 ```
-
-## Usage
-
-This package exist mainly to declare datastructures for working with RDF data. The only functions provided are constructors for creating structs of the different RDF terms.
-
-There are two constructors for each term type - one which validates that input conforms to the RDF standards, and another with the suffix `Unsafe` which doesn't:
-
-```go
-u, err := NewURI("an invalid uri")
-if err != nil {
-  // handle error on invalid input
-}
-
-u2 := NewURIUnsafe("http://my.resource/nr/123") // no validation on input
-```
