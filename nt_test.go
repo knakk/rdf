@@ -1,4 +1,4 @@
-package parse
+package rdf
 
 import (
 	"bytes"
@@ -6,11 +6,9 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/knakk/rdf"
 )
 
-func parseAllNT(s string) (r []rdf.Triple, err error) {
+func parseAllNT(s string) (r []Triple, err error) {
 	dec := NewNTDecoder(bytes.NewBufferString(s))
 	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {
 		if err != nil {
@@ -47,14 +45,14 @@ func TestNT(t *testing.T) {
 	}
 }
 
-var empty = []rdf.Triple{rdf.Triple{}}
+var empty = []Triple{Triple{}}
 
 // ntTestSuite is a representation of the official W3C test suite for N-Triples
 // which is found at: http://www.w3.org/2013/N-TriplesTests/
 var ntTestSuite = []struct {
 	input   string
 	errWant string
-	want    []rdf.Triple
+	want    []Triple
 }{
 	//<#nt-syntax-file-01> rdf:type rdft:TestNTriplesPositiveSyntax ;
 	//   mf:name    "nt-syntax-file-01" ;
@@ -87,11 +85,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-uri-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> <http://example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.URI{URI: "http://example/o"},
+	{`<http://example/s> <http://example/p> <http://example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  URI{URI: "http://example/o"},
 		},
 	},
 	},
@@ -103,11 +101,11 @@ var ntTestSuite = []struct {
 	//   .
 
 	{`# x53 is capital S
-	<http://example/\u0053> <http://example/p> <http://example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/S"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.URI{URI: "http://example/o"},
+	<http://example/\u0053> <http://example/p> <http://example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/S"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  URI{URI: "http://example/o"},
 		},
 	},
 	},
@@ -119,11 +117,11 @@ var ntTestSuite = []struct {
 	//   .
 
 	{`# x53 is capital S
-	<http://example/\U00000053> <http://example/p> <http://example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/S"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.URI{URI: "http://example/o"},
+	<http://example/\U00000053> <http://example/p> <http://example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/S"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  URI{URI: "http://example/o"},
 		},
 	}},
 
@@ -134,11 +132,11 @@ var ntTestSuite = []struct {
 	//   .
 
 	{`# IRI with all chars in it.
-	<http://example/s> <http://example/p> <scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.URI{URI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
+	<http://example/s> <http://example/p> <scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  URI{URI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
 		},
 	}},
 
@@ -148,11 +146,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-string-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "string" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString},
+	{`<http://example/s> <http://example/p> "string" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "string", DataType: XSDString},
 		},
 	}},
 
@@ -162,11 +160,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-string-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "string"@en .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en"},
+	{`<http://example/s> <http://example/p> "string"@en .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en"},
 		},
 	}},
 
@@ -176,11 +174,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-string-03.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "string"@en-uk .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en-uk"},
+	{`<http://example/s> <http://example/p> "string"@en-uk .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en-uk"},
 		},
 	}},
 
@@ -190,11 +188,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-str-esc-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "a\n" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "a\n", DataType: rdf.XSDString},
+	{`<http://example/s> <http://example/p> "a\n" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "a\n", DataType: XSDString},
 		},
 	}},
 
@@ -204,11 +202,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-str-esc-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "a\u0020b" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "a b", DataType: rdf.XSDString},
+	{`<http://example/s> <http://example/p> "a\u0020b" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "a b", DataType: XSDString},
 		},
 	}},
 
@@ -218,11 +216,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-str-esc-03.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "a\U00000020b" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "a b", DataType: rdf.XSDString},
+	{`<http://example/s> <http://example/p> "a\U00000020b" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "a b", DataType: XSDString},
 		},
 	}},
 
@@ -232,11 +230,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-bnode-01.nt> ;
 	//   .
 
-	{`_:a  <http://example/p> <http://example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "a"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.URI{URI: "http://example/o"},
+	{`_:a  <http://example/p> <http://example/o> .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "a"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  URI{URI: "http://example/o"},
 		},
 	}},
 
@@ -247,16 +245,16 @@ var ntTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> _:a .
-	_:a  <http://example/p> <http://example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Blank{ID: "a"},
+	_:a  <http://example/p> <http://example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Blank{ID: "a"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "a"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.URI{URI: "http://example/o"},
+		Triple{
+			Subj: Blank{ID: "a"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  URI{URI: "http://example/o"},
 		},
 	}},
 
@@ -267,16 +265,16 @@ var ntTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> _:1a .
-	_:1a  <http://example/p> <http://example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Blank{ID: "1a"},
+	_:1a  <http://example/p> <http://example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Blank{ID: "1a"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "1a"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.URI{URI: "http://example/o"},
+		Triple{
+			Subj: Blank{ID: "1a"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  URI{URI: "http://example/o"},
 		},
 	}},
 
@@ -286,11 +284,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-datatypes-01.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#byte> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: []byte("123"), DataType: rdf.URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}},
+	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#byte> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: []byte("123"), DataType: URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}},
 		},
 	}},
 
@@ -300,11 +298,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <nt-syntax-datatypes-02.nt> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#string> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "123", DataType: rdf.XSDString},
+	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#string> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "123", DataType: XSDString},
 		},
 	}},
 
@@ -621,156 +619,156 @@ var ntTestSuite = []struct {
 
 	# Typed Literals
 	<http://example.org/resource32> <http://example.org/property> "abc"^^<http://example.org/datatype1> .
-	# resource33 test removed 2003-08-03`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource1"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+	# resource33 test removed 2003-08-03`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/resource1"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  URI{URI: "http://example.org/resource2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "anon"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		Triple{
+			Subj: Blank{ID: "anon"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  URI{URI: "http://example.org/resource2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource2"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Blank{ID: "anon"},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource2"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Blank{ID: "anon"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource3"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource3"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  URI{URI: "http://example.org/resource2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource4"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource4"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  URI{URI: "http://example.org/resource2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource5"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource5"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  URI{URI: "http://example.org/resource2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource6"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource6"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  URI{URI: "http://example.org/resource2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource7"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "simple literal", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource7"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "simple literal", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource8"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: `backslash:\`, DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource8"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: `backslash:\`, DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource9"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: `dquote:"`, DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource9"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: `dquote:"`, DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource10"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "newline:\n", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource10"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "newline:\n", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource11"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "return\r", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource11"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "return\r", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource12"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "tab:\t", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource12"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "tab:\t", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource13"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.URI{URI: "http://example.org/resource2"},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource13"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  URI{URI: "http://example.org/resource2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource14"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource14"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "x", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource15"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Blank{ID: "anon"},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource15"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Blank{ID: "anon"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource16"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "é", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource16"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "é", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource17"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "€", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource17"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "€", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource21"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource21"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource22"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: " ", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource22"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: " ", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource23"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "x", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource23"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "x", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource23"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: `"`, DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource23"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: `"`, DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource24"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "<a></a>", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource24"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "<a></a>", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource25"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "a <b></b>", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource25"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "a <b></b>", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource26"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "a <b></b> c", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource26"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "a <b></b> c", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource26"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "a\n<b></b>\nc", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource26"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "a\n<b></b>\nc", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource27"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "chat", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource27"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "chat", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource30"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "chat", Lang: "fr", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource30"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "chat", Lang: "fr", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource31"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "chat", Lang: "en", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource31"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/resource32"},
-			Pred: rdf.URI{URI: "http://example.org/property"},
-			Obj:  rdf.Literal{Val: "abc", DataType: rdf.URI{URI: "http://example.org/datatype1"}},
+		Triple{
+			Subj: URI{URI: "http://example.org/resource32"},
+			Pred: URI{URI: "http://example.org/property"},
+			Obj:  Literal{Val: "abc", DataType: URI{URI: "http://example.org/datatype1"}},
 		},
 	}},
 
@@ -785,31 +783,31 @@ var ntTestSuite = []struct {
 	<http://example/s> <http://example/p> _:o . # comment
 	<http://example/s> <http://example/p> "o" . # comment
 	<http://example/s> <http://example/p> "o"^^<http://example/dt> . # comment
-	<http://example/s> <http://example/p> "o"@en . # comment`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.URI{URI: "http://example/o"},
+	<http://example/s> <http://example/p> "o"@en . # comment`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  URI{URI: "http://example/o"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Blank{ID: "o"},
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Blank{ID: "o"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "o", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "o", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "o", DataType: rdf.URI{URI: "http://example/dt"}},
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "o", DataType: URI{URI: "http://example/dt"}},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "o", Lang: "en", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "o", Lang: "en", DataType: XSDString},
 		},
 	}},
 
@@ -820,11 +818,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_ascii_boundaries.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> \"\x00	&([]\" .", "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj: rdf.Literal{Val: "\x00	&([]", DataType: rdf.XSDString},
+	{"<http://a.example/s> <http://a.example/p> \"\x00	&([]\" .", "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj: Literal{Val: "\x00	&([]", DataType: XSDString},
 		},
 	}},
 
@@ -835,11 +833,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_UTF8_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 		},
 	}},
 
@@ -850,11 +848,11 @@ var ntTestSuite = []struct {
 	//   mf:action   <literal_all_controls.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\x00\x01\x02\x03\x04\x05\x06\a\b\t\v\f\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\x00\x01\x02\x03\x04\x05\x06\a\b\t\v\f\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f", DataType: XSDString},
 		},
 	}},
 
@@ -865,11 +863,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_all_punctuation.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> \" !\\\"#$%&():;<=>?@[]^_`{|}~\".", "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: rdf.XSDString},
+	{"<http://a.example/s> <http://a.example/p> \" !\\\"#$%&():;<=>?@[]^_`{|}~\".", "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: XSDString},
 		},
 	}},
 
@@ -880,11 +878,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_squote.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x'y" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "x'y", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x'y" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "x'y", DataType: XSDString},
 		},
 	}},
 
@@ -895,11 +893,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_2_squotes.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x''y" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "x''y", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x''y" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "x''y", DataType: XSDString},
 		},
 	}},
 
@@ -910,11 +908,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "x", DataType: XSDString},
 		},
 	}},
 
@@ -925,11 +923,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_dquote.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x\"y" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: `x"y`, DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x\"y" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: `x"y`, DataType: XSDString},
 		},
 	}},
 
@@ -940,11 +938,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_2_dquotes.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x\"\"y" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: `x""y`, DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x\"\"y" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: `x""y`, DataType: XSDString},
 		},
 	}},
 
@@ -955,11 +953,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_REVERSE_SOLIDUS2.nt> ;
 	//   .
 
-	{`<http://example.org/ns#s> <http://example.org/ns#p1> "test-\\" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ns#s"},
-			Pred: rdf.URI{URI: "http://example.org/ns#p1"},
-			Obj:  rdf.Literal{Val: `test-\`, DataType: rdf.XSDString},
+	{`<http://example.org/ns#s> <http://example.org/ns#p1> "test-\\" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/ns#s"},
+			Pred: URI{URI: "http://example.org/ns#p1"},
+			Obj:  Literal{Val: `test-\`, DataType: XSDString},
 		},
 	}},
 
@@ -970,11 +968,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_CHARACTER_TABULATION.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\t" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\t", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\t" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\t", DataType: XSDString},
 		},
 	}},
 
@@ -985,11 +983,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_BACKSPACE.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\b" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\b", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\b" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\b", DataType: XSDString},
 		},
 	}},
 
@@ -1000,11 +998,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_LINE_FEED.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\n" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\n", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\n" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\n", DataType: XSDString},
 		},
 	}},
 
@@ -1015,11 +1013,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_CARRIAGE_RETURN.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\r" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\r", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\r" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\r", DataType: XSDString},
 		},
 	}},
 
@@ -1030,11 +1028,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_FORM_FEED.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\f" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\f", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\f" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\f", DataType: XSDString},
 		},
 	}},
 
@@ -1045,11 +1043,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_REVERSE_SOLIDUS.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\\" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\\", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\\" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\\", DataType: XSDString},
 		},
 	}},
 
@@ -1060,11 +1058,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_numeric_escape4.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\u006F" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "o", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\u006F" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "o", DataType: XSDString},
 		},
 	}},
 
@@ -1075,11 +1073,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <literal_with_numeric_escape8.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\U0000006F" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "o", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\U0000006F" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "o", DataType: XSDString},
 		},
 	}},
 
@@ -1090,11 +1088,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <langtagged_string.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "chat", Lang: "en", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: XSDString},
 		},
 	}},
 
@@ -1105,11 +1103,11 @@ var ntTestSuite = []struct {
 	//   mf:action    <lantag_with_subtag.nt> ;
 	//   .
 
-	{`<http://example.org/ex#a> <http://example.org/ex#b> "Cheers"@en-UK .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex#a"},
-			Pred: rdf.URI{URI: "http://example.org/ex#b"},
-			Obj:  rdf.Literal{Val: "Cheers", Lang: "en-UK", DataType: rdf.XSDString},
+	{`<http://example.org/ex#a> <http://example.org/ex#b> "Cheers"@en-UK .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/ex#a"},
+			Pred: URI{URI: "http://example.org/ex#b"},
+			Obj:  Literal{Val: "Cheers", Lang: "en-UK", DataType: XSDString},
 		},
 	}},
 
@@ -1125,36 +1123,36 @@ var ntTestSuite = []struct {
 	<http://example/s><http://example/p>_:o.
 	_:s<http://example/p><http://example/o>.
 	_:s<http://example/p>"Alice".
-	_:s<http://example/p>_:bnode1.`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.URI{URI: "http://example/o"},
+	_:s<http://example/p>_:bnode1.`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  URI{URI: "http://example/o"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "Alice", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "Alice", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example/s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Blank{ID: "o"},
+		Triple{
+			Subj: URI{URI: "http://example/s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Blank{ID: "o"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.URI{URI: "http://example/o"},
+		Triple{
+			Subj: Blank{ID: "s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  URI{URI: "http://example/o"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Literal{Val: "Alice", DataType: rdf.XSDString},
+		Triple{
+			Subj: Blank{ID: "s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Literal{Val: "Alice", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "s"},
-			Pred: rdf.URI{URI: "http://example/p"},
-			Obj:  rdf.Blank{ID: "bnode1"},
+		Triple{
+			Subj: Blank{ID: "s"},
+			Pred: URI{URI: "http://example/p"},
+			Obj:  Blank{ID: "bnode1"},
 		},
 	}},
 }

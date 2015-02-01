@@ -1,4 +1,4 @@
-package parse
+package rdf
 
 import (
 	"bytes"
@@ -6,13 +6,11 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/knakk/rdf"
 )
 
-var defaultGraph = rdf.Blank{ID: "defaultGraph"}
+var defaultGraph = Blank{ID: "defaultGraph"}
 
-func parseAllNQ(s string) (r []rdf.Quad, err error) {
+func parseAllNQ(s string) (r []Quad, err error) {
 	dec := NewNQDecoder(bytes.NewBufferString(s), defaultGraph)
 	for q, err := dec.DecodeQuad(); err != io.EOF; q, err = dec.DecodeQuad() {
 		if err != nil {
@@ -54,7 +52,7 @@ func TestNQ(t *testing.T) {
 var nqTestSuite = []struct {
 	input   string
 	errWant string
-	want    []rdf.Quad
+	want    []Quad
 }{
 	//<#nq-syntax-uri-01> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nq-syntax-uri-01" ;
@@ -63,12 +61,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-uri-01.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> <http://example/o> <http://example/g> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
-			Graph: rdf.URI{URI: "http://example/g"},
+	{`<http://example/s> <http://example/p> <http://example/o> <http://example/g> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
+			Graph: URI{URI: "http://example/g"},
 		},
 	}},
 
@@ -79,12 +77,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-uri-02.nq> ;
 	//   .
 
-	{`_:s <http://example/p> <http://example/o> <http://example/g> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.Blank{ID: "s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
-			Graph: rdf.URI{URI: "http://example/g"},
+	{`_:s <http://example/p> <http://example/o> <http://example/g> .`, "", []Quad{
+		Quad{
+			Subj:  Blank{ID: "s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
+			Graph: URI{URI: "http://example/g"},
 		},
 	}},
 
@@ -95,12 +93,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-uri-03.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> _:o <http://example/g> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Blank{ID: "o"},
-			Graph: rdf.URI{URI: "http://example/g"},
+	{`<http://example/s> <http://example/p> _:o <http://example/g> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Blank{ID: "o"},
+			Graph: URI{URI: "http://example/g"},
 		},
 	}},
 
@@ -111,12 +109,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-uri-04.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "o" <http://example/g> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "o", DataType: rdf.XSDString},
-			Graph: rdf.URI{URI: "http://example/g"},
+	{`<http://example/s> <http://example/p> "o" <http://example/g> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "o", DataType: XSDString},
+			Graph: URI{URI: "http://example/g"},
 		},
 	}},
 
@@ -127,12 +125,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-uri-05.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "o"@en <http://example/g> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "o", Lang: "en", DataType: rdf.XSDString},
-			Graph: rdf.URI{URI: "http://example/g"},
+	{`<http://example/s> <http://example/p> "o"@en <http://example/g> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "o", Lang: "en", DataType: XSDString},
+			Graph: URI{URI: "http://example/g"},
 		},
 	}},
 
@@ -143,12 +141,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-uri-06.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "o"^^<http://www.w3.org/2001/XMLSchema#string> <http://example/g> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "o", DataType: rdf.XSDString},
-			Graph: rdf.URI{URI: "http://example/g"},
+	{`<http://example/s> <http://example/p> "o"^^<http://www.w3.org/2001/XMLSchema#string> <http://example/g> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "o", DataType: XSDString},
+			Graph: URI{URI: "http://example/g"},
 		},
 	}},
 
@@ -159,12 +157,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-bnode-01.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> <http://example/o> _:g .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
-			Graph: rdf.Blank{ID: "g"},
+	{`<http://example/s> <http://example/p> <http://example/o> _:g .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
+			Graph: Blank{ID: "g"},
 		},
 	}},
 
@@ -175,12 +173,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-bnode-02.nq> ;
 	//   .
 
-	{`_:s <http://example/p> <http://example/o> _:g .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.Blank{ID: "s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
-			Graph: rdf.Blank{ID: "g"},
+	{`_:s <http://example/p> <http://example/o> _:g .`, "", []Quad{
+		Quad{
+			Subj:  Blank{ID: "s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
+			Graph: Blank{ID: "g"},
 		},
 	}},
 
@@ -191,12 +189,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-bnode-03.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> _:o _:g .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Blank{ID: "o"},
-			Graph: rdf.Blank{ID: "g"},
+	{`<http://example/s> <http://example/p> _:o _:g .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Blank{ID: "o"},
+			Graph: Blank{ID: "g"},
 		},
 	}},
 
@@ -207,12 +205,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-bnode-04.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "o" _:g .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "o", DataType: rdf.XSDString},
-			Graph: rdf.Blank{ID: "g"},
+	{`<http://example/s> <http://example/p> "o" _:g .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "o", DataType: XSDString},
+			Graph: Blank{ID: "g"},
 		},
 	}},
 
@@ -223,12 +221,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-bnode-05.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "o"@en _:g .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "o", Lang: "en", DataType: rdf.XSDString},
-			Graph: rdf.Blank{ID: "g"},
+	{`<http://example/s> <http://example/p> "o"@en _:g .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "o", Lang: "en", DataType: XSDString},
+			Graph: Blank{ID: "g"},
 		},
 	}},
 
@@ -239,12 +237,12 @@ var nqTestSuite = []struct {
 	//   mf:action    <nq-syntax-bnode-06.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "o"^^<http://www.w3.org/2001/XMLSchema#string> _:g .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "o", DataType: rdf.XSDString},
-			Graph: rdf.Blank{ID: "g"},
+	{`<http://example/s> <http://example/p> "o"^^<http://www.w3.org/2001/XMLSchema#string> _:g .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "o", DataType: XSDString},
+			Graph: Blank{ID: "g"},
 		},
 	}},
 
@@ -256,7 +254,7 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> "o" .`,
-		"unexpected Literal as graph", []rdf.Quad{}},
+		"unexpected Literal as graph", []Quad{}},
 
 	//<#nq-syntax-bad-literal-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-literal-02" ;
@@ -266,7 +264,7 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> "o"@en .`,
-		"unexpected Literal as graph", []rdf.Quad{}},
+		"unexpected Literal as graph", []Quad{}},
 
 	//<#nq-syntax-bad-literal-03> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-literal-03" ;
@@ -276,7 +274,7 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> "o"^^<http://www.w3.org/2001/XMLSchema#string> .`,
-		"unexpected Literal as graph", []rdf.Quad{}},
+		"unexpected Literal as graph", []Quad{}},
 
 	//<#nq-syntax-bad-uri-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-uri-01" ;
@@ -287,7 +285,7 @@ var nqTestSuite = []struct {
 
 	{`# No relative IRIs in N-Quads
 <http://example/s> <http://example/p> <http://example/o> <g>.`,
-		"unexpected IRI (relative) as graph", []rdf.Quad{}},
+		"unexpected IRI (relative) as graph", []Quad{}},
 
 	//<#nq-syntax-bad-quint-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-quint-01" ;
@@ -298,7 +296,7 @@ var nqTestSuite = []struct {
 
 	{`# N-Quads rejects a quint
 <http://example/s> <http://example/p> <http://example/o> <http://example/g> <http://example/n> .`,
-		"unexpected IRI (absolute) as dot (.)", []rdf.Quad{}},
+		"unexpected IRI (absolute) as dot (.)", []Quad{}},
 
 	//<#nt-syntax-file-01> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nt-syntax-file-01" ;
@@ -335,11 +333,11 @@ var nqTestSuite = []struct {
 	//   mf:action    <nt-syntax-uri-01.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> <http://example/o> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
+	{`<http://example/s> <http://example/p> <http://example/o> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -352,11 +350,11 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`# x53 is capital S
-<http://example/\u0053> <http://example/p> <http://example/o> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/S"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
+<http://example/\u0053> <http://example/p> <http://example/o> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/S"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -369,11 +367,11 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`# x53 is capital S
-<http://example/\U00000053> <http://example/p> <http://example/o> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/S"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
+<http://example/\U00000053> <http://example/p> <http://example/o> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/S"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -386,11 +384,11 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`# IRI with all chars in it.
-<http://example/s> <http://example/p> <scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
+<http://example/s> <http://example/p> <scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -402,11 +400,11 @@ var nqTestSuite = []struct {
 	//   mf:action    <nt-syntax-string-01.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "string" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "string", DataType: rdf.XSDString},
+	{`<http://example/s> <http://example/p> "string" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "string", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -418,11 +416,11 @@ var nqTestSuite = []struct {
 	//   mf:action    <nt-syntax-string-02.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "string"@en .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en"},
+	{`<http://example/s> <http://example/p> "string"@en .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "string", DataType: XSDString, Lang: "en"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -434,11 +432,11 @@ var nqTestSuite = []struct {
 	//   mf:action    <nt-syntax-string-03.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "string"@en-uk .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en-uk"},
+	{`<http://example/s> <http://example/p> "string"@en-uk .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "string", DataType: XSDString, Lang: "en-uk"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -450,11 +448,11 @@ var nqTestSuite = []struct {
 	//   mf:action    <nt-syntax-str-esc-01.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "a\n" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "a\n", DataType: rdf.XSDString},
+	{`<http://example/s> <http://example/p> "a\n" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "a\n", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -466,11 +464,11 @@ var nqTestSuite = []struct {
 	//   mf:action    <nt-syntax-str-esc-02.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "a\u0020b" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "a b", DataType: rdf.XSDString},
+	{`<http://example/s> <http://example/p> "a\u0020b" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "a b", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -482,11 +480,11 @@ var nqTestSuite = []struct {
 	//   mf:action    <nt-syntax-str-esc-03.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "a\U00000020b" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "a b", DataType: rdf.XSDString},
+	{`<http://example/s> <http://example/p> "a\U00000020b" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "a b", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -498,11 +496,11 @@ var nqTestSuite = []struct {
 	//   mf:action    <nt-syntax-bnode-01.nq> ;
 	//   .
 
-	{`_:a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.Blank{ID: "a"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
+	{`_:a  <http://example/p> <http://example/o> .`, "", []Quad{
+		Quad{
+			Subj:  Blank{ID: "a"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -515,17 +513,17 @@ var nqTestSuite = []struct {
 	//   .
 
 	{`<http://example/s> <http://example/p> _:a .
-_:a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Blank{ID: "a"},
+_:a  <http://example/p> <http://example/o> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Blank{ID: "a"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.Blank{ID: "a"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
+		Quad{
+			Subj:  Blank{ID: "a"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -538,17 +536,17 @@ _:a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`<http://example/s> <http://example/p> _:1a .
-_:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Blank{ID: "1a"},
+_:1a  <http://example/p> <http://example/o> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Blank{ID: "1a"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.Blank{ID: "1a"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
+		Quad{
+			Subj:  Blank{ID: "1a"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -560,11 +558,11 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-datatypes-01.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#byte> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: []byte("123"), DataType: rdf.URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}},
+	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#byte> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: []byte("123"), DataType: URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}},
 			Graph: defaultGraph,
 		},
 	}},
@@ -576,11 +574,11 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-datatypes-02.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#string> .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "123", DataType: rdf.XSDString},
+	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#string> .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "123", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -593,7 +591,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# Bad IRI : space.
-<http://example/ space> <http://example/p> <http://example/o> .`, "bad IRI: disallowed character ' '", []rdf.Quad{}},
+<http://example/ space> <http://example/p> <http://example/o> .`, "bad IRI: disallowed character ' '", []Quad{}},
 
 	//<#nt-syntax-bad-uri-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-02" ;
@@ -603,7 +601,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# Bad IRI : bad escape
-<http://example/\u00ZZ11> <http://example/p> <http://example/o> .`, "bad IRI: insufficent hex digits in unicode escape", []rdf.Quad{}},
+<http://example/\u00ZZ11> <http://example/p> <http://example/o> .`, "bad IRI: insufficent hex digits in unicode escape", []Quad{}},
 
 	//<#nt-syntax-bad-uri-03> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-03" ;
@@ -613,7 +611,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# Bad IRI : bad escape
-<http://example/\U00ZZ1111> <http://example/p> <http://example/o> .`, "bad IRI: insufficent hex digits in unicode escape", []rdf.Quad{}},
+<http://example/\U00ZZ1111> <http://example/p> <http://example/o> .`, "bad IRI: insufficent hex digits in unicode escape", []Quad{}},
 
 	//<#nt-syntax-bad-uri-04> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-04" ;
@@ -623,7 +621,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# Bad IRI : character escapes not allowed.
-<http://example/\n> <http://example/p> <http://example/o> .`, "bad IRI: disallowed escape character 'n'", []rdf.Quad{}},
+<http://example/\n> <http://example/p> <http://example/o> .`, "bad IRI: disallowed escape character 'n'", []Quad{}},
 
 	//<#nt-syntax-bad-uri-05> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-05" ;
@@ -633,7 +631,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# Bad IRI : character escapes not allowed.
-<http://example/\/> <http://example/p> <http://example/o> .`, "bad IRI: disallowed escape character '/'", []rdf.Quad{}},
+<http://example/\/> <http://example/p> <http://example/o> .`, "bad IRI: disallowed escape character '/'", []Quad{}},
 
 	//<#nt-syntax-bad-uri-06> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-06" ;
@@ -643,7 +641,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<s> <http://example/p> <http://example/o> .`, "unexpected IRI (relative) as subject", []rdf.Quad{}},
+<s> <http://example/p> <http://example/o> .`, "unexpected IRI (relative) as subject", []Quad{}},
 
 	//<#nt-syntax-bad-uri-07> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-07" ;
@@ -653,7 +651,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<http://example/s> <p> <http://example/o> .`, "unexpected IRI (relative) as predicate", []rdf.Quad{}},
+<http://example/s> <p> <http://example/o> .`, "unexpected IRI (relative) as predicate", []Quad{}},
 
 	//<#nt-syntax-bad-uri-08> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-08" ;
@@ -663,7 +661,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<http://example/s> <http://example/p> <o> .`, "unexpected IRI (relative) as object", []rdf.Quad{}},
+<http://example/s> <http://example/p> <o> .`, "unexpected IRI (relative) as object", []Quad{}},
 
 	//<#nt-syntax-bad-uri-09> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-09" ;
@@ -673,7 +671,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# No relative IRIs in N-Triples
-<http://example/s> <http://example/p> "foo"^^<dt> .`, "unexpected IRI (relative) as literal datatype", []rdf.Quad{}},
+<http://example/s> <http://example/p> "foo"^^<dt> .`, "unexpected IRI (relative) as literal datatype", []Quad{}},
 
 	//<#nt-syntax-bad-prefix-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-prefix-01" ;
@@ -682,7 +680,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-prefix-01.nq> ;
 	//   .
 
-	{`@prefix : <http://example/> .`, "unexpected @prefix as subject", []rdf.Quad{}},
+	{`@prefix : <http://example/> .`, "unexpected @prefix as subject", []Quad{}},
 
 	//<#nt-syntax-bad-base-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-base-01" ;
@@ -691,7 +689,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-base-01.nq> ;
 	//   .
 
-	{`@base <http://example/> .`, " unexpected @base as subject", []rdf.Quad{}},
+	{`@base <http://example/> .`, " unexpected @base as subject", []Quad{}},
 
 	//<#nt-syntax-bad-struct-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-01" ;
@@ -701,7 +699,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o>, <http://example/o2> .`,
-		"unexpected Comma as graph", []rdf.Quad{}},
+		"unexpected Comma as graph", []Quad{}},
 
 	//<#nt-syntax-bad-struct-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-struct-02" ;
@@ -711,7 +709,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o>; <http://example/p2>, <http://example/o2> .`,
-		"unexpected Semicolon as graph", []rdf.Quad{}},
+		"unexpected Semicolon as graph", []Quad{}},
 
 	//<#nt-syntax-bad-lang-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-lang-01" ;
@@ -721,7 +719,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# Bad lang tag
-<http://example/s> <http://example/p> "string"@1 .`, "syntax error: bad literal: invalid language tag", []rdf.Quad{}},
+<http://example/s> <http://example/p> "string"@1 .`, "syntax error: bad literal: invalid language tag", []Quad{}},
 
 	//<#nt-syntax-bad-esc-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-esc-01" ;
@@ -731,7 +729,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# Bad string escape
-<http://example/s> <http://example/p> "a\zb" .`, "syntax error: bad literal: disallowed escape character 'z'", []rdf.Quad{}},
+<http://example/s> <http://example/p> "a\zb" .`, "syntax error: bad literal: disallowed escape character 'z'", []Quad{}},
 
 	//<#nt-syntax-bad-esc-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-esc-02" ;
@@ -741,7 +739,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# Bad string escape
-<http://example/s> <http://example/p> "\uWXYZ" .`, "syntax error: bad literal: insufficent hex digits in unicode escape", []rdf.Quad{}},
+<http://example/s> <http://example/p> "\uWXYZ" .`, "syntax error: bad literal: insufficent hex digits in unicode escape", []Quad{}},
 
 	//<#nt-syntax-bad-esc-03> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-esc-03" ;
@@ -751,7 +749,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   .
 
 	{`# Bad string escape
-<http://example/s> <http://example/p> "\U0000WXYZ" .`, "syntax error: bad literal: insufficent hex digits in unicode escape", []rdf.Quad{}},
+<http://example/s> <http://example/p> "\U0000WXYZ" .`, "syntax error: bad literal: insufficent hex digits in unicode escape", []Quad{}},
 
 	//<#nt-syntax-bad-string-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-01" ;
@@ -760,7 +758,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-01.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "abc' .`, "syntax error: bad literal: no closing quote: '\"'", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> "abc' .`, "syntax error: bad literal: no closing quote: '\"'", []Quad{}},
 
 	//<#nt-syntax-bad-string-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-02" ;
@@ -769,7 +767,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-02.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0 .`, "unexpected Literal (decimal shorthand syntax) as object", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> 1.0 .`, "unexpected Literal (decimal shorthand syntax) as object", []Quad{}},
 
 	//<#nt-syntax-bad-string-03> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-03" ;
@@ -778,7 +776,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-03.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0e1 .`, "unexpected Literal (double shorthand syntax) as object", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> 1.0e1 .`, "unexpected Literal (double shorthand syntax) as object", []Quad{}},
 
 	//<#nt-syntax-bad-string-04> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-04" ;
@@ -787,7 +785,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-04.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> '''abc''' .`, " unexpected Literal (triple-quoted string) as object", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> '''abc''' .`, " unexpected Literal (triple-quoted string) as object", []Quad{}},
 
 	//<#nt-syntax-bad-string-05> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-05" ;
@@ -796,7 +794,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-05.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> """abc""" .`, "unexpected Literal (triple-quoted string) as object", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> """abc""" .`, "unexpected Literal (triple-quoted string) as object", []Quad{}},
 
 	//<#nt-syntax-bad-string-06> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-06" ;
@@ -805,7 +803,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-06.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> "abc .`, "syntax error: bad literal: no closing quote: '\"'", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> "abc .`, "syntax error: bad literal: no closing quote: '\"'", []Quad{}},
 
 	//<#nt-syntax-bad-string-07> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-string-07" ;
@@ -814,7 +812,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-string-07.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> abc" .`, `syntax error: illegal token: "abc\""`, []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> abc" .`, `syntax error: illegal token: "abc\""`, []Quad{}},
 
 	//<#nt-syntax-bad-num-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-01" ;
@@ -823,7 +821,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-num-01.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1 .`, "unexpected Literal (integer shorthand syntax) as object", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> 1 .`, "unexpected Literal (integer shorthand syntax) as object", []Quad{}},
 
 	//<#nt-syntax-bad-num-02> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-02" ;
@@ -832,7 +830,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-num-02.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0 .`, "unexpected Literal (decimal shorthand syntax) as object", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> 1.0 .`, "unexpected Literal (decimal shorthand syntax) as object", []Quad{}},
 
 	//<#nt-syntax-bad-num-03> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-num-03" ;
@@ -841,7 +839,7 @@ _:1a  <http://example/p> <http://example/o> .`, "", []rdf.Quad{
 	//   mf:action    <nt-syntax-bad-num-03.nq> ;
 	//   .
 
-	{`<http://example/s> <http://example/p> 1.0e0 .`, "unexpected Literal (double shorthand syntax) as object", []rdf.Quad{}},
+	{`<http://example/s> <http://example/p> 1.0e0 .`, "unexpected Literal (double shorthand syntax) as object", []Quad{}},
 
 	//<#nt-syntax-subm-01> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nt-syntax-subm-01" ;
@@ -928,185 +926,185 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 # Typed Literals
 <http://example.org/resource32> <http://example.org/property> "abc"^^<http://example.org/datatype1> .
-# resource33 test removed 2003-08-03`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource1"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.URI{URI: "http://example.org/resource2"},
+# resource33 test removed 2003-08-03`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource1"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   URI{URI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.Blank{ID: "anon"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.URI{URI: "http://example.org/resource2"},
+		Quad{
+			Subj:  Blank{ID: "anon"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   URI{URI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource2"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Blank{ID: "anon"},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource2"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Blank{ID: "anon"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource3"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.URI{URI: "http://example.org/resource2"},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource3"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   URI{URI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource4"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.URI{URI: "http://example.org/resource2"},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource4"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   URI{URI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource5"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.URI{URI: "http://example.org/resource2"},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource5"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   URI{URI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource6"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.URI{URI: "http://example.org/resource2"},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource6"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   URI{URI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource7"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "simple literal", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource7"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "simple literal", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource8"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: `backslash:\`, DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource8"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: `backslash:\`, DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource9"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: `dquote:"`, DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource9"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: `dquote:"`, DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource10"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "newline:\n", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource10"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "newline:\n", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource11"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "return\r", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource11"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "return\r", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource12"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "tab:\t", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource12"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "tab:\t", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource13"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.URI{URI: "http://example.org/resource2"},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource13"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   URI{URI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource14"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "x", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource14"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "x", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource15"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Blank{ID: "anon"},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource15"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Blank{ID: "anon"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource16"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "é", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource16"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "é", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource17"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "€", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource17"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "€", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource21"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource21"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource22"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: " ", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource22"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: " ", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource23"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "x", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource23"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "x", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource23"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: `"`, DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource23"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: `"`, DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource24"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "<a></a>", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource24"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "<a></a>", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource25"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "a <b></b>", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource25"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "a <b></b>", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource26"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "a <b></b> c", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource26"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "a <b></b> c", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource26"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "a\n<b></b>\nc", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource26"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "a\n<b></b>\nc", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource27"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "chat", DataType: rdf.URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource27"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "chat", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource30"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "chat", Lang: "fr", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource30"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "chat", Lang: "fr", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource31"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "chat", Lang: "en", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource31"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "chat", Lang: "en", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/resource32"},
-			Pred:  rdf.URI{URI: "http://example.org/property"},
-			Obj:   rdf.Literal{Val: "abc", DataType: rdf.URI{URI: "http://example.org/datatype1"}},
+		Quad{
+			Subj:  URI{URI: "http://example.org/resource32"},
+			Pred:  URI{URI: "http://example.org/property"},
+			Obj:   Literal{Val: "abc", DataType: URI{URI: "http://example.org/datatype1"}},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1122,35 +1120,35 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 <http://example/s> <http://example/p> _:o . # comment
 <http://example/s> <http://example/p> "o" . # comment
 <http://example/s> <http://example/p> "o"^^<http://example/dt> . # comment
-<http://example/s> <http://example/p> "o"@en . # comment`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
+<http://example/s> <http://example/p> "o"@en . # comment`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Blank{ID: "o"},
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Blank{ID: "o"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "o", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "o", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "o", DataType: rdf.URI{URI: "http://example/dt"}},
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "o", DataType: URI{URI: "http://example/dt"}},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "o", Lang: "en", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "o", Lang: "en", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1162,11 +1160,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_ascii_boundaries.nq> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> \"\x00	&([]\" .", "", []rdf.Quad{
-		rdf.Quad{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj: rdf.Literal{Val: "\x00	&([]", DataType: rdf.XSDString},
+	{"<http://a.example/s> <http://a.example/p> \"\x00	&([]\" .", "", []Quad{
+		Quad{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj: Literal{Val: "\x00	&([]", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1178,11 +1176,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_UTF8_boundaries.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1195,11 +1193,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action   <literal_all_controls.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "\x00\x01\x02\x03\x04\x05\x06\a\b\t\v\f\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "\x00\x01\x02\x03\x04\x05\x06\a\b\t\v\f\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1212,11 +1210,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_all_punctuation.nq> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> \" !\\\"#$%&():;<=>?@[]^_`{|}~\".", "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: rdf.XSDString},
+	{"<http://a.example/s> <http://a.example/p> \" !\\\"#$%&():;<=>?@[]^_`{|}~\".", "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1228,11 +1226,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_squote.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x'y" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "x'y", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x'y" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "x'y", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1244,11 +1242,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_2_squotes.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x''y" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "x''y", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x''y" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "x''y", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1260,11 +1258,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "x", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "x", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1276,11 +1274,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_dquote.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x\"y" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: `x"y`, DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x\"y" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: `x"y`, DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1292,11 +1290,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_2_dquotes.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x\"\"y" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: `x""y`, DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x\"\"y" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: `x""y`, DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1308,11 +1306,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_REVERSE_SOLIDUS2.nq> ;
 	//   .
 
-	{`<http://example.org/ns#s> <http://example.org/ns#p1> "test-\\" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/ns#s"},
-			Pred:  rdf.URI{URI: "http://example.org/ns#p1"},
-			Obj:   rdf.Literal{Val: `test-\`, DataType: rdf.XSDString},
+	{`<http://example.org/ns#s> <http://example.org/ns#p1> "test-\\" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example.org/ns#s"},
+			Pred:  URI{URI: "http://example.org/ns#p1"},
+			Obj:   Literal{Val: `test-\`, DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1324,11 +1322,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_CHARACTER_TABULATION.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\t" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "\t", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\t" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "\t", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1340,11 +1338,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_BACKSPACE.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\b" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "\b", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\b" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "\b", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1356,11 +1354,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_LINE_FEED.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\n" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "\n", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\n" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "\n", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1372,11 +1370,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_CARRIAGE_RETURN.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\r" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "\r", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\r" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "\r", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1388,11 +1386,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_FORM_FEED.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\f" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "\f", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\f" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "\f", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1404,11 +1402,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_REVERSE_SOLIDUS.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\\" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "\\", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\\" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "\\", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1420,11 +1418,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_numeric_escape4.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\u006F" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "o", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\u006F" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "o", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1436,11 +1434,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <literal_with_numeric_escape8.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\U0000006F" .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "o", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\U0000006F" .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "o", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1452,11 +1450,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <langtagged_string.nq> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://a.example/s"},
-			Pred:  rdf.URI{URI: "http://a.example/p"},
-			Obj:   rdf.Literal{Val: "chat", Lang: "en", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://a.example/s"},
+			Pred:  URI{URI: "http://a.example/p"},
+			Obj:   Literal{Val: "chat", Lang: "en", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1468,11 +1466,11 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 	//   mf:action    <lantag_with_subtag.nq> ;
 	//   .
 
-	{`<http://example.org/ex#a> <http://example.org/ex#b> "Cheers"@en-UK .`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example.org/ex#a"},
-			Pred:  rdf.URI{URI: "http://example.org/ex#b"},
-			Obj:   rdf.Literal{Val: "Cheers", Lang: "en-UK", DataType: rdf.XSDString},
+	{`<http://example.org/ex#a> <http://example.org/ex#b> "Cheers"@en-UK .`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example.org/ex#a"},
+			Pred:  URI{URI: "http://example.org/ex#b"},
+			Obj:   Literal{Val: "Cheers", Lang: "en-UK", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1489,41 +1487,41 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 <http://example/s><http://example/p>_:o.
 _:s<http://example/p><http://example/o>.
 _:s<http://example/p>"Alice".
-_:s<http://example/p>_:bnode1.`, "", []rdf.Quad{
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
+_:s<http://example/p>_:bnode1.`, "", []Quad{
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "Alice", DataType: rdf.XSDString},
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "Alice", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.URI{URI: "http://example/s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Blank{ID: "o"},
+		Quad{
+			Subj:  URI{URI: "http://example/s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Blank{ID: "o"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.Blank{ID: "s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.URI{URI: "http://example/o"},
+		Quad{
+			Subj:  Blank{ID: "s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   URI{URI: "http://example/o"},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.Blank{ID: "s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Literal{Val: "Alice", DataType: rdf.XSDString},
+		Quad{
+			Subj:  Blank{ID: "s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Literal{Val: "Alice", DataType: XSDString},
 			Graph: defaultGraph,
 		},
-		rdf.Quad{
-			Subj:  rdf.Blank{ID: "s"},
-			Pred:  rdf.URI{URI: "http://example/p"},
-			Obj:   rdf.Blank{ID: "bnode1"},
+		Quad{
+			Subj:  Blank{ID: "s"},
+			Pred:  URI{URI: "http://example/p"},
+			Obj:   Blank{ID: "bnode1"},
 			Graph: defaultGraph,
 		},
 	}},

@@ -1,4 +1,4 @@
-package parse
+package rdf
 
 import (
 	"bytes"
@@ -6,11 +6,9 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/knakk/rdf"
 )
 
-func parseAllTTL(s string) (r []rdf.Triple, err error) {
+func parseAllTTL(s string) (r []Triple, err error) {
 	dec := NewTTLDecoder(bytes.NewBufferString(s), "")
 	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {
 		if err != nil {
@@ -47,7 +45,7 @@ func TestTTL(t *testing.T) {
 var ttlTestSuite = []struct {
 	input   string
 	errWant string
-	want    []rdf.Triple
+	want    []Triple
 }{
 	//# atomic tests
 	//
@@ -59,11 +57,11 @@ var ttlTestSuite = []struct {
 	//   mf:result    <IRI_spo.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+	{`<http://a.example/s> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -75,11 +73,11 @@ var ttlTestSuite = []struct {
 	//   mf:result    <IRI_spo.nt> ;
 	//   .
 
-	{`<http://a.example/\u0073> <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+	{`<http://a.example/\u0073> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -91,11 +89,11 @@ var ttlTestSuite = []struct {
 	//   mf:result    <IRI_spo.nt> ;
 	//   .
 
-	{`<http://a.example/\U00000073> <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+	{`<http://a.example/\U00000073> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -107,11 +105,11 @@ var ttlTestSuite = []struct {
 	//   mf:result    <IRI_with_all_punctuation.nt> ;
 	//   .
 
-	{`<scheme:!$%25&amp;'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "scheme:!$%25&amp;'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+	{`<scheme:!$%25&amp;'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "scheme:!$%25&amp;'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -123,11 +121,11 @@ var ttlTestSuite = []struct {
 	//   mf:result    <bareword_a_predicate.nt> ;
 	//   .
 
-	{`<http://a.example/s> a <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+	{`<http://a.example/s> a <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -140,11 +138,11 @@ var ttlTestSuite = []struct {
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -157,11 +155,11 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`PREFIX p: <http://a.example/>
-p:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -174,11 +172,11 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-<http://a.example/s> p:p <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+<http://a.example/s> p:p <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -191,11 +189,11 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-<http://a.example/s> <http://a.example/p> p:o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+<http://a.example/s> <http://a.example/p> p:o .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -208,11 +206,11 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/s>.
-p: <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p: <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -225,11 +223,11 @@ p: <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽: <http://a.example/> .
-<http://a.example/s> <http://a.example/p> AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽:o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+<http://a.example/s> <http://a.example/p> AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽:o .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -242,11 +240,11 @@ p: <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix a·̀ͯ‿.⁀: <http://a.example/>.
-a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -259,11 +257,11 @@ a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/> .
-<http://a.example/s> <http://a.example/p> p:AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯ .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯"},
+<http://a.example/s> <http://a.example/p> p:AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯ .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯"},
 		},
 	}},
 
@@ -276,11 +274,11 @@ a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/> .
-<http://a.example/s> <http://a.example/p> p:AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯𐀀󠇯 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯𐀀󠇯"},
+<http://a.example/s> <http://a.example/p> p:AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯𐀀󠇯 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯𐀀󠇯"},
 		},
 	}},
 
@@ -293,11 +291,11 @@ a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/> .
-<http://a.example/s> <http://a.example/p> p:AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿﨎﷏ﷰ￯𐀀󯿽 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿﨎﷏ﷰ￯𐀀󯿽"},
+<http://a.example/s> <http://a.example/p> p:AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿﨎﷏ﷰ￯𐀀󯿽 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿﨎﷏ﷰ￯𐀀󯿽"},
 		},
 	}},
 
@@ -310,11 +308,11 @@ a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://a.example/>.
-:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -328,11 +326,11 @@ a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 
 	{`@prefix p: <http://a.example/>.
 @prefix p: <http://b.example/>.
-p:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://b.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://b.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -345,11 +343,11 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:\_\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\%00 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/_~.-!$&'()*+,;=/?#@%00`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:\_\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\%00 <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/_~.-!$&'()*+,;=/?#@%00`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -362,11 +360,11 @@ p:\_\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\%00 <http://a.example/p> <http://a.exam
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:%25 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/%25`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:%25 <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/%25`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -379,11 +377,11 @@ p:%25 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:s- <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/s-`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:s- <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/s-`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -396,11 +394,11 @@ p:s- <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:s_ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/s_`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:s_ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/s_`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -413,11 +411,11 @@ p:s_ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:s: <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/s:`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:s: <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/s:`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -430,11 +428,11 @@ p:s: <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:_ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/_`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:_ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/_`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -447,11 +445,11 @@ p:_ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:0 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/0`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:0 <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/0`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -464,11 +462,11 @@ p:0 <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix p: <http://a.example/>.
-p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/a·̀ͯ‿.⁀`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/a·̀ͯ‿.⁀`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -481,11 +479,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@base <http://a.example/>.
-<s> <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/s`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+<s> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/s`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -498,11 +496,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`BASE <http://a.example/>
-<s> <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/s`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+<s> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/s`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -514,11 +512,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <labeled_blank_node_subject.nt> ;
 	//   .
 
-	{`_:s <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+	{`_:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -530,11 +528,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <labeled_blank_node_object.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> _:o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/s`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "o"},
+	{`<http://a.example/s> <http://a.example/p> _:o .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/s`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "o"},
 		},
 	}},
 
@@ -546,11 +544,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <labeled_blank_node_object.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> _:AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/s`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽"},
+	{`<http://a.example/s> <http://a.example/p> _:AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/s`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽"},
 		},
 	}},
 
@@ -562,11 +560,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <labeled_blank_node_object.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> _:_ .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/s`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "_"},
+	{`<http://a.example/s> <http://a.example/p> _:_ .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/s`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "_"},
 		},
 	}},
 
@@ -578,11 +576,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <labeled_blank_node_object.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> _:0 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/s`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "0"},
+	{`<http://a.example/s> <http://a.example/p> _:0 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/s`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "0"},
 		},
 	}},
 
@@ -594,11 +592,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <labeled_blank_node_object.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> _:a·̀ͯ‿.⁀ .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: `http://a.example/s`},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "a·̀ͯ‿.⁀"},
+	{`<http://a.example/s> <http://a.example/p> _:a·̀ͯ‿.⁀ .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: `http://a.example/s`},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "a·̀ͯ‿.⁀"},
 		},
 	}},
 
@@ -610,11 +608,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <labeled_blank_node_subject.nt> ;
 	//   .
 
-	{`[] <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+	{`[] <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -626,11 +624,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <labeled_blank_node_object.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> [] .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "b1"},
+	{`<http://a.example/s> <http://a.example/p> [] .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "b1"},
 		},
 	}},
 
@@ -642,11 +640,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <labeled_blank_node_subject.nt> ;
 	//   .
 
-	{`[ <http://a.example/p> <http://a.example/o> ] .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+	{`[ <http://a.example/p> <http://a.example/o> ] .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -658,16 +656,16 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <blankNodePropertyList_as_subject.nt> ;
 	//   .
 
-	{`[ <http://a.example/p> <http://a.example/o> ] <http://a.example/p2> <http://a.example/o2> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+	{`[ <http://a.example/p> <http://a.example/o> ] <http://a.example/p2> <http://a.example/o2> .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p2"},
-			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p2"},
+			Obj:  URI{URI: "http://a.example/o2"},
 		},
 	}},
 
@@ -679,16 +677,16 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <blankNodePropertyList_as_object.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> [ <http://a.example/p2> <http://a.example/o2> ] .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "b1"},
+	{`<http://a.example/s> <http://a.example/p> [ <http://a.example/p2> <http://a.example/o2> ] .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "b1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p2"},
-			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p2"},
+			Obj:  URI{URI: "http://a.example/o2"},
 		},
 	}},
 
@@ -700,21 +698,21 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <blankNodePropertyList_with_multiple_triples.nt> ;
 	//   .
 
-	{`[ <http://a.example/p1> <http://a.example/o1> ; <http://a.example/p2> <http://a.example/o2> ] <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p1"},
-			Obj:  rdf.URI{URI: "http://a.example/o1"},
+	{`[ <http://a.example/p1> <http://a.example/o1> ; <http://a.example/p2> <http://a.example/o2> ] <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p1"},
+			Obj:  URI{URI: "http://a.example/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p2"},
-			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p2"},
+			Obj:  URI{URI: "http://a.example/o2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -726,21 +724,21 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <nested_blankNodePropertyLists.nt> ;
 	//   .
 
-	{`[ <http://a.example/p1> [ <http://a.example/p2> <http://a.example/o2> ] ; <http://a.example/p> <http://a.example/o> ].`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p1"},
-			Obj:  rdf.Blank{ID: "b2"},
+	{`[ <http://a.example/p1> [ <http://a.example/p2> <http://a.example/o2> ] ; <http://a.example/p> <http://a.example/o> ].`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p1"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://a.example/p2"},
-			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://a.example/p2"},
+			Obj:  URI{URI: "http://a.example/o2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -752,21 +750,21 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <blankNodePropertyList_containing_collection.nt> ;
 	//   .
 
-	{`[ <http://a.example/p1> (1) ] .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p1"},
-			Obj:  rdf.Blank{ID: "b2"},
+	{`[ <http://a.example/p1> (1) ] .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p1"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -778,21 +776,21 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <collection_subject.nt> ;
 	//   .
 
-	{`(1) <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+	{`(1) <http://a.example/p> <http://a.example/o> .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -804,21 +802,21 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <collection_object.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> (1) .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "b1"},
+	{`<http://a.example/s> <http://a.example/p> (1) .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "b1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -830,11 +828,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <empty_collection.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> () .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+	{`<http://a.example/s> <http://a.example/p> () .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -846,31 +844,31 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <nested_collection.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> ((1)) .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "b1"},
+	{`<http://a.example/s> <http://a.example/p> ((1)) .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "b1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Blank{ID: "b2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -882,41 +880,41 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <first.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> ((1) 2) .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "b1"},
+	{`<http://a.example/s> <http://a.example/p> ((1) 2) .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "b1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Blank{ID: "b2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b3"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  Blank{ID: "b3"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b3"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b3"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b3"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b3"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -928,41 +926,41 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <last.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> (1 (2)) .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Blank{ID: "b1"},
+	{`<http://a.example/s> <http://a.example/p> (1 (2)) .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Blank{ID: "b1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Blank{ID: "b3"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Blank{ID: "b3"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b3"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b3"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b3"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b3"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -974,11 +972,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 'x' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> 'x' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "x", DataType: XSDString},
 		},
 	}},
 
@@ -990,11 +988,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1_ascii_boundaries.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> '\x00	&([]' .", "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\u0000\t\u000B\u000C\u000E&([]\u007F", DataType: rdf.XSDString},
+	{"<http://a.example/s> <http://a.example/p> '\x00	&([]' .", "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\u0000\t\u000B\u000C\u000E&([]\u007F", DataType: XSDString},
 		},
 	}},
 
@@ -1006,11 +1004,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_with_UTF8_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 		},
 	}},
 
@@ -1022,11 +1020,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1_all_controls.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F", DataType: XSDString},
 		},
 	}},
 
@@ -1038,11 +1036,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1_all_punctuation.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> ' !\"#$%&():;<=>?@[]^_`{|}~' .", "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: rdf.XSDString},
+	{"<http://a.example/s> <http://a.example/p> ' !\"#$%&():;<=>?@[]^_`{|}~' .", "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: XSDString},
 		},
 	}},
 
@@ -1054,11 +1052,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '''x''' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '''x''' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "x", DataType: XSDString},
 		},
 	}},
 
@@ -1070,11 +1068,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG1_ascii_boundaries.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> '\x00&([]' .", "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\x00&([]", DataType: rdf.XSDString},
+	{"<http://a.example/s> <http://a.example/p> '\x00&([]' .", "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\x00&([]", DataType: XSDString},
 		},
 	}},
 
@@ -1086,11 +1084,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_with_UTF8_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '''߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽''' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '''߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽''' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 		},
 	}},
 
@@ -1102,11 +1100,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG1_with_1_squote.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '''x'y''' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "x'y", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '''x'y''' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "x'y", DataType: XSDString},
 		},
 	}},
 
@@ -1118,11 +1116,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG1_with_2_squotes.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '''x''y''' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "x''y", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '''x''y''' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "x''y", DataType: XSDString},
 		},
 	}},
 
@@ -1134,11 +1132,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "x", DataType: XSDString},
 		},
 	}},
 
@@ -1150,11 +1148,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL2_ascii_boundaries.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> \"\x00	!#[]\" .", "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj: rdf.Literal{Val: "\x00	!#[]", DataType: rdf.XSDString},
+	{"<http://a.example/s> <http://a.example/p> \"\x00	!#[]\" .", "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj: Literal{Val: "\x00	!#[]", DataType: XSDString},
 		},
 	}},
 
@@ -1166,11 +1164,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_with_UTF8_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 		},
 	}},
 
@@ -1182,11 +1180,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL1.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> """x""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "x", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> """x""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "x", DataType: XSDString},
 		},
 	}},
 
@@ -1198,11 +1196,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG2_ascii_boundaries.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> \"\x00!#[]\" .", "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\x00!#[]", DataType: rdf.XSDString},
+	{"<http://a.example/s> <http://a.example/p> \"\x00!#[]\" .", "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\x00!#[]", DataType: XSDString},
 		},
 	}},
 
@@ -1214,11 +1212,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_with_UTF8_boundaries.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> """߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> """߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 		},
 	}},
 
@@ -1230,11 +1228,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG2_with_1_squote.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> """x"y""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: `x"y`, DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> """x"y""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: `x"y`, DataType: XSDString},
 		},
 	}},
 
@@ -1246,11 +1244,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <LITERAL_LONG2_with_2_squotes.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> """x""y""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: `x""y`, DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> """x""y""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: `x""y`, DataType: XSDString},
 		},
 	}},
 
@@ -1262,11 +1260,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_CHARACTER_TABULATION.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '	' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj: rdf.Literal{Val: `	`, DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '	' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj: Literal{Val: `	`, DataType: XSDString},
 		},
 	}},
 
@@ -1278,11 +1276,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_BACKSPACE.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj: rdf.Literal{Val: "", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj: Literal{Val: "", DataType: XSDString},
 		},
 	}},
 
@@ -1295,11 +1293,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`<http://a.example/s> <http://a.example/p> '''
-''' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\n", DataType: rdf.XSDString},
+''' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\n", DataType: XSDString},
 		},
 	}},
 
@@ -1311,11 +1309,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_CARRIAGE_RETURN.nt> ;
 	//   .
 
-	{"<http://a.example/s> <http://a.example/p> '''\r''' .", "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\r", DataType: rdf.XSDString},
+	{"<http://a.example/s> <http://a.example/p> '''\r''' .", "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\r", DataType: XSDString},
 		},
 	}},
 
@@ -1327,11 +1325,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_FORM_FEED.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj: rdf.Literal{Val: "", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj: Literal{Val: "", DataType: XSDString},
 		},
 	}},
 
@@ -1343,11 +1341,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_REVERSE_SOLIDUS.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\\' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: `\`, DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '\\' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: `\`, DataType: XSDString},
 		},
 	}},
 
@@ -1359,11 +1357,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_CHARACTER_TABULATION.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\t' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\t", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '\t' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\t", DataType: XSDString},
 		},
 	}},
 
@@ -1375,11 +1373,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_BACKSPACE.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\b' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\b", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '\b' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\b", DataType: XSDString},
 		},
 	}},
 
@@ -1391,11 +1389,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_LINE_FEED.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\n' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\n", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '\n' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\n", DataType: XSDString},
 		},
 	}},
 
@@ -1407,11 +1405,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_CARRIAGE_RETURN.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\r' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\r", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '\r' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\r", DataType: XSDString},
 		},
 	}},
 
@@ -1423,11 +1421,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_FORM_FEED.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\f' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "\f", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '\f' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "\f", DataType: XSDString},
 		},
 	}},
 
@@ -1439,11 +1437,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_numeric_escape4.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\u006F' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "o", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '\u006F' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "o", DataType: XSDString},
 		},
 	}},
 
@@ -1455,11 +1453,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_with_numeric_escape4.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> '\U0000006F' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "o", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> '\U0000006F' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "o", DataType: XSDString},
 		},
 	}},
 
@@ -1471,11 +1469,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <IRIREF_datatype.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+	{`<http://a.example/s> <http://a.example/p> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 	}},
 
@@ -1488,11 +1486,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-<http://a.example/s> <http://a.example/p> "1"^^xsd:integer .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+<http://a.example/s> <http://a.example/p> "1"^^xsd:integer .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 	}},
 
@@ -1504,11 +1502,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <IRIREF_datatype.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 1 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+	{`<http://a.example/s> <http://a.example/p> 1 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 	}},
 
@@ -1520,11 +1518,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <bareword_decimal.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 1.0 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDecimal},
+	{`<http://a.example/s> <http://a.example/p> 1.0 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
 	}},
 
@@ -1536,11 +1534,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <bareword_double.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 1E0 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDouble},
+	{`<http://a.example/s> <http://a.example/p> 1E0 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: 1.0, DataType: XSDDouble},
 		},
 	}},
 
@@ -1552,11 +1550,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <double_lower_case_e.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 1e0 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDouble},
+	{`<http://a.example/s> <http://a.example/p> 1e0 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: 1.0, DataType: XSDDouble},
 		},
 	}},
 
@@ -1568,11 +1566,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <negative_numeric.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> -1 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: -1, DataType: rdf.XSDInteger},
+	{`<http://a.example/s> <http://a.example/p> -1 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: -1, DataType: XSDInteger},
 		},
 	}},
 
@@ -1584,11 +1582,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <positive_numeric.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> +1 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+	{`<http://a.example/s> <http://a.example/p> +1 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 	}},
 
@@ -1600,11 +1598,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <numeric_with_leading_0.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> 01 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+	{`<http://a.example/s> <http://a.example/p> 01 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 	}},
 
@@ -1616,11 +1614,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_true.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> true .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: true, DataType: rdf.XSDBoolean},
+	{`<http://a.example/s> <http://a.example/p> true .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: true, DataType: XSDBoolean},
 		},
 	}},
 
@@ -1632,11 +1630,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <literal_false.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> false .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: false, DataType: rdf.XSDBoolean},
+	{`<http://a.example/s> <http://a.example/p> false .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: false, DataType: XSDBoolean},
 		},
 	}},
 
@@ -1648,11 +1646,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <langtagged_non_LONG.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "chat", Lang: "en", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: XSDString},
 		},
 	}},
 
@@ -1664,11 +1662,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <langtagged_non_LONG.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> """chat"""@en .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "chat", Lang: "en", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> """chat"""@en .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: XSDString},
 		},
 	}},
 
@@ -1680,11 +1678,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <lantag_with_subtag.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> "chat"@en-us .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.Literal{Val: "chat", Lang: "en-us", DataType: rdf.XSDString},
+	{`<http://a.example/s> <http://a.example/p> "chat"@en-us .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  Literal{Val: "chat", Lang: "en-us", DataType: XSDString},
 		},
 	}},
 
@@ -1696,16 +1694,16 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <objectList_with_two_objects.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p> <http://a.example/o1>, <http://a.example/o2> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o1"},
+	{`<http://a.example/s> <http://a.example/p> <http://a.example/o1>, <http://a.example/o2> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o2"},
 		},
 	}},
 
@@ -1717,16 +1715,16 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <predicateObjectList_with_two_objectLists.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>; <http://a.example/p2> <http://a.example/o2> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p1"},
-			Obj:  rdf.URI{URI: "http://a.example/o1"},
+	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>; <http://a.example/p2> <http://a.example/o2> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p1"},
+			Obj:  URI{URI: "http://a.example/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p2"},
-			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p2"},
+			Obj:  URI{URI: "http://a.example/o2"},
 		},
 	}},
 
@@ -1738,16 +1736,16 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <predicateObjectList_with_two_objectLists.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>;; <http://a.example/p2> <http://a.example/o2> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p1"},
-			Obj:  rdf.URI{URI: "http://a.example/o1"},
+	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>;; <http://a.example/p2> <http://a.example/o2> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p1"},
+			Obj:  URI{URI: "http://a.example/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p2"},
-			Obj:  rdf.URI{URI: "http://a.example/o2"},
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p2"},
+			Obj:  URI{URI: "http://a.example/o2"},
 		},
 	}},
 
@@ -1759,11 +1757,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:result    <repeated_semis_not_at_end.nt> ;
 	//   .
 
-	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>;; .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p1"},
-			Obj:  rdf.URI{URI: "http://a.example/o1"},
+	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>;; .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p1"},
+			Obj:  URI{URI: "http://a.example/o1"},
 		},
 	}},
 
@@ -1803,11 +1801,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-uri-01.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -1819,11 +1817,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`# x53 is capital S
-<http://www.w3.org/2013/TurtleTests/\u0053> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/S"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+<http://www.w3.org/2013/TurtleTests/\u0053> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/S"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -1835,11 +1833,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`# x53 is capital S
-<http://www.w3.org/2013/TurtleTests/\U00000053> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/S"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+<http://www.w3.org/2013/TurtleTests/\U00000053> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/S"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -1852,11 +1850,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 
 	{`# IRI with all chars in it.
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p>
-<scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
+<scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
 		},
 	}},
 
@@ -1886,11 +1884,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@base <http://www.w3.org/2013/TurtleTests/> .
-<s> <p> <o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+<s> <p> <o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -1902,11 +1900,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`base <http://www.w3.org/2013/TurtleTests/>
-<s> <p> <o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+<s> <p> <o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -1936,11 +1934,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`PREFIX : <http://www.w3.org/2013/TurtleTests/>
-:s :p :123 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/123"},
+:s :p :123 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/123"},
 		},
 	}},
 
@@ -1952,11 +1950,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :%20 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/%20"},
+:s :p :%20 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/%20"},
 		},
 	}},
 
@@ -1968,11 +1966,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-: : : .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/"},
+: : : .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/"},
 		},
 	}},
 
@@ -1986,11 +1984,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 	{`# colon is a legal pname character
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
-:a:b:c  x:d:e:f :::: .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/a:b:c"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/d:e:f"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:::"},
+:a:b:c  x:d:e:f :::: .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/a:b:c"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/d:e:f"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/:::"},
 		},
 	}},
 
@@ -2003,11 +2001,11 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []rdf.Triple{
 
 	{`# dash is a legal pname character
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
-x:a-b-c  x:p x:o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/a-b-c"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+x:a-b-c  x:p x:o .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/a-b-c"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2020,11 +2018,11 @@ x:a-b-c  x:p x:o .`, "", []rdf.Triple{
 
 	{`# underscore is a legal pname character
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
-x:_  x:p_1 x:o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/_"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p_1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+x:_  x:p_1 x:o .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/_"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p_1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2038,11 +2036,11 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{
 	{`# percents
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
-:a%3E  x:%25 :a%3Eb .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/a%3E"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/%25"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/a%3Eb"},
+:a%3E  x:%25 :a%3Eb .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/a%3E"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/%25"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/a%3Eb"},
 		},
 	}},
 
@@ -2053,11 +2051,11 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-string-01.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "string", DataType: XSDString},
 		},
 	}},
 
@@ -2068,11 +2066,11 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-string-02.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@en .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en"},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@en .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en"},
 		},
 	}},
 
@@ -2083,11 +2081,11 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-string-03.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@en-uk .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en-uk"},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@en-uk .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en-uk"},
 		},
 	}},
 
@@ -2098,11 +2096,11 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-string-04.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "string", DataType: XSDString},
 		},
 	}},
 
@@ -2113,11 +2111,11 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-string-05.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string'@en .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en"},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string'@en .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en"},
 		},
 	}},
 
@@ -2128,11 +2126,11 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-string-06.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string'@en-uk .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "string", DataType: rdf.XSDString, Lang: "en-uk"},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string'@en-uk .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en-uk"},
 		},
 	}},
 
@@ -2143,11 +2141,11 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-string-07.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc""def''ghi""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: `abc""def''ghi`, DataType: rdf.XSDString},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc""def''ghi""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: `abc""def''ghi`, DataType: XSDString},
 		},
 	}},
 
@@ -2159,11 +2157,11 @@ x:_  x:p_1 x:o .`, "", []rdf.Triple{
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc
-def""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "abc\ndef", DataType: rdf.XSDString},
+def""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "abc\ndef", DataType: XSDString},
 		},
 	}},
 
@@ -2175,11 +2173,11 @@ def""" .`, "", []rdf.Triple{
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> '''abc
-def''' .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "abc\ndef", DataType: rdf.XSDString},
+def''' .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "abc\ndef", DataType: XSDString},
 		},
 	}},
 
@@ -2191,11 +2189,11 @@ def''' .`, "", []rdf.Triple{
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc
-def"""@en .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "abc\ndef", DataType: rdf.XSDString, Lang: "en"},
+def"""@en .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "abc\ndef", DataType: XSDString, Lang: "en"},
 		},
 	}},
 
@@ -2207,11 +2205,11 @@ def"""@en .`, "", []rdf.Triple{
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> '''abc
-def'''@en .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "abc\ndef", DataType: rdf.XSDString, Lang: "en"},
+def'''@en .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "abc\ndef", DataType: XSDString, Lang: "en"},
 		},
 	}},
 
@@ -2222,11 +2220,11 @@ def'''@en .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-str-esc-01.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\n" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "a\n", DataType: rdf.XSDString},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\n" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "a\n", DataType: XSDString},
 		},
 	}},
 
@@ -2237,11 +2235,11 @@ def'''@en .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-str-esc-02.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\u0020b" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "a b", DataType: rdf.XSDString},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\u0020b" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "a b", DataType: XSDString},
 		},
 	}},
 
@@ -2252,11 +2250,11 @@ def'''@en .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-str-esc-03.ttl> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\U00000020b" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Literal{Val: "a b", DataType: rdf.XSDString},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\U00000020b" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Literal{Val: "a b", DataType: XSDString},
 		},
 	}},
 
@@ -2268,11 +2266,11 @@ def'''@en .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\_\%AA .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/~.-!$&'()*+,;=/?#@_%AA"},
+:s :p :\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\_\%AA .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/~.-!$&'()*+,;=/?#@_%AA"},
 		},
 	}},
 
@@ -2284,11 +2282,11 @@ def'''@en .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :0123\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\_\%AA123 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/0123~.-!$&'()*+,;=/?#@_%AA123"},
+:s :p :0123\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\_\%AA123 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/0123~.-!$&'()*+,;=/?#@_%AA123"},
 		},
 	}},
 
@@ -2300,11 +2298,11 @@ def'''@en .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:xyz\~ :abc\.:  : .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/xyz~"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/abc.:"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/"},
+:xyz\~ :abc\.:  : .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/xyz~"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/abc.:"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/"},
 		},
 	}},
 
@@ -2316,11 +2314,11 @@ def'''@en .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-[] :p :o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+[] :p :o .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2332,11 +2330,11 @@ def'''@en .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p [] .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Blank{ID: "b1"},
+:s :p [] .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Blank{ID: "b1"},
 		},
 	}},
 
@@ -2348,16 +2346,16 @@ def'''@en .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p [ :q :o ] .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Blank{ID: "b1"},
+:s :p [ :q :o ] .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Blank{ID: "b1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/q"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/q"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2369,21 +2367,21 @@ def'''@en .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p [ :q1 :o1 ; :q2 :o2 ] .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Blank{ID: "b1"},
+:s :p [ :q1 :o1 ; :q2 :o2 ] .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Blank{ID: "b1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/q1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/q1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/q2"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/q2"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -2395,21 +2393,21 @@ def'''@en .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-[ :q1 :o1 ; :q2 :o2 ] :p :o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/q1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+[ :q1 :o1 ; :q2 :o2 ] :p :o .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/q1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/q2"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/q2"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2421,11 +2419,11 @@ def'''@en .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-_:a  :p :o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "a"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+_:a  :p :o .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "a"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2438,16 +2436,16 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s  :p _:a .
-_:a  :p :o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Blank{ID: "a"},
+_:a  :p :o .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Blank{ID: "a"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "a"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		Triple{
+			Subj: Blank{ID: "a"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2459,11 +2457,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-[ :p  :o ] .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+[ :p  :o ] .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2476,21 +2474,21 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 [ :p  :o1,:2 ] .
-:s :p :o  .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+:s :p :o  .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2505,26 +2503,26 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 :s1 :p :o .
 [ :p1  :o1 ; :p2 :o2 ] .
-:s2 :p :o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+:s2 :p :o .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s2"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2535,11 +2533,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-number-01.ttl> ;
 	//   .
 
-	{`<s> <p> 123 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: 123, DataType: rdf.XSDInteger},
+	{`<s> <p> 123 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: 123, DataType: XSDInteger},
 		},
 	}},
 
@@ -2550,11 +2548,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-number-02.ttl> ;
 	//   .
 
-	{`<s> <p> -123 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: -123, DataType: rdf.XSDInteger},
+	{`<s> <p> -123 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: -123, DataType: XSDInteger},
 		},
 	}},
 
@@ -2565,11 +2563,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-number-03.ttl> ;
 	//   .
 
-	{`<s> <p> +123 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: 123, DataType: rdf.XSDInteger},
+	{`<s> <p> +123 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: 123, DataType: XSDInteger},
 		},
 	}},
 
@@ -2581,11 +2579,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# This is a decimal.
-<s> <p> 123.0 . `, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: 123.0, DataType: rdf.XSDDecimal},
+<s> <p> 123.0 . `, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: 123.0, DataType: XSDDecimal},
 		},
 	}},
 
@@ -2597,11 +2595,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# This is a decimal.
-<s> <p> .1 . `, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: .1, DataType: rdf.XSDDecimal},
+<s> <p> .1 . `, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: .1, DataType: XSDDecimal},
 		},
 	}},
 
@@ -2613,11 +2611,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# This is a decimal.
-<s> <p> -123.0 . `, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: -123.0, DataType: rdf.XSDDecimal},
+<s> <p> -123.0 . `, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: -123.0, DataType: XSDDecimal},
 		},
 	}},
 
@@ -2629,11 +2627,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# This is a decimal.
-<s> <p> +123.0 . `, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: 123.0, DataType: rdf.XSDDecimal},
+<s> <p> +123.0 . `, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: 123.0, DataType: XSDDecimal},
 		},
 	}},
 
@@ -2645,11 +2643,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# This is an integer
-<s> <p> 123.`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: 123, DataType: rdf.XSDInteger},
+<s> <p> 123.`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: 123, DataType: XSDInteger},
 		},
 	}},
 
@@ -2660,11 +2658,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-number-09.ttl> ;
 	//   .
 
-	{`<s> <p> 123.0e1 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: 123.0e1, DataType: rdf.XSDDouble},
+	{`<s> <p> 123.0e1 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: 123.0e1, DataType: XSDDouble},
 		},
 	}},
 
@@ -2675,11 +2673,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-number-10.ttl> ;
 	//   .
 
-	{`<s> <p> -123e-1 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: -123.e-1, DataType: rdf.XSDDouble},
+	{`<s> <p> -123e-1 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: -123.e-1, DataType: XSDDouble},
 		},
 	}},
 
@@ -2690,11 +2688,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-number-11.ttl> ;
 	//   .
 
-	{`<s> <p> 123.E+1 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: 123.E+1, DataType: rdf.XSDDouble},
+	{`<s> <p> 123.E+1 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: 123.E+1, DataType: XSDDouble},
 		},
 	}},
 
@@ -2706,11 +2704,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
-<s> <p> "123"^^xsd:byte .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: []byte("123"), DataType: rdf.XSDByte},
+<s> <p> "123"^^xsd:byte .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: []byte("123"), DataType: XSDByte},
 		},
 	}},
 
@@ -2723,11 +2721,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
-<s> <p> "123"^^xsd:string .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: "123", DataType: rdf.XSDString},
+<s> <p> "123"^^xsd:string .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: "123", DataType: XSDString},
 		},
 	}},
 
@@ -2738,11 +2736,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-kw-01.ttl> ;
 	//   .
 
-	{`<s> <p> true .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: true, DataType: rdf.XSDBoolean},
+	{`<s> <p> true .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: true, DataType: XSDBoolean},
 		},
 	}},
 
@@ -2753,11 +2751,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   mf:action    <turtle-syntax-kw-02.ttl> ;
 	//   .
 
-	{`<s> <p> false .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "s"},
-			Pred: rdf.URI{URI: "p"},
-			Obj:  rdf.Literal{Val: false, DataType: rdf.XSDBoolean},
+	{`<s> <p> false .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "s"},
+			Pred: URI{URI: "p"},
+			Obj:  Literal{Val: false, DataType: XSDBoolean},
 		},
 	}},
 
@@ -2769,11 +2767,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s a :C .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/C"},
+:s a :C .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/C"},
 		},
 	}},
 
@@ -2785,16 +2783,16 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :o1 , :o2 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+:s :p :o1 , :o2 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -2807,16 +2805,16 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p1 :o1 ;
-   :p2 :o2 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+   :p2 :o2 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -2830,16 +2828,16 @@ _:a  :p :o .`, "", []rdf.Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p1 :o1 ;
    :p2 :o2 ;
-   .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+   .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -2853,16 +2851,16 @@ _:a  :p :o .`, "", []rdf.Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p1 :o1 ;;
    :p2 :o2 
-   .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+   .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -2876,16 +2874,16 @@ _:a  :p :o .`, "", []rdf.Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p1 :o1 ;
    :p2 :o2 ;;
-   .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+   .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -2897,11 +2895,11 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p () .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+:s :p () .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -2913,41 +2911,41 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p (1 "2" :o) .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Blank{ID: "b1"},
+:s :p (1 "2" :o) .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Blank{ID: "b1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: "2", DataType: rdf.XSDString},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: "2", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b3"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  Blank{ID: "b3"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b3"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		Triple{
+			Subj: Blank{ID: "b3"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b3"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b3"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -2959,31 +2957,31 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-(1) :p (1) .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+(1) :p (1) .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Blank{ID: "b2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -2995,31 +2993,31 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-(()) :p (()) .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+(()) :p (()) .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Blank{ID: "b2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -3031,101 +3029,101 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-(1 2 (1 2)) :p (( "a") "b" :o) .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+(1 2 (1 2)) :p (( "a") "b" :o) .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b3"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  Blank{ID: "b3"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b3"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Blank{ID: "b4"},
+		Triple{
+			Subj: Blank{ID: "b3"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Blank{ID: "b4"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b4"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b4"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b4"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b5"},
+		Triple{
+			Subj: Blank{ID: "b4"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  Blank{ID: "b5"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b5"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b5"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b5"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b5"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b3"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b3"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.Blank{ID: "b6"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  Blank{ID: "b6"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b6"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Blank{ID: "b7"},
+		Triple{
+			Subj: Blank{ID: "b6"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Blank{ID: "b7"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b7"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: "a", DataType: rdf.XSDString},
+		Triple{
+			Subj: Blank{ID: "b7"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: "a", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b7"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b7"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b6"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b8"},
+		Triple{
+			Subj: Blank{ID: "b6"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  Blank{ID: "b8"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b8"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: "b", DataType: rdf.XSDString},
+		Triple{
+			Subj: Blank{ID: "b8"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: "b", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b8"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b9"},
+		Triple{
+			Subj: Blank{ID: "b8"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  Blank{ID: "b9"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b9"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		Triple{
+			Subj: Blank{ID: "b9"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b9"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b9"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -3138,7 +3136,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`# Bad IRI : space.
 <http://www.w3.org/2013/TurtleTests/ space> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
-		"bad IRI: disallowed character ' '", []rdf.Triple{}},
+		"bad IRI: disallowed character ' '", []Triple{}},
 
 	//<#turtle-syntax-bad-uri-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-uri-02" ;
@@ -3149,7 +3147,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`# Bad IRI : bad escape
 <http://www.w3.org/2013/TurtleTests/\u00ZZ11> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
-		"bad IRI: insufficent hex digits in unicode escape", []rdf.Triple{}},
+		"bad IRI: insufficent hex digits in unicode escape", []Triple{}},
 
 	//<#turtle-syntax-bad-uri-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-uri-03" ;
@@ -3160,7 +3158,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`# Bad IRI : bad escape
 <http://www.w3.org/2013/TurtleTests/\U00ZZ1111> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
-		"bad IRI: insufficent hex digits in unicode escape", []rdf.Triple{}},
+		"bad IRI: insufficent hex digits in unicode escape", []Triple{}},
 
 	//<#turtle-syntax-bad-uri-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-uri-04" ;
@@ -3171,7 +3169,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`# Bad IRI : character escapes not allowed.
 <http://www.w3.org/2013/TurtleTests/\n> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
-		"bad IRI: disallowed escape character 'n'", []rdf.Triple{}},
+		"bad IRI: disallowed escape character 'n'", []Triple{}},
 
 	//<#turtle-syntax-bad-uri-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-uri-05" ;
@@ -3182,7 +3180,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`# Bad IRI : character escapes not allowed.
 <http://www.w3.org/2013/TurtleTests/\/> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
-		`bad IRI: disallowed escape character '/'`, []rdf.Triple{}},
+		`bad IRI: disallowed escape character '/'`, []Triple{}},
 
 	//<#turtle-syntax-bad-prefix-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-01" ;
@@ -3192,7 +3190,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# No prefix
-:s <http://www.w3.org/2013/TurtleTests/p> "x" .`, "missing namespace for prefix: ':'", []rdf.Triple{}},
+:s <http://www.w3.org/2013/TurtleTests/p> "x" .`, "missing namespace for prefix: ':'", []Triple{}},
 
 	//<#turtle-syntax-bad-prefix-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-02" ;
@@ -3203,7 +3201,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`# No prefix
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-<http://www.w3.org/2013/TurtleTests/s> rdf:type :C .`, "missing namespace for prefix: ':'", []rdf.Triple{}},
+<http://www.w3.org/2013/TurtleTests/s> rdf:type :C .`, "missing namespace for prefix: ':'", []Triple{}},
 
 	//<#turtle-syntax-bad-prefix-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-03" ;
@@ -3213,7 +3211,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# @prefix without URI.
-@prefix ex: .`, "unexpected Dot as prefix URI", []rdf.Triple{}},
+@prefix ex: .`, "unexpected Dot as prefix URI", []Triple{}},
 
 	//<#turtle-syntax-bad-prefix-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-04" ;
@@ -3223,7 +3221,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# @prefix without prefix name .
-@prefix <http://www.w3.org/2013/TurtleTests/> .`, "unexpected character: '<'", []rdf.Triple{}},
+@prefix <http://www.w3.org/2013/TurtleTests/> .`, "unexpected character: '<'", []Triple{}},
 
 	//<#turtle-syntax-bad-prefix-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-05" ;
@@ -3233,7 +3231,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# @prefix without :
-@prefix x <http://www.w3.org/2013/TurtleTests/> .`, `illegal token: "x "`, []rdf.Triple{}},
+@prefix x <http://www.w3.org/2013/TurtleTests/> .`, `illegal token: "x "`, []Triple{}},
 
 	//<#turtle-syntax-bad-base-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-base-01" ;
@@ -3243,7 +3241,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# @base without URI.
-@base .`, "unexpected Dot as base URI", []rdf.Triple{}},
+@base .`, "unexpected Dot as base URI", []Triple{}},
 
 	//<#turtle-syntax-bad-base-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-base-02" ;
@@ -3253,7 +3251,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 	//   .
 
 	{`# @base in wrong case.
-@BASE <http://www.w3.org/2013/TurtleTests/> .`, "unrecognized directive", []rdf.Triple{}},
+@BASE <http://www.w3.org/2013/TurtleTests/> .`, "unrecognized directive", []Triple{}},
 
 	//<#turtle-syntax-bad-base-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-base-03" ;
@@ -3264,7 +3262,7 @@ _:a  :p :o .`, "", []rdf.Triple{
 
 	{`# FULL STOP used after SPARQL BASE
 BASE <http://www.w3.org/2013/TurtleTests/> .
-<s> <p> <o> .`, "unexpected Dot as subject", []rdf.Triple{}},
+<s> <p> <o> .`, "unexpected Dot as subject", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-01" ;
@@ -3275,7 +3273,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 
 	{`# Turtle is not TriG
 { <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> }`,
-		"unexpected character: '{'", []rdf.Triple{}},
+		"unexpected character: '{'", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-02" ;
@@ -3286,7 +3284,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 
 	{`# Turtle is not N3
 <http://www.w3.org/2013/TurtleTests/s> = <http://www.w3.org/2013/TurtleTests/o> .`,
-		"unexpected character: '='", []rdf.Triple{}},
+		"unexpected character: '='", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-03" ;
@@ -3297,7 +3295,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 
 	{`# Turtle is not NQuads
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> <http://www.w3.org/2013/TurtleTests/g> .`,
-		"expected triple termination, got IRI (absolute)", []rdf.Triple{}},
+		"expected triple termination, got IRI (absolute)", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-04" ;
@@ -3308,7 +3306,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 
 	{`# Turtle does not allow literals-as-subjects
 "hello" <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
-		"unexpected Literal as subject", []rdf.Triple{}},
+		"unexpected Literal as subject", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-05" ;
@@ -3319,7 +3317,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 
 	{`# Turtle does not allow literals-as-predicates
 <http://www.w3.org/2013/TurtleTests/s> "hello" <http://www.w3.org/2013/TurtleTests/o> .`,
-		"unexpected Literal as predicate", []rdf.Triple{}},
+		"unexpected Literal as predicate", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-06> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-06" ;
@@ -3330,7 +3328,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 
 	{`# Turtle does not allow bnodes-as-predicates
 <http://www.w3.org/2013/TurtleTests/s> [] <http://www.w3.org/2013/TurtleTests/o> .`,
-		"unexpected Anonymous blank node as predicate", []rdf.Triple{}},
+		"unexpected Anonymous blank node as predicate", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-07> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-07" ;
@@ -3341,7 +3339,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 
 	{`# Turtle does not allow bnodes-as-predicates
 <http://www.w3.org/2013/TurtleTests/s> _:p <http://www.w3.org/2013/TurtleTests/o> .`,
-		"unexpected Blank node as predicate", []rdf.Triple{}},
+		"unexpected Blank node as predicate", []Triple{}},
 
 	//<#turtle-syntax-bad-kw-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-kw-01" ;
@@ -3351,7 +3349,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s A :C .`, `illegal token: "A "`, []rdf.Triple{}},
+:s A :C .`, `illegal token: "A "`, []Triple{}},
 
 	//<#turtle-syntax-bad-kw-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-kw-02" ;
@@ -3361,7 +3359,7 @@ BASE <http://www.w3.org/2013/TurtleTests/> .
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-a :p :o .`, "unexpected rdf:type as subject", []rdf.Triple{}},
+a :p :o .`, "unexpected rdf:type as subject", []Triple{}},
 
 	//<#turtle-syntax-bad-kw-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-kw-03" ;
@@ -3371,7 +3369,7 @@ a :p :o .`, "unexpected rdf:type as subject", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p a .`, "unexpected rdf:type as object", []rdf.Triple{}},
+:s :p a .`, "unexpected rdf:type as object", []Triple{}},
 
 	//<#turtle-syntax-bad-kw-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-kw-04" ;
@@ -3381,7 +3379,7 @@ a :p :o .`, "unexpected rdf:type as subject", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf.Triple{}},
+true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []Triple{}},
 
 	//<#turtle-syntax-bad-kw-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-kw-05" ;
@@ -3391,7 +3389,7 @@ true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s true :o .`, "unexpected Literal (boolean shorthand syntax) as predicate", []rdf.Triple{}},
+:s true :o .`, "unexpected Literal (boolean shorthand syntax) as predicate", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-01" ;
@@ -3404,7 +3402,7 @@ true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 
 { :a :q :c . } :p :z .
-`, "unexpected character: '{'", []rdf.Triple{}},
+`, "unexpected character: '{'", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-02" ;
@@ -3416,7 +3414,7 @@ true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf
 	{`# = is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 
-:a = :b .`, "unexpected character: '='", []rdf.Triple{}},
+:a = :b .`, "unexpected character: '='", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-03" ;
@@ -3431,7 +3429,7 @@ true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf
 
 :x.
   ns:p.
-    ns:q :p :z .`, "unexpected Dot as predicate", []rdf.Triple{}},
+    ns:q :p :z .`, "unexpected Dot as predicate", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-04" ;
@@ -3444,7 +3442,7 @@ true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 @prefix ns: <http://www.w3.org/2013/TurtleTests/p#> .
 
-:x^ns:p :p :z .`, "syntax error: unexpected character: '^'", []rdf.Triple{}},
+:x^ns:p :p :z .`, "syntax error: unexpected character: '^'", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-05" ;
@@ -3456,7 +3454,7 @@ true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf
 	{`# N3 is...of
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 
-:z is :p of :x .`, `illegal token: "is "`, []rdf.Triple{}},
+:z is :p of :x .`, `illegal token: "is "`, []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-06> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-06" ;
@@ -3468,7 +3466,7 @@ true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf
 	{`# = is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 
-:a.:b.:c .`, "unexpected Dot as predicate", []rdf.Triple{}},
+:a.:b.:c .`, "unexpected Dot as predicate", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-07> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-07" ;
@@ -3479,7 +3477,7 @@ true :p :o .`, "unexpected Literal (boolean shorthand syntax) as subject", []rdf
 
 	{`# @keywords is not Turtle
 @keywords a .
-x a Item .`, "unrecognized directive", []rdf.Triple{}},
+x a Item .`, "unrecognized directive", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-08> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-08" ;
@@ -3490,7 +3488,7 @@ x a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# @keywords is not Turtle
 @keywords a .
-x a Item .`, "unrecognized directive", []rdf.Triple{}},
+x a Item .`, "unrecognized directive", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-09> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-09" ;
@@ -3501,7 +3499,7 @@ x a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# => is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s => :o .`, "unexpected character: '='", []rdf.Triple{}},
+:s => :o .`, "unexpected character: '='", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-10> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-10" ;
@@ -3512,7 +3510,7 @@ x a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# <= is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s <= :o .`, "bad IRI: disallowed character ' '", []rdf.Triple{}},
+:s <= :o .`, "bad IRI: disallowed character ' '", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-11> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-11" ;
@@ -3523,7 +3521,7 @@ x a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# @forSome is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-@forSome :x .`, "unrecognized directive", []rdf.Triple{}},
+@forSome :x .`, "unrecognized directive", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-12> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-12" ;
@@ -3534,7 +3532,7 @@ x a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# @forAll is not Turtle
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-@forAll :x .`, "unrecognized directive", []rdf.Triple{}},
+@forAll :x .`, "unrecognized directive", []Triple{}},
 
 	//<#turtle-syntax-bad-n3-extras-13> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-n3-extras-13" ;
@@ -3545,7 +3543,7 @@ x a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# @keywords is not Turtle
 @keywords .
-x @a Item .`, "unrecognized directive", []rdf.Triple{}},
+x @a Item .`, "unrecognized directive", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-08> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-08" ;
@@ -3556,7 +3554,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# No DOT
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o>`,
-		"expected triple termination, got EOF", []rdf.Triple{}},
+		"expected triple termination, got EOF", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-09> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-09" ;
@@ -3567,7 +3565,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Too many DOT
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> . .`,
-		"unexpected Dot as subject", []rdf.Triple{}},
+		"unexpected Dot as subject", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-10> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-10" ;
@@ -3579,7 +3577,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	{`# Too many DOT
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> . .
 <http://www.w3.org/2013/TurtleTests/s1> <http://www.w3.org/2013/TurtleTests/p1> <http://www.w3.org/2013/TurtleTests/o1> .`,
-		"unexpected Dot as subject", []rdf.Triple{}},
+		"unexpected Dot as subject", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-11> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-11" ;
@@ -3590,7 +3588,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Trailing ;
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> ;`,
-		"expected triple termination, got Semicolon", []rdf.Triple{}},
+		"expected triple termination, got Semicolon", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-12> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-12" ;
@@ -3600,7 +3598,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> `,
-		"unexpected EOF as object", []rdf.Triple{}},
+		"unexpected EOF as object", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-13> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-13" ;
@@ -3610,7 +3608,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> `,
-		"unexpected EOF as object", []rdf.Triple{}},
+		"unexpected EOF as object", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-14> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-14" ;
@@ -3621,7 +3619,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Literal as subject
 "abc" <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/p>  .`,
-		"unexpected Literal as subject", []rdf.Triple{}},
+		"unexpected Literal as subject", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-15> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-15" ;
@@ -3632,7 +3630,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Literal as predicate
 <http://www.w3.org/2013/TurtleTests/s> "abc" <http://www.w3.org/2013/TurtleTests/p>  .`,
-		"unexpected Literal as predicate", []rdf.Triple{}},
+		"unexpected Literal as predicate", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-16> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-16" ;
@@ -3643,7 +3641,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# BNode as predicate
 <http://www.w3.org/2013/TurtleTests/s> [] <http://www.w3.org/2013/TurtleTests/p>  .`,
-		"unexpected Anonymous blank node as predicate", []rdf.Triple{}},
+		"unexpected Anonymous blank node as predicate", []Triple{}},
 
 	//<#turtle-syntax-bad-struct-17> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-struct-17" ;
@@ -3654,7 +3652,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# BNode as predicate
 <http://www.w3.org/2013/TurtleTests/s> _:a <http://www.w3.org/2013/TurtleTests/p>  .`,
-		"unexpected Blank node as predicate", []rdf.Triple{}},
+		"unexpected Blank node as predicate", []Triple{}},
 
 	//<#turtle-syntax-bad-lang-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-lang-01" ;
@@ -3665,7 +3663,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Bad lang tag
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@1 .`,
-		"bad literal: invalid language tag", []rdf.Triple{}},
+		"bad literal: invalid language tag", []Triple{}},
 
 	//<#turtle-syntax-bad-esc-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-esc-01" ;
@@ -3676,7 +3674,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Bad string escape
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\zb" .`,
-		"bad literal: disallowed escape character 'z'", []rdf.Triple{}},
+		"bad literal: disallowed escape character 'z'", []Triple{}},
 
 	//<#turtle-syntax-bad-esc-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-esc-02" ;
@@ -3687,7 +3685,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Bad string escape
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "\uWXYZ" .`,
-		"bad literal: insufficent hex digits in unicode escape", []rdf.Triple{}},
+		"bad literal: insufficent hex digits in unicode escape", []Triple{}},
 
 	//<#turtle-syntax-bad-esc-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-esc-03" ;
@@ -3698,7 +3696,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Bad string escape
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "\U0000WXYZ" .`,
-		"bad literal: insufficent hex digits in unicode escape", []rdf.Triple{}},
+		"bad literal: insufficent hex digits in unicode escape", []Triple{}},
 
 	//<#turtle-syntax-bad-esc-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-esc-04" ;
@@ -3709,7 +3707,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Bad string escape
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "\U0000WXYZ" .`,
-		"bad literal: insufficent hex digits in unicode escape", []rdf.Triple{}},
+		"bad literal: insufficent hex digits in unicode escape", []Triple{}},
 
 	//<#turtle-syntax-bad-pname-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-pname-01" ;
@@ -3720,7 +3718,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# ~ must be escaped.
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:a~b :p :o .`, "unexpected character: '~'", []rdf.Triple{}},
+:a~b :p :o .`, "unexpected character: '~'", []Triple{}},
 
 	//<#turtle-syntax-bad-pname-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-pname-02" ;
@@ -3731,7 +3729,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# Bad %-sequence
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:a%2 :p :o .`, "invalid hex escape sequence", []rdf.Triple{}},
+:a%2 :p :o .`, "invalid hex escape sequence", []Triple{}},
 
 	//<#turtle-syntax-bad-pname-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-pname-03" ;
@@ -3742,7 +3740,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 
 	{`# No \u (x39 is "9")
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:a\u0039 :p :o .`, "invalid escape charater 'u'", []rdf.Triple{}},
+:a\u0039 :p :o .`, "invalid escape charater 'u'", []Triple{}},
 
 	//<#turtle-syntax-bad-string-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-01" ;
@@ -3752,7 +3750,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p "abc' .`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
+:s :p "abc' .`, "bad literal: no closing quote: '\"'", []Triple{}},
 
 	//<#turtle-syntax-bad-string-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-02" ;
@@ -3762,7 +3760,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p 'abc" .`, "bad literal: no closing quote: '\\''", []rdf.Triple{}},
+:s :p 'abc" .`, "bad literal: no closing quote: '\\''", []Triple{}},
 
 	//<#turtle-syntax-bad-string-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-03" ;
@@ -3772,7 +3770,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p '''abc' .`, "bad literal: no closing quote: '\\''", []rdf.Triple{}},
+:s :p '''abc' .`, "bad literal: no closing quote: '\\''", []Triple{}},
 
 	//<#turtle-syntax-bad-string-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-04" ;
@@ -3782,7 +3780,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p """abc''' .`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
+:s :p """abc''' .`, "bad literal: no closing quote: '\"'", []Triple{}},
 
 	//<#turtle-syntax-bad-string-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-05" ;
@@ -3794,7 +3792,7 @@ x @a Item .`, "unrecognized directive", []rdf.Triple{}},
 	{`# Long literal with missing end
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p """abc
-def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
+def`, "bad literal: no closing quote: '\"'", []Triple{}},
 
 	//<#turtle-syntax-bad-string-06> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-06" ;
@@ -3805,7 +3803,7 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 
 	{`# Long literal with 4"
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p """abc""""@en .`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
+:s :p """abc""""@en .`, "bad literal: no closing quote: '\"'", []Triple{}},
 
 	//<#turtle-syntax-bad-string-07> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-string-07" ;
@@ -3816,7 +3814,7 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 
 	{`# Long literal with 4'
 @prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p '''abc''''@en .`, "bad literal: no closing quote: '\\''", []rdf.Triple{}},
+:s :p '''abc''''@en .`, "bad literal: no closing quote: '\\''", []Triple{}},
 
 	//<#turtle-syntax-bad-num-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-01" ;
@@ -3826,7 +3824,7 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 123.abc .`,
-		"illegal token: \"abc \"", []rdf.Triple{}},
+		"illegal token: \"abc \"", []Triple{}},
 
 	//<#turtle-syntax-bad-num-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-02" ;
@@ -3836,7 +3834,7 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 123e .`,
-		"bad literal: illegal number syntax: missing exponent", []rdf.Triple{}},
+		"bad literal: illegal number syntax: missing exponent", []Triple{}},
 
 	//<#turtle-syntax-bad-num-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-03" ;
@@ -3846,7 +3844,7 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 123abc .`,
-		" bad literal: illegal number syntax (number followed by 'a')", []rdf.Triple{}},
+		" bad literal: illegal number syntax (number followed by 'a')", []Triple{}},
 
 	//<#turtle-syntax-bad-num-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-04" ;
@@ -3856,7 +3854,7 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 0x123 .`,
-		" bad literal: illegal number syntax (number followed by 'x')", []rdf.Triple{}},
+		" bad literal: illegal number syntax (number followed by 'x')", []Triple{}},
 
 	//<#turtle-syntax-bad-num-05> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-num-05" ;
@@ -3866,7 +3864,7 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   .
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> +-1 .`,
-		"bad literal: illegal number syntax: ('+' not followed by number)", []rdf.Triple{}},
+		"bad literal: illegal number syntax: ('+' not followed by number)", []Triple{}},
 
 	//<#turtle-eval-struct-01> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "turtle-eval-struct-01" ;
@@ -3876,11 +3874,11 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   mf:result    <turtle-eval-struct-01.nt> ;
 	//   .
 
-	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -3895,16 +3893,16 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	{`<http://www.w3.org/2013/TurtleTests/s> 
       <http://www.w3.org/2013/TurtleTests/p1> <http://www.w3.org/2013/TurtleTests/o1> ;
       <http://www.w3.org/2013/TurtleTests/p2> <http://www.w3.org/2013/TurtleTests/o2> ; 
-      .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+      .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -3917,11 +3915,11 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 	//   .
 
 	{`@prefix : <#> .
-[] :x :y .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "#x"},
-			Obj:  rdf.URI{URI: "#y"},
+[] :x :y .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "#x"},
+			Obj:  URI{URI: "#y"},
 		},
 	}},
 
@@ -3939,21 +3937,21 @@ def`, "bad literal: no closing quote: '\"'", []rdf.Triple{}},
 @prefix b: <http://example.org/base3#> .
 :a :b :c .
 a:a a:b a:c .
-:a a:a b:a .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base1#a"},
-			Pred: rdf.URI{URI: "http://example.org/base1#b"},
-			Obj:  rdf.URI{URI: "http://example.org/base1#c"},
+:a a:a b:a .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/base1#a"},
+			Pred: URI{URI: "http://example.org/base1#b"},
+			Obj:  URI{URI: "http://example.org/base1#c"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base2#a"},
-			Pred: rdf.URI{URI: "http://example.org/base2#b"},
-			Obj:  rdf.URI{URI: "http://example.org/base2#c"},
+		Triple{
+			Subj: URI{URI: "http://example.org/base2#a"},
+			Pred: URI{URI: "http://example.org/base2#b"},
+			Obj:  URI{URI: "http://example.org/base2#c"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base1#a"},
-			Pred: rdf.URI{URI: "http://example.org/base2#a"},
-			Obj:  rdf.URI{URI: "http://example.org/base3#a"},
+		Triple{
+			Subj: URI{URI: "http://example.org/base1#a"},
+			Pred: URI{URI: "http://example.org/base2#a"},
+			Obj:  URI{URI: "http://example.org/base3#a"},
 		},
 	}},
 
@@ -3969,21 +3967,21 @@ a:a a:b a:c .
 @prefix : <http://example.org/base#> .
 :a :b :c,
       :d,
-      :e .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base#a"},
-			Pred: rdf.URI{URI: "http://example.org/base#b"},
-			Obj:  rdf.URI{URI: "http://example.org/base#c"},
+      :e .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/base#a"},
+			Pred: URI{URI: "http://example.org/base#b"},
+			Obj:  URI{URI: "http://example.org/base#c"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base#a"},
-			Pred: rdf.URI{URI: "http://example.org/base#b"},
-			Obj:  rdf.URI{URI: "http://example.org/base#d"},
+		Triple{
+			Subj: URI{URI: "http://example.org/base#a"},
+			Pred: URI{URI: "http://example.org/base#b"},
+			Obj:  URI{URI: "http://example.org/base#d"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base#a"},
-			Pred: rdf.URI{URI: "http://example.org/base#b"},
-			Obj:  rdf.URI{URI: "http://example.org/base#e"},
+		Triple{
+			Subj: URI{URI: "http://example.org/base#a"},
+			Pred: URI{URI: "http://example.org/base#b"},
+			Obj:  URI{URI: "http://example.org/base#e"},
 		},
 	}},
 
@@ -3999,21 +3997,21 @@ a:a a:b a:c .
 @prefix : <http://example.org/base#> .
 :a :b :c ;
    :d :e ;
-   :f :g .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base#a"},
-			Pred: rdf.URI{URI: "http://example.org/base#b"},
-			Obj:  rdf.URI{URI: "http://example.org/base#c"},
+   :f :g .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/base#a"},
+			Pred: URI{URI: "http://example.org/base#b"},
+			Obj:  URI{URI: "http://example.org/base#c"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base#a"},
-			Pred: rdf.URI{URI: "http://example.org/base#d"},
-			Obj:  rdf.URI{URI: "http://example.org/base#e"},
+		Triple{
+			Subj: URI{URI: "http://example.org/base#a"},
+			Pred: URI{URI: "http://example.org/base#d"},
+			Obj:  URI{URI: "http://example.org/base#e"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base#a"},
-			Pred: rdf.URI{URI: "http://example.org/base#f"},
-			Obj:  rdf.URI{URI: "http://example.org/base#g"},
+		Triple{
+			Subj: URI{URI: "http://example.org/base#a"},
+			Pred: URI{URI: "http://example.org/base#f"},
+			Obj:  URI{URI: "http://example.org/base#g"},
 		},
 	}},
 
@@ -4028,16 +4026,16 @@ a:a a:b a:c .
 	{`# Test empty [] operator; not allowed as predicate
 @prefix : <http://example.org/base#> .
 [] :a :b .
-:c :d [] .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://example.org/base#a"},
-			Obj:  rdf.URI{URI: "http://example.org/base#b"},
+:c :d [] .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://example.org/base#a"},
+			Obj:  URI{URI: "http://example.org/base#b"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base#c"},
-			Pred: rdf.URI{URI: "http://example.org/base#d"},
-			Obj:  rdf.Blank{ID: "b2"},
+		Triple{
+			Subj: URI{URI: "http://example.org/base#c"},
+			Pred: URI{URI: "http://example.org/base#d"},
+			Obj:  Blank{ID: "b2"},
 		},
 	}},
 
@@ -4052,26 +4050,26 @@ a:a a:b a:c .
 	{`# Test non empty [] operator; not allowed as predicate
 @prefix : <http://example.org/base#> .
 [ :a :b ] :c :d .
-:e :f [ :g :h ] .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://example.org/base#a"},
-			Obj:  rdf.URI{URI: "http://example.org/base#b"},
+:e :f [ :g :h ] .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://example.org/base#a"},
+			Obj:  URI{URI: "http://example.org/base#b"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://example.org/base#c"},
-			Obj:  rdf.URI{URI: "http://example.org/base#d"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://example.org/base#c"},
+			Obj:  URI{URI: "http://example.org/base#d"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base#e"},
-			Pred: rdf.URI{URI: "http://example.org/base#f"},
-			Obj:  rdf.Blank{ID: "b2"},
+		Triple{
+			Subj: URI{URI: "http://example.org/base#e"},
+			Pred: URI{URI: "http://example.org/base#f"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://example.org/base#g"},
-			Obj:  rdf.URI{URI: "http://example.org/base#h"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://example.org/base#g"},
+			Obj:  URI{URI: "http://example.org/base#h"},
 		},
 	}},
 
@@ -4085,11 +4083,11 @@ a:a a:b a:c .
 
 	{`# 'a' only allowed as a predicate
 @prefix : <http://example.org/base#> .
-:a a :b .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/base#a"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			Obj:  rdf.URI{URI: "http://example.org/base#b"},
+:a a :b .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/base#a"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  URI{URI: "http://example.org/base#b"},
 		},
 	}},
 
@@ -4103,31 +4101,31 @@ a:a a:b a:c .
 
 	{`@prefix : <http://example.org/stuff/1.0/> .
 :a :b ( "apple" "banana" ) .
-`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/stuff/1.0/a"},
-			Pred: rdf.URI{URI: "http://example.org/stuff/1.0/b"},
-			Obj:  rdf.Blank{ID: "b1"},
+`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/stuff/1.0/a"},
+			Pred: URI{URI: "http://example.org/stuff/1.0/b"},
+			Obj:  Blank{ID: "b1"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: "apple", DataType: rdf.XSDString},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: "apple", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.Blank{ID: "b2"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  rdf.Literal{Val: "banana", DataType: rdf.XSDString},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  Literal{Val: "banana", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+		Triple{
+			Subj: Blank{ID: "b2"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -4141,11 +4139,11 @@ a:a a:b a:c .
 
 	{`@prefix : <http://example.org/stuff/1.0/> .
 :a :b ( ) .
-`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/stuff/1.0/a"},
-			Pred: rdf.URI{URI: "http://example.org/stuff/1.0/b"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/stuff/1.0/a"},
+			Pred: URI{URI: "http://example.org/stuff/1.0/b"},
+			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -4166,26 +4164,26 @@ _:hasParent a owl:ObjectProperty .
 
 [] a owl:Restriction ;
   owl:onProperty _:hasParent ;
-  owl:maxCardinality 2 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "hasParent"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2002/07/owl#ObjectProperty"},
+  owl:maxCardinality 2 .`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "hasParent"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  URI{URI: "http://www.w3.org/2002/07/owl#ObjectProperty"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2002/07/owl#Restriction"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  URI{URI: "http://www.w3.org/2002/07/owl#Restriction"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2002/07/owl#onProperty"},
-			Obj:  rdf.Blank{ID: "hasParent"},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2002/07/owl#onProperty"},
+			Obj:  Blank{ID: "hasParent"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2002/07/owl#maxCardinality"},
-			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://www.w3.org/2002/07/owl#maxCardinality"},
+			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
 	}},
 
@@ -4201,31 +4199,31 @@ _:hasParent a owl:ObjectProperty .
 <http://example.org/res2> <http://example.org/prop2> 0 .
 <http://example.org/res3> <http://example.org/prop3> 000001 .
 <http://example.org/res4> <http://example.org/prop4> 2 .
-<http://example.org/res5> <http://example.org/prop5> 4 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/res1"},
-			Pred: rdf.URI{URI: "http://example.org/prop1"},
-			Obj:  rdf.Literal{Val: 0, DataType: rdf.XSDInteger},
+<http://example.org/res5> <http://example.org/prop5> 4 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/res1"},
+			Pred: URI{URI: "http://example.org/prop1"},
+			Obj:  Literal{Val: 0, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/res2"},
-			Pred: rdf.URI{URI: "http://example.org/prop2"},
-			Obj:  rdf.Literal{Val: 0, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: URI{URI: "http://example.org/res2"},
+			Pred: URI{URI: "http://example.org/prop2"},
+			Obj:  Literal{Val: 0, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/res3"},
-			Pred: rdf.URI{URI: "http://example.org/prop3"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: URI{URI: "http://example.org/res3"},
+			Pred: URI{URI: "http://example.org/prop3"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/res4"},
-			Pred: rdf.URI{URI: "http://example.org/prop4"},
-			Obj:  rdf.Literal{Val: 2, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: URI{URI: "http://example.org/res4"},
+			Pred: URI{URI: "http://example.org/prop4"},
+			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/res5"},
-			Pred: rdf.URI{URI: "http://example.org/prop5"},
-			Obj:  rdf.Literal{Val: 4, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: URI{URI: "http://example.org/res5"},
+			Pred: URI{URI: "http://example.org/prop5"},
+			Obj:  Literal{Val: 4, DataType: XSDInteger},
 		},
 	}},
 
@@ -4246,26 +4244,26 @@ _:hasParent a owl:ObjectProperty .
 ex1:foo-bar ex1:foo_bar "a" .
 ex-2:foo-bar ex-2:foo_bar "b" .
 ex3_:foo-bar ex3_:foo_bar "c" .
-ex4-:foo-bar ex4-:foo_bar "d" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex1#foo-bar"},
-			Pred: rdf.URI{URI: "http://example.org/ex1#foo_bar"},
-			Obj:  rdf.Literal{Val: "a", DataType: rdf.XSDString},
+ex4-:foo-bar ex4-:foo_bar "d" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/ex1#foo-bar"},
+			Pred: URI{URI: "http://example.org/ex1#foo_bar"},
+			Obj:  Literal{Val: "a", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex2#foo-bar"},
-			Pred: rdf.URI{URI: "http://example.org/ex2#foo_bar"},
-			Obj:  rdf.Literal{Val: "b", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/ex2#foo-bar"},
+			Pred: URI{URI: "http://example.org/ex2#foo_bar"},
+			Obj:  Literal{Val: "b", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex3#foo-bar"},
-			Pred: rdf.URI{URI: "http://example.org/ex3#foo_bar"},
-			Obj:  rdf.Literal{Val: "c", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/ex3#foo-bar"},
+			Pred: URI{URI: "http://example.org/ex3#foo_bar"},
+			Obj:  Literal{Val: "c", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex4#foo-bar"},
-			Pred: rdf.URI{URI: "http://example.org/ex4#foo_bar"},
-			Obj:  rdf.Literal{Val: "d", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/ex4#foo-bar"},
+			Pred: URI{URI: "http://example.org/ex4#foo_bar"},
+			Obj:  Literal{Val: "d", DataType: XSDString},
 		},
 	}},
 
@@ -4285,26 +4283,26 @@ ex4-:foo-bar ex4-:foo_bar "d" .`, "", []rdf.Triple{
 ex:foo rdf:_1 "1" .
 ex:foo rdf:_2 "2" .
 ex:foo :_abc "def" .
-ex:foo :_345 "678" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex#foo"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_1"},
-			Obj:  rdf.Literal{Val: "1", DataType: rdf.XSDString},
+ex:foo :_345 "678" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/ex#foo"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_1"},
+			Obj:  Literal{Val: "1", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex#foo"},
-			Pred: rdf.URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_2"},
-			Obj:  rdf.Literal{Val: "2", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/ex#foo"},
+			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_2"},
+			Obj:  Literal{Val: "2", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex#foo"},
-			Pred: rdf.URI{URI: "http://example.org/myprop#_abc"},
-			Obj:  rdf.Literal{Val: "def", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/ex#foo"},
+			Pred: URI{URI: "http://example.org/myprop#_abc"},
+			Obj:  Literal{Val: "def", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex#foo"},
-			Pred: rdf.URI{URI: "http://example.org/myprop#_345"},
-			Obj:  rdf.Literal{Val: "678", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/ex#foo"},
+			Pred: URI{URI: "http://example.org/myprop#_345"},
+			Obj:  Literal{Val: "678", DataType: XSDString},
 		},
 	}},
 
@@ -4322,16 +4320,16 @@ ex:foo :_345 "678" .`, "", []rdf.Triple{
 [] : [] .
 
 : : : .
-`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b1"},
-			Pred: rdf.URI{URI: "http://example.org/ron"},
-			Obj:  rdf.Blank{ID: "b2"},
+`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "b1"},
+			Pred: URI{URI: "http://example.org/ron"},
+			Obj:  Blank{ID: "b2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ron"},
-			Pred: rdf.URI{URI: "http://example.org/ron"},
-			Obj:  rdf.URI{URI: "http://example.org/ron"},
+		Triple{
+			Subj: URI{URI: "http://example.org/ron"},
+			Pred: URI{URI: "http://example.org/ron"},
+			Obj:  URI{URI: "http://example.org/ron"},
 		},
 	}},
 
@@ -4348,11 +4346,11 @@ ex:foo :_345 "678" .`, "", []rdf.Triple{
 :a :b """a long
 	literal
 with
-newlines""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex#a"},
-			Pred: rdf.URI{URI: "http://example.org/ex#b"},
-			Obj:  rdf.Literal{Val: "a long\n\tliteral\nwith\nnewlines", DataType: rdf.XSDString},
+newlines""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/ex#a"},
+			Pred: URI{URI: "http://example.org/ex#b"},
+			Obj:  Literal{Val: "a long\n\tliteral\nwith\nnewlines", DataType: XSDString},
 		},
 	}},
 
@@ -4383,16 +4381,16 @@ literal\uABCD
 
 :d :e """\tThis \uABCDis\r \U00012451another\n
 one
-""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo#a"},
-			Pred: rdf.URI{URI: "http://example.org/foo#b"},
-			Obj:  rdf.Literal{Val: "\nthis \ris a \U00012451long\t\nliteral\uABCD\n", DataType: rdf.XSDString},
+""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/foo#a"},
+			Pred: URI{URI: "http://example.org/foo#b"},
+			Obj:  Literal{Val: "\nthis \ris a \U00012451long\t\nliteral\uABCD\n", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo#d"},
-			Pred: rdf.URI{URI: "http://example.org/foo#e"},
-			Obj:  rdf.Literal{Val: "\tThis \uABCDis\r \U00012451another\n\none\n", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo#d"},
+			Pred: URI{URI: "http://example.org/foo#e"},
+			Obj:  Literal{Val: "\tThis \uABCDis\r \U00012451another\n\none\n", DataType: XSDString},
 		},
 	}},
 
@@ -4407,11 +4405,11 @@ one
 	{`@prefix : <http://example.org/#> .
 
 :a :b  1.0 .
-`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#a"},
-			Pred: rdf.URI{URI: "http://example.org/#b"},
-			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDecimal},
+`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/#a"},
+			Pred: URI{URI: "http://example.org/#b"},
+			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
 	}},
 
@@ -4428,16 +4426,16 @@ one
 :a :b "" .
 
 :c :d """""" .
-`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#a"},
-			Pred: rdf.URI{URI: "http://example.org/#b"},
-			Obj:  rdf.Literal{Val: "", DataType: rdf.XSDString},
+`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/#a"},
+			Pred: URI{URI: "http://example.org/#b"},
+			Obj:  Literal{Val: "", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#c"},
-			Pred: rdf.URI{URI: "http://example.org/#d"},
-			Obj:  rdf.Literal{Val: "", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/#c"},
+			Pred: URI{URI: "http://example.org/#d"},
+			Obj:  Literal{Val: "", DataType: XSDString},
 		},
 	}},
 
@@ -4452,21 +4450,21 @@ one
 	{`@prefix : <http://example.org#> .
 :a :b 1.0 .
 :c :d 1 .
-:e :f 1.0e0 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org#a"},
-			Pred: rdf.URI{URI: "http://example.org#b"},
-			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDecimal},
+:e :f 1.0e0 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org#a"},
+			Pred: URI{URI: "http://example.org#b"},
+			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org#c"},
-			Pred: rdf.URI{URI: "http://example.org#d"},
-			Obj:  rdf.Literal{Val: 1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: URI{URI: "http://example.org#c"},
+			Pred: URI{URI: "http://example.org#d"},
+			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org#e"},
-			Pred: rdf.URI{URI: "http://example.org#f"},
-			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDouble},
+		Triple{
+			Subj: URI{URI: "http://example.org#e"},
+			Pred: URI{URI: "http://example.org#f"},
+			Obj:  Literal{Val: 1.0, DataType: XSDDouble},
 		},
 	}},
 
@@ -4481,21 +4479,21 @@ one
 	{`@prefix : <http://example.org#> .
 :a :b -1.0 .
 :c :d -1 .
-:e :f -1.0e0 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org#a"},
-			Pred: rdf.URI{URI: "http://example.org#b"},
-			Obj:  rdf.Literal{Val: -1.0, DataType: rdf.XSDDecimal},
+:e :f -1.0e0 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org#a"},
+			Pred: URI{URI: "http://example.org#b"},
+			Obj:  Literal{Val: -1.0, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org#c"},
-			Pred: rdf.URI{URI: "http://example.org#d"},
-			Obj:  rdf.Literal{Val: -1, DataType: rdf.XSDInteger},
+		Triple{
+			Subj: URI{URI: "http://example.org#c"},
+			Pred: URI{URI: "http://example.org#d"},
+			Obj:  Literal{Val: -1, DataType: XSDInteger},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org#e"},
-			Pred: rdf.URI{URI: "http://example.org#f"},
-			Obj:  rdf.Literal{Val: -1.0, DataType: rdf.XSDDouble},
+		Triple{
+			Subj: URI{URI: "http://example.org#e"},
+			Pred: URI{URI: "http://example.org#f"},
+			Obj:  Literal{Val: -1.0, DataType: XSDDouble},
 		},
 	}},
 
@@ -4509,11 +4507,11 @@ one
 
 	{`# Test long literal
 @prefix :  <http://example.org/ex#> .
-:a :b """John said: "Hello World!\"""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex#a"},
-			Pred: rdf.URI{URI: "http://example.org/ex#b"},
-			Obj:  rdf.Literal{Val: `John said: "Hello World!"`, DataType: rdf.XSDString},
+:a :b """John said: "Hello World!\"""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/ex#a"},
+			Pred: URI{URI: "http://example.org/ex#b"},
+			Obj:  Literal{Val: `John said: "Hello World!"`, DataType: XSDString},
 		},
 	}},
 
@@ -4527,16 +4525,16 @@ one
 
 	{`@prefix : <http://example.org#> .
 :a :b true .
-:c :d false .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org#a"},
-			Pred: rdf.URI{URI: "http://example.org#b"},
-			Obj:  rdf.Literal{Val: true, DataType: rdf.XSDBoolean},
+:c :d false .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org#a"},
+			Pred: URI{URI: "http://example.org#b"},
+			Obj:  Literal{Val: true, DataType: XSDBoolean},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org#c"},
-			Pred: rdf.URI{URI: "http://example.org#d"},
-			Obj:  rdf.Literal{Val: false, DataType: rdf.XSDBoolean},
+		Triple{
+			Subj: URI{URI: "http://example.org#c"},
+			Pred: URI{URI: "http://example.org#d"},
+			Obj:  Literal{Val: false, DataType: XSDBoolean},
 		},
 	}},
 
@@ -4561,41 +4559,41 @@ one
 
 :k :l :m ; #ignore me
    :n :o ; # and me
-   :p :q . # and me`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#a"},
-			Pred: rdf.URI{URI: "http://example.org/#b"},
-			Obj:  rdf.URI{URI: "http://example.org/#c"},
+   :p :q . # and me`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/#a"},
+			Pred: URI{URI: "http://example.org/#b"},
+			Obj:  URI{URI: "http://example.org/#c"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#d"},
-			Pred: rdf.URI{URI: "http://example.org/#e"},
-			Obj:  rdf.URI{URI: "http://example.org/#f"},
+		Triple{
+			Subj: URI{URI: "http://example.org/#d"},
+			Pred: URI{URI: "http://example.org/#e"},
+			Obj:  URI{URI: "http://example.org/#f"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#g"},
-			Pred: rdf.URI{URI: "http://example.org/#h"},
-			Obj:  rdf.URI{URI: "http://example.org/#i"},
+		Triple{
+			Subj: URI{URI: "http://example.org/#g"},
+			Pred: URI{URI: "http://example.org/#h"},
+			Obj:  URI{URI: "http://example.org/#i"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#g"},
-			Pred: rdf.URI{URI: "http://example.org/#h"},
-			Obj:  rdf.URI{URI: "http://example.org/#j"},
+		Triple{
+			Subj: URI{URI: "http://example.org/#g"},
+			Pred: URI{URI: "http://example.org/#h"},
+			Obj:  URI{URI: "http://example.org/#j"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#k"},
-			Pred: rdf.URI{URI: "http://example.org/#l"},
-			Obj:  rdf.URI{URI: "http://example.org/#m"},
+		Triple{
+			Subj: URI{URI: "http://example.org/#k"},
+			Pred: URI{URI: "http://example.org/#l"},
+			Obj:  URI{URI: "http://example.org/#m"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#k"},
-			Pred: rdf.URI{URI: "http://example.org/#n"},
-			Obj:  rdf.URI{URI: "http://example.org/#o"},
+		Triple{
+			Subj: URI{URI: "http://example.org/#k"},
+			Pred: URI{URI: "http://example.org/#n"},
+			Obj:  URI{URI: "http://example.org/#o"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#k"},
-			Pred: rdf.URI{URI: "http://example.org/#p"},
-			Obj:  rdf.URI{URI: "http://example.org/#q"},
+		Triple{
+			Subj: URI{URI: "http://example.org/#k"},
+			Pred: URI{URI: "http://example.org/#p"},
+			Obj:  URI{URI: "http://example.org/#q"},
 		},
 	}},
 
@@ -4610,11 +4608,11 @@ one
 	{`# comment line with no final newline test
 @prefix : <http://example.org/#> .
 :a :b :c .
-#foo`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/#a"},
-			Pred: rdf.URI{URI: "http://example.org/#b"},
-			Obj:  rdf.URI{URI: "http://example.org/#c"},
+#foo`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/#a"},
+			Pred: URI{URI: "http://example.org/#b"},
+			Obj:  URI{URI: "http://example.org/#c"},
 		},
 	}},
 
@@ -4630,11 +4628,11 @@ one
 @prefix foo: <http://example.org/bar#>  .
 
 foo:blah foo:blah foo:blah .
-`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/bar#blah"},
-			Pred: rdf.URI{URI: "http://example.org/bar#blah"},
-			Obj:  rdf.URI{URI: "http://example.org/bar#blah"},
+`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/bar#blah"},
+			Pred: URI{URI: "http://example.org/bar#blah"},
+			Obj:  URI{URI: "http://example.org/bar#blah"},
 		},
 	}},
 
@@ -4667,116 +4665,116 @@ foo:blah foo:blah foo:blah .
 <http://example.org/foo> <http://example.org/bar> "2.234000000000000000005"^^<http://www.w3.org/2001/XMLSchema#decimal> .
 <http://example.org/foo> <http://example.org/bar> "2.2340000000000000000005"^^<http://www.w3.org/2001/XMLSchema#decimal> .
 <http://example.org/foo> <http://example.org/bar> "2.23400000000000000000005"^^<http://www.w3.org/2001/XMLSchema#decimal> .
-<http://example.org/foo> <http://example.org/bar> "1.2345678901234567890123457890"^^<http://www.w3.org/2001/XMLSchema#decimal> .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.345, DataType: rdf.XSDDecimal},
+<http://example.org/foo> <http://example.org/bar> "1.2345678901234567890123457890"^^<http://www.w3.org/2001/XMLSchema#decimal> .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.345, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 1.0, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.3, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.3, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.234000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.234000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.2340000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.2340000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.23400000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.23400000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.234000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.234000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.2340000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.2340000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.23400000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.23400000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.234000000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.234000000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.2340000000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.2340000000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.23400000000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.23400000000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.234000000000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.234000000000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.2340000000000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.2340000000000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.23400000000000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.23400000000000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.234000000000000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.234000000000000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.2340000000000000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.2340000000000000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 2.23400000000000000000005, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 2.23400000000000000000005, DataType: XSDDecimal},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/foo"},
-			Pred: rdf.URI{URI: "http://example.org/bar"},
-			Obj:  rdf.Literal{Val: 1.2345678901234567890123457890, DataType: rdf.XSDDecimal},
+		Triple{
+			Subj: URI{URI: "http://example.org/foo"},
+			Pred: URI{URI: "http://example.org/bar"},
+			Obj:  Literal{Val: 1.2345678901234567890123457890, DataType: XSDDecimal},
 		},
 	}},
 
@@ -4799,31 +4797,31 @@ foo:blah foo:blah foo:blah .
 @prefix : <bar#> .
 :a4 :b4 :c4 .
 @prefix : <http://example.org/ns2#> .
-:a5 :b5 :c5 .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "a1"},
-			Pred: rdf.URI{URI: "b1"},
-			Obj:  rdf.URI{URI: "c1"},
+:a5 :b5 :c5 .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "a1"},
+			Pred: URI{URI: "b1"},
+			Obj:  URI{URI: "c1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ns/a2"},
-			Pred: rdf.URI{URI: "http://example.org/ns/b2"},
-			Obj:  rdf.URI{URI: "http://example.org/ns/c2"},
+		Triple{
+			Subj: URI{URI: "http://example.org/ns/a2"},
+			Pred: URI{URI: "http://example.org/ns/b2"},
+			Obj:  URI{URI: "http://example.org/ns/c2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ns/foo/a3"},
-			Pred: rdf.URI{URI: "http://example.org/ns/foo/b3"},
-			Obj:  rdf.URI{URI: "http://example.org/ns/foo/c3"},
+		Triple{
+			Subj: URI{URI: "http://example.org/ns/foo/a3"},
+			Pred: URI{URI: "http://example.org/ns/foo/b3"},
+			Obj:  URI{URI: "http://example.org/ns/foo/c3"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ns/foo/bar#a4"},
-			Pred: rdf.URI{URI: "http://example.org/ns/foo/bar#b4"},
-			Obj:  rdf.URI{URI: "http://example.org/ns/foo/bar#c4"},
+		Triple{
+			Subj: URI{URI: "http://example.org/ns/foo/bar#a4"},
+			Pred: URI{URI: "http://example.org/ns/foo/bar#b4"},
+			Obj:  URI{URI: "http://example.org/ns/foo/bar#c4"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ns2#a5"},
-			Pred: rdf.URI{URI: "http://example.org/ns2#b5"},
-			Obj:  rdf.URI{URI: "http://example.org/ns2#c5"},
+		Triple{
+			Subj: URI{URI: "http://example.org/ns2#a5"},
+			Pred: URI{URI: "http://example.org/ns2#b5"},
+			Obj:  URI{URI: "http://example.org/ns2#c5"},
 		},
 	}},
 
@@ -4836,7 +4834,7 @@ foo:blah foo:blah foo:blah .
 
 	{`# Bad IRI : good escape, bad charcater
 <http://www.w3.org/2013/TurtleTests/\u0020> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
-		`bad IRI: disallowed character in unicode escape: "\\u0020"`, []rdf.Triple{}},
+		`bad IRI: disallowed character in unicode escape: "\\u0020"`, []Triple{}},
 
 	//<#turtle-eval-bad-02> rdf:type rdft:TestTurtleNegativeEval ;
 	//   mf:name    "turtle-eval-bad-02" ;
@@ -4847,7 +4845,7 @@ foo:blah foo:blah foo:blah .
 
 	{`# Bad IRI : hex 3C is <
 <http://www.w3.org/2013/TurtleTests/\u003C> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
-		`bad IRI: disallowed character in unicode escape: "\\u003C"`, []rdf.Triple{}},
+		`bad IRI: disallowed character in unicode escape: "\\u003C"`, []Triple{}},
 
 	//<#turtle-eval-bad-03> rdf:type rdft:TestTurtleNegativeEval ;
 	//   mf:name    "turtle-eval-bad-03" ;
@@ -4858,7 +4856,7 @@ foo:blah foo:blah foo:blah .
 
 	{`# Bad IRI : hex 3E is >
 <http://www.w3.org/2013/TurtleTests/\u003E> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
-		`bad IRI: disallowed character in unicode escape: "\\u003E"`, []rdf.Triple{}},
+		`bad IRI: disallowed character in unicode escape: "\\u003E"`, []Triple{}},
 
 	//<#turtle-eval-bad-04> rdf:type rdft:TestTurtleNegativeEval ;
 	//   mf:name    "turtle-eval-bad-04" ;
@@ -4869,7 +4867,7 @@ foo:blah foo:blah foo:blah .
 
 	{`# Bad IRI
 <http://www.w3.org/2013/TurtleTests/{abc}> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`,
-		"bad IRI: disallowed character '{'", []rdf.Triple{}},
+		"bad IRI: disallowed character '{'", []Triple{}},
 
 	//# tests requested by Jeremy Carroll
 	//# http://www.w3.org/2011/rdf-wg/wiki/Turtle_Candidate_Recommendation_Comments#c35
@@ -4883,11 +4881,11 @@ foo:blah foo:blah foo:blah .
 
 	{`@prefix p: <http://a.example/> .
 <http://a.example/s> <http://a.example/p> p:o#comment
-.`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o"},
+.`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o"},
 		},
 	}},
 
@@ -4901,11 +4899,11 @@ foo:blah foo:blah foo:blah .
 
 	{`@prefix p: <http://a.example/> .
 <http://a.example/s> <http://a.example/p> p:o\#numbersign
-.`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/o#numbersign"},
+.`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/o#numbersign"},
 		},
 	}},
 
@@ -4919,11 +4917,11 @@ foo:blah foo:blah foo:blah .
 
 	{`@prefix p: <http://a.example/> .
 <http://a.example/s> <http://a.example/p> p:#comment
-.`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/"},
+.`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/"},
 		},
 	}},
 
@@ -4937,11 +4935,11 @@ foo:blah foo:blah foo:blah .
 
 	{`@prefix p: <http://a.example/>.
 <http://a.example/s> <http://a.example/p> p:\#numbersign
-.`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://a.example/s"},
-			Pred: rdf.URI{URI: "http://a.example/p"},
-			Obj:  rdf.URI{URI: "http://a.example/#numbersign"},
+.`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://a.example/s"},
+			Pred: URI{URI: "http://a.example/p"},
+			Obj:  URI{URI: "http://a.example/#numbersign"},
 		},
 	}},
 
@@ -4957,11 +4955,11 @@ foo:blah foo:blah foo:blah .
 
 	{`@prefix : <http://example.org/ns#> .
 
-:s :p1 """test-\\""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ns#s"},
-			Pred: rdf.URI{URI: "http://example.org/ns#p1"},
-			Obj:  rdf.Literal{Val: "test-\\", DataType: rdf.XSDString},
+:s :p1 """test-\\""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/ns#s"},
+			Pred: URI{URI: "http://example.org/ns#p1"},
+			Obj:  Literal{Val: "test-\\", DataType: XSDString},
 		},
 	}},
 
@@ -4973,7 +4971,7 @@ foo:blah foo:blah foo:blah .
 	//   .
 
 	{`<http://example.org/resource> <http://example.org#pred> "value"@en^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral> .`,
-		"syntax error: unexpected character: '^'", []rdf.Triple{}},
+		"syntax error: unexpected character: '^'", []Triple{}},
 
 	//<#two_LITERAL_LONG2s> rdf:type rdft:TestTurtleEval ;
 	//   mf:name    "two_LITERAL_LONG2s" ;
@@ -4986,16 +4984,16 @@ foo:blah foo:blah foo:blah .
 	{`# Test long literal twice to ensure it does not over-quote
 @prefix :  <http://example.org/ex#> .
 :a :b """first long literal""" .
-:c :d """second long literal""" .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex#a"},
-			Pred: rdf.URI{URI: "http://example.org/ex#b"},
-			Obj:  rdf.Literal{Val: "first long literal", DataType: rdf.XSDString},
+:c :d """second long literal""" .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/ex#a"},
+			Pred: URI{URI: "http://example.org/ex#b"},
+			Obj:  Literal{Val: "first long literal", DataType: XSDString},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex#c"},
-			Pred: rdf.URI{URI: "http://example.org/ex#d"},
-			Obj:  rdf.Literal{Val: "second long literal", DataType: rdf.XSDString},
+		Triple{
+			Subj: URI{URI: "http://example.org/ex#c"},
+			Pred: URI{URI: "http://example.org/ex#d"},
+			Obj:  Literal{Val: "second long literal", DataType: XSDString},
 		},
 	}},
 
@@ -5009,11 +5007,11 @@ foo:blah foo:blah foo:blah .
 
 	{`# Test long literal with lang tag
 @prefix :  <http://example.org/ex#> .
-:a :b """Cheers"""@en-UK .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://example.org/ex#a"},
-			Pred: rdf.URI{URI: "http://example.org/ex#b"},
-			Obj:  rdf.Literal{Val: "Cheers", Lang: "en-UK", DataType: rdf.XSDString},
+:a :b """Cheers"""@en-UK .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://example.org/ex#a"},
+			Pred: URI{URI: "http://example.org/ex#b"},
+			Obj:  Literal{Val: "Cheers", Lang: "en-UK", DataType: XSDString},
 		},
 	}},
 
@@ -5027,7 +5025,7 @@ foo:blah foo:blah foo:blah .
 	//	mf:action <turtle-syntax-bad-blank-label-dot-end.ttl> .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-_:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
+_:b1. :p :o .`, "unexpected Dot as predicate", []Triple{}},
 
 	//<#turtle-syntax-bad-number-dot-in-anon>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5041,7 +5039,7 @@ _:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
 :s
 	:p [
 		:p1 27.
-	] .`, "unexpected Property list end as object", []rdf.Triple{}},
+	] .`, "unexpected Property list end as object", []Triple{}},
 
 	//<#turtle-syntax-bad-ln-dash-start>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5051,7 +5049,7 @@ _:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-ln-dash-start.ttl> .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :-o .`, "unexpected character: '-'", []rdf.Triple{}},
+:s :p :-o .`, "unexpected character: '-'", []Triple{}},
 
 	//<#turtle-syntax-bad-ln-escape>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5061,7 +5059,7 @@ _:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-ln-escape.ttl> .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :o%2 .`, "invalid hex escape sequence", []rdf.Triple{}},
+:s :p :o%2 .`, "invalid hex escape sequence", []Triple{}},
 
 	//<#turtle-syntax-bad-ln-escape-start>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5071,7 +5069,7 @@ _:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-ln-escape-start.ttl> .
 
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
-:s :p :%2o .`, "invalid hex escape sequence", []rdf.Triple{}},
+:s :p :%2o .`, "invalid hex escape sequence", []Triple{}},
 
 	//<#turtle-syntax-bad-ns-dot-end>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5081,7 +5079,7 @@ _:b1. :p :o .`, "unexpected Dot as predicate", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-ns-dot-end.ttl> .
 
 	{`@prefix eg. : <http://www.w3.org/2013/TurtleTests/> .
-eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
+eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []Triple{}},
 
 	//<#turtle-syntax-bad-ns-dot-start>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5091,7 +5089,7 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-ns-dot-start.ttl> .
 
 	{`@prefix .eg : <http://www.w3.org/2013/TurtleTests/> .
-.eg:s .eg:p .eg:o .`, "unexpected character: '.'", []rdf.Triple{}},
+.eg:s .eg:p .eg:o .`, "unexpected character: '.'", []Triple{}},
 
 	//<#turtle-syntax-bad-missing-ns-dot-end>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5101,7 +5099,7 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-missing-ns-dot-end.ttl> .
 
 	{`valid:s valid:p invalid.:o .`,
-		"missing namespace for prefix: 'valid'", []rdf.Triple{}},
+		"missing namespace for prefix: 'valid'", []Triple{}},
 
 	//<#turtle-syntax-bad-missing-ns-dot-start>
 	//	rdf:type rdft:TestTurtleNegativeSyntax ;
@@ -5111,7 +5109,7 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-bad-missing-ns-dot-start.ttl> .
 
 	{`.undefined:s .undefined:p .undefined:o .`,
-		"unexpected Dot as subject", []rdf.Triple{}},
+		"unexpected Dot as subject", []Triple{}},
 
 	//<#turtle-syntax-ln-dots>
 	//	rdf:type rdft:TestTurtlePositiveSyntax ;
@@ -5123,21 +5121,21 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s.1 :p.1 :o.1 .
 :s..2 :p..2 :o..2.
-:3.s :3.p :3.`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s.1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p.1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o.1"},
+:3.s :3.p :3.`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s.1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p.1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o.1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s..2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p..2"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o..2"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s..2"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p..2"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o..2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3.s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3.p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/3.s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/3.p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/3"},
 		},
 	}},
 
@@ -5153,31 +5151,31 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
 :s::2 :p::2 :o::2 .
 :3:s :3:p :3 .
 ::s ::p ::o .
-::s: ::p: ::o: .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s:1"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p:1"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o:1"},
+::s: ::p: ::o: .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s:1"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p:1"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o:1"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s::2"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p::2"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o::2"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s::2"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p::2"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o::2"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3:s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3:p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/3"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/3:s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/3:p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/3"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:o"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/:s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/:p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/:o"},
 		},
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:s:"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:p:"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/:o:"},
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/:s:"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/:p:"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/:o:"},
 		},
 	}},
 
@@ -5189,11 +5187,11 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []rdf.Triple{}},
 	//	mf:action <turtle-syntax-ns-dots.ttl> .
 
 	{`@prefix e.g: <http://www.w3.org/2013/TurtleTests/> .
-e.g:s e.g:p e.g:o .`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+e.g:s e.g:p e.g:o .`, "", []Triple{
+		Triple{
+			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -5207,21 +5205,21 @@ e.g:s e.g:p e.g:o .`, "", []rdf.Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 _:0b :p :o . # Starts with digit
 _:_b :p :o . # Starts with underscore
-_:b.0 :p :o . # Contains dot, ends with digit`, "", []rdf.Triple{
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "0b"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+_:b.0 :p :o . # Contains dot, ends with digit`, "", []Triple{
+		Triple{
+			Subj: Blank{ID: "0b"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "_b"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		Triple{
+			Subj: Blank{ID: "_b"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
-		rdf.Triple{
-			Subj: rdf.Blank{ID: "b.0"},
-			Pred: rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  rdf.URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+		Triple{
+			Subj: Blank{ID: "b.0"},
+			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 }
