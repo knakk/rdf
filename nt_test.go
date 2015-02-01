@@ -8,6 +8,15 @@ import (
 	"testing"
 )
 
+func BenchmarkDecodeNT(b *testing.B) {
+	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer>"
+	for n := 0; n < b.N; n++ {
+		dec := NewNTDecoder(bytes.NewBufferString(input))
+		for _, err := dec.DecodeTriple(); err != io.EOF; _, err = dec.DecodeTriple() {
+		}
+	}
+}
+
 func parseAllNT(s string) (r []Triple, err error) {
 	dec := NewNTDecoder(bytes.NewBufferString(s))
 	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {

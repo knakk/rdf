@@ -8,6 +8,296 @@ import (
 	"testing"
 )
 
+var ttlBenchInputs = []string{
+	`# example 1
+@base <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rel: <http://www.perceive.net/schemas/relationship/> .
+
+<#green-goblin>
+    rel:enemyOf <#spiderman> ;
+    a foaf:Person ;    # in the context of the Marvel universe
+    foaf:name "Green Goblin" .
+
+<#spiderman>
+    rel:enemyOf <#green-goblin> ;
+    a foaf:Person ;
+    foaf:name "Spiderman", "Человек-паук"@ru .`,
+
+	`# example 2
+<http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/enemyOf> <http://example.org/#green-goblin> .`,
+
+	`# example 3
+<http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/enemyOf> <http://example.org/#green-goblin> ;
+				<http://xmlns.com/foaf/0.1/name> "Spiderman" .`,
+
+	`# example 4
+<http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/enemyOf> <http://example.org/#green-goblin> .
+<http://example.org/#spiderman> <http://xmlns.com/foaf/0.1/name> "Spiderman" .`,
+
+	`# example 5
+<http://example.org/#spiderman> <http://xmlns.com/foaf/0.1/name> "Spiderman", "Человек-паук"@ru .`,
+
+	`# example 6
+<http://example.org/#spiderman> <http://xmlns.com/foaf/0.1/name> "Spiderman" .
+<http://example.org/#spiderman> <http://xmlns.com/foaf/0.1/name> "Человек-паук"@ru .`,
+
+	`# example 7
+@prefix somePrefix: <http://www.perceive.net/schemas/relationship/> .
+
+<http://example.org/#green-goblin> somePrefix:enemyOf <http://example.org/#spiderman> .`,
+
+	`# example 8
+PREFIX somePrefix: <http://www.perceive.net/schemas/relationship/>
+
+<http://example.org/#green-goblin> somePrefix:enemyOf <http://example.org/#spiderman> .`,
+
+	`# example 9
+# A triple with all absolute IRIs
+<http://one.example/subject1> <http://one.example/predicate1> <http://one.example/object1> .
+
+@base <http://one.example/> .
+<subject2> <predicate2> <object2> .     # relative IRIs, e.g. http://one.example/subject2
+
+BASE <http://one.example/>
+<subject2> <predicate2> <object2> .     # relative IRIs, e.g. http://one.example/subject2
+
+@prefix p: <http://two.example/> .
+p:subject3 p:predicate3 p:object3 .     # prefixed name, e.g. http://two.example/subject3
+
+PREFIX p: <http://two.example/>
+p:subject3 p:predicate3 p:object3 .     # prefixed name, e.g. http://two.example/subject3
+
+@prefix p: <path/> .                    # prefix p: now stands for http://one.example/path/
+p:subject4 p:predicate4 p:object4 .     # prefixed name, e.g. http://one.example/path/subject4
+
+@prefix : <http://another.example/> .    # empty prefix
+:subject5 :predicate5 :object5 .        # prefixed name, e.g. http://another.example/subject5
+
+:subject6 a :subject7 .                 # same as :subject6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> :subject7 .
+
+<http://伝言.example/?user=أكرم&amp;channel=R%26D> a :subject8 . # a multi-script subject IRI .`,
+
+	`# example 10
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<http://example.org/#green-goblin> foaf:name "Green Goblin" .
+
+<http://example.org/#spiderman> foaf:name "Spiderman" .`,
+
+	`# example 11
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix show: <http://example.org/vocab/show/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+show:218 rdfs:label "That Seventies Show"^^xsd:string .            # literal with XML Schema string datatype
+show:218 rdfs:label "That Seventies Show"^^<http://www.w3.org/2001/XMLSchema#string> . # same as above
+show:218 rdfs:label "That Seventies Show" .                                            # same again
+show:218 show:localName "That Seventies Show"@en .                 # literal with a language tag
+show:218 show:localName 'Cette Série des Années Soixante-dix'@fr . # literal delimited by single quote
+show:218 show:localName "Cette Série des Années Septante"@fr-be .  # literal with a region subtag
+show:218 show:blurb '''This is a multi-line                        # literal with embedded new lines and quotes
+literal with many quotes (""""")
+and up to two sequential apostrophes ('').''' .`,
+
+	`# example 12
+@prefix : <http://example.org/elements> .
+<http://en.wikipedia.org/wiki/Helium>
+    :atomicNumber 2 ;               # xsd:integer
+    :atomicMass 4.002602 ;          # xsd:decimal
+    :specificGravity 1.663E-4 .     # xsd:double`,
+
+	`# example 13
+@prefix : <http://example.org/stats> .
+<http://somecountry.example/census2007>
+    :isLandlocked false .           # xsd:boolean`,
+
+	`# example 14
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+_:alice foaf:knows _:bob .
+_:bob foaf:knows _:alice .`,
+
+	`# example 15
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Someone knows someone else, who has the name "Bob".
+[] foaf:knows [ foaf:name "Bob" ] .`,
+
+	`# example 16
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+[ foaf:name "Alice" ] foaf:knows [
+    foaf:name "Bob" ;
+    foaf:knows [
+        foaf:name "Eve" ] ;
+    foaf:mbox <bob@example.com> ] .`,
+
+	`# example 17
+_:a <http://xmlns.com/foaf/0.1/name> "Alice" .
+_:a <http://xmlns.com/foaf/0.1/knows> _:b .
+_:b <http://xmlns.com/foaf/0.1/name> "Bob" .
+_:b <http://xmlns.com/foaf/0.1/knows> _:c .
+_:c <http://xmlns.com/foaf/0.1/name> "Eve" .
+_:b <http://xmlns.com/foaf/0.1/mbox> <bob@example.com> .`,
+
+	`# example 18
+@prefix : <http://example.org/foo> .
+# the object of this triple is the RDF collection blank node
+:subject :predicate ( :a :b :c ) .
+
+# an empty collection value - rdf:nil
+:subject :predicate2 () .`,
+
+	`# example 19
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix ex: <http://example.org/stuff/1.0/> .
+
+<http://www.w3.org/TR/rdf-syntax-grammar>
+  dc:title "RDF/XML Syntax Specification (Revised)" ;
+  ex:editor [
+    ex:fullname "Dave Beckett";
+    ex:homePage <http://purl.org/net/dajobe/>
+  ] .`,
+
+	`# example 20
+PREFIX : <http://example.org/stuff/1.0/>
+:a :b ( "apple" "banana" ) .
+         `,
+	`# example 21
+@prefix : <http://example.org/stuff/1.0/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+:a :b
+  [ rdf:first "apple";
+    rdf:rest [ rdf:first "banana";
+               rdf:rest rdf:nil ]
+  ] .`,
+
+	`# example 22
+@prefix : <http://example.org/stuff/1.0/> .
+
+:a :b "The first line\nThe second line\n  more" .
+
+:a :b """The first line
+The second line
+  more""" .`,
+
+	`# example 23
+@prefix : <http://example.org/stuff/1.0/> .
+(1 2.0 3E1) :p "w" .`,
+
+	`# example 24
+@prefix : <http://example.org/stuff/1.0/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    _:b0  rdf:first  1 ;
+          rdf:rest   _:b1 .
+    _:b1  rdf:first  2.0 ;
+          rdf:rest   _:b2 .
+    _:b2  rdf:first  3E1 ;
+          rdf:rest   rdf:nil .
+    _:b0  :p         "w" . `,
+
+	`# example 25
+PREFIX : <http://example.org/stuff/1.0/>
+(1 [:p :q] ( 2 ) ) :p2 :q2 .`,
+
+	`# example 26
+@prefix : <http://example.org/stuff/1.0/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    _:b0  rdf:first  1 ;
+          rdf:rest   _:b1 .
+    _:b1  rdf:first  _:b2 .
+    _:b2  :p         :q .
+    _:b1  rdf:rest   _:b3 .
+    _:b3  rdf:first  _:b4 .
+    _:b4  rdf:first  2 ;
+          rdf:rest   rdf:nil .
+    _:b3  rdf:rest   rdf:nil .`,
+
+	`# example 27
+@prefix ericFoaf: <http://www.w3.org/People/Eric/ericP-foaf.rdf#> .
+@prefix : <http://xmlns.com/foaf/0.1/> .
+ericFoaf:ericP :givenName "Eric" ;
+              :knows <http://norman.walsh.name/knows/who/dan-brickley> ,
+                      [ :mbox <mailto:timbl@w3.org> ] ,
+                      <http://getopenid.com/amyvdh> .
+         `,
+	`# example 28
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix frbr: <http://purl.org/vocab/frbr/core#> .
+
+<http://books.example.com/works/45U8QJGZSQKDH8N> a frbr:Work ;
+     dc:creator "Wil Wheaton"@en ;
+     dc:title "Just a Geek"@en ;
+     frbr:realization <http://books.example.com/products/9780596007683.BOOK>,
+         <http://books.example.com/products/9780596802189.EBOOK> .
+
+<http://books.example.com/products/9780596007683.BOOK> a frbr:Expression ;
+     dc:type <http://books.example.com/product-types/BOOK> .
+
+<http://books.example.com/products/9780596802189.EBOOK> a frbr:Expression ;
+     dc:type <http://books.example.com/product-types/EBOOK> .`,
+
+	`# example 29
+@prefix frbr: <http://purl.org/vocab/frbr/core#> .
+
+<http://books.example.com/works/45U8QJGZSQKDH8N> a frbr:Work .`,
+}
+
+func BenchmarkDecodeTTL(b *testing.B) {
+	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer> ."
+	for n := 0; n < b.N; n++ {
+		dec := NewTTLDecoder(bytes.NewBufferString(input), "http://baseuri")
+		for _, err := dec.DecodeTriple(); err != io.EOF; _, err = dec.DecodeTriple() {
+		}
+	}
+}
+
+func benchmarkTTLEx(i int, b *testing.B) {
+	input := ttlBenchInputs[i]
+	for n := 0; n < b.N; n++ {
+		dec := NewTTLDecoder(bytes.NewBufferString(input), "http://baseuri")
+		for _, err := dec.DecodeTriple(); err != io.EOF; _, err = dec.DecodeTriple() {
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	}
+}
+
+func BenchmarkTTLEx1(b *testing.B)  { benchmarkTTLEx(0, b) }
+func BenchmarkTTLEx2(b *testing.B)  { benchmarkTTLEx(1, b) }
+func BenchmarkTTLEx3(b *testing.B)  { benchmarkTTLEx(2, b) }
+func BenchmarkTTLEx4(b *testing.B)  { benchmarkTTLEx(3, b) }
+func BenchmarkTTLEx5(b *testing.B)  { benchmarkTTLEx(4, b) }
+func BenchmarkTTLEx6(b *testing.B)  { benchmarkTTLEx(5, b) }
+func BenchmarkTTLEx7(b *testing.B)  { benchmarkTTLEx(6, b) }
+func BenchmarkTTLEx8(b *testing.B)  { benchmarkTTLEx(7, b) }
+func BenchmarkTTLEx9(b *testing.B)  { benchmarkTTLEx(8, b) }
+func BenchmarkTTLEx10(b *testing.B) { benchmarkTTLEx(9, b) }
+func BenchmarkTTLEx11(b *testing.B) { benchmarkTTLEx(10, b) }
+func BenchmarkTTLEx12(b *testing.B) { benchmarkTTLEx(11, b) }
+func BenchmarkTTLEx13(b *testing.B) { benchmarkTTLEx(12, b) }
+func BenchmarkTTLEx14(b *testing.B) { benchmarkTTLEx(13, b) }
+func BenchmarkTTLEx15(b *testing.B) { benchmarkTTLEx(14, b) }
+func BenchmarkTTLEx16(b *testing.B) { benchmarkTTLEx(15, b) }
+func BenchmarkTTLEx17(b *testing.B) { benchmarkTTLEx(16, b) }
+func BenchmarkTTLEx18(b *testing.B) { benchmarkTTLEx(17, b) }
+func BenchmarkTTLEx19(b *testing.B) { benchmarkTTLEx(18, b) }
+func BenchmarkTTLEx20(b *testing.B) { benchmarkTTLEx(19, b) }
+func BenchmarkTTLEx21(b *testing.B) { benchmarkTTLEx(20, b) }
+func BenchmarkTTLEx22(b *testing.B) { benchmarkTTLEx(21, b) }
+func BenchmarkTTLEx23(b *testing.B) { benchmarkTTLEx(22, b) }
+func BenchmarkTTLEx24(b *testing.B) { benchmarkTTLEx(23, b) }
+func BenchmarkTTLEx25(b *testing.B) { benchmarkTTLEx(24, b) }
+func BenchmarkTTLEx26(b *testing.B) { benchmarkTTLEx(25, b) }
+func BenchmarkTTLEx27(b *testing.B) { benchmarkTTLEx(26, b) }
+func BenchmarkTTLEx28(b *testing.B) { benchmarkTTLEx(27, b) }
+func BenchmarkTTLEx29(b *testing.B) { benchmarkTTLEx(28, b) }
+
 func parseAllTTL(s string) (r []Triple, err error) {
 	dec := NewTTLDecoder(bytes.NewBufferString(s), "")
 	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {

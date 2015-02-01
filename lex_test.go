@@ -82,6 +82,45 @@ func equalTokens(a, b []testToken) bool {
 	return true
 }
 
+func benchmarkTokenizerEx(i int, b *testing.B) {
+	input := ttlBenchInputs[i]
+	for n := 0; n < b.N; n++ {
+		lex := newLexer(strings.NewReader(input))
+		for _ = range collect(lex) {
+		}
+	}
+}
+
+func BenchmarkTokenizerEx1(b *testing.B)  { benchmarkTokenizerEx(0, b) }
+func BenchmarkTokenizerEx2(b *testing.B)  { benchmarkTokenizerEx(1, b) }
+func BenchmarkTokenizerEx3(b *testing.B)  { benchmarkTokenizerEx(2, b) }
+func BenchmarkTokenizerEx4(b *testing.B)  { benchmarkTokenizerEx(3, b) }
+func BenchmarkTokenizerEx5(b *testing.B)  { benchmarkTokenizerEx(4, b) }
+func BenchmarkTokenizerEx6(b *testing.B)  { benchmarkTokenizerEx(5, b) }
+func BenchmarkTokenizerEx7(b *testing.B)  { benchmarkTokenizerEx(6, b) }
+func BenchmarkTokenizerEx8(b *testing.B)  { benchmarkTokenizerEx(7, b) }
+func BenchmarkTokenizerEx9(b *testing.B)  { benchmarkTokenizerEx(8, b) }
+func BenchmarkTokenizerEx10(b *testing.B) { benchmarkTokenizerEx(9, b) }
+func BenchmarkTokenizerEx11(b *testing.B) { benchmarkTokenizerEx(10, b) }
+func BenchmarkTokenizerEx12(b *testing.B) { benchmarkTokenizerEx(11, b) }
+func BenchmarkTokenizerEx13(b *testing.B) { benchmarkTokenizerEx(12, b) }
+func BenchmarkTokenizerEx14(b *testing.B) { benchmarkTokenizerEx(13, b) }
+func BenchmarkTokenizerEx15(b *testing.B) { benchmarkTokenizerEx(14, b) }
+func BenchmarkTokenizerEx16(b *testing.B) { benchmarkTokenizerEx(15, b) }
+func BenchmarkTokenizerEx17(b *testing.B) { benchmarkTokenizerEx(16, b) }
+func BenchmarkTokenizerEx18(b *testing.B) { benchmarkTokenizerEx(17, b) }
+func BenchmarkTokenizerEx19(b *testing.B) { benchmarkTokenizerEx(18, b) }
+func BenchmarkTokenizerEx20(b *testing.B) { benchmarkTokenizerEx(19, b) }
+func BenchmarkTokenizerEx21(b *testing.B) { benchmarkTokenizerEx(20, b) }
+func BenchmarkTokenizerEx22(b *testing.B) { benchmarkTokenizerEx(21, b) }
+func BenchmarkTokenizerEx23(b *testing.B) { benchmarkTokenizerEx(22, b) }
+func BenchmarkTokenizerEx24(b *testing.B) { benchmarkTokenizerEx(23, b) }
+func BenchmarkTokenizerEx25(b *testing.B) { benchmarkTokenizerEx(24, b) }
+func BenchmarkTokenizerEx26(b *testing.B) { benchmarkTokenizerEx(25, b) }
+func BenchmarkTokenizerEx27(b *testing.B) { benchmarkTokenizerEx(26, b) }
+func BenchmarkTokenizerEx28(b *testing.B) { benchmarkTokenizerEx(27, b) }
+func BenchmarkTokenizerEx29(b *testing.B) { benchmarkTokenizerEx(28, b) }
+
 func TestTokens(t *testing.T) {
 	lexTests := []struct {
 		in   string

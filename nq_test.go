@@ -10,6 +10,15 @@ import (
 
 var defaultGraph = Blank{ID: "defaultGraph"}
 
+func BenchmarkDecodeNQ(b *testing.B) {
+	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer> <http://example/g>"
+	for n := 0; n < b.N; n++ {
+		dec := NewNQDecoder(bytes.NewBufferString(input), Blank{ID: "g"})
+		for _, err := dec.DecodeQuad(); err != io.EOF; _, err = dec.DecodeQuad() {
+		}
+	}
+}
+
 func parseAllNQ(s string) (r []Quad, err error) {
 	dec := NewNQDecoder(bytes.NewBufferString(s), defaultGraph)
 	for q, err := dec.DecodeQuad(); err != io.EOF; q, err = dec.DecodeQuad() {
