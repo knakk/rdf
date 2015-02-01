@@ -713,7 +713,7 @@ done:
 	}
 	l.ignore()
 
-	// check if literal has language tag or datatype URI:
+	// check if literal has language tag or datatype IRI:
 	r = l.next()
 	switch r {
 	case '@':

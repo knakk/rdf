@@ -38,33 +38,33 @@ func TestTermTypeBlank(t *testing.T) {
 	}
 }
 
-func TestTermTypeURI(t *testing.T) {
-	uri := URI{URI: "x://y/z"}
+func TestTermTypeIRI(t *testing.T) {
+	uri := IRI{IRI: "x://y/z"}
 	want := "<x://y/z>"
 	if uri.String() != want {
-		t.Errorf("NewURI(\"x://y/z\").String() => %s; want %s", uri.String(), want)
+		t.Errorf("NewIRI(\"x://y/z\").String() => %s; want %s", uri.String(), want)
 	}
 
-	_, err := NewURI("")
-	if err != ErrURIEmptyInput {
-		t.Errorf("NewURI(\" \") => %v want ErrURIEmptyInput", err)
+	_, err := NewIRI("")
+	if err != ErrIRIEmptyInput {
+		t.Errorf("NewIRI(\" \") => %v want ErrIRIEmptyInput", err)
 	}
 
-	_, err = NewURI("<&httoop.dott")
-	if err != ErrURIInvalidCharacters {
-		t.Errorf("NewURI(\"<&http.dott\") => %v; want errURIInvalidCharacters", err)
+	_, err = NewIRI("<&httoop.dott")
+	if err != ErrIRIInvalidCharacters {
+		t.Errorf("NewIRI(\"<&http.dott\") => %v; want errIRIInvalidCharacters", err)
 	}
 
-	a := URI{URI: "abba"}
-	b := URI{URI: "ABBA"}
-	c := URI{URI: "abba"}
+	a := IRI{IRI: "abba"}
+	b := IRI{IRI: "ABBA"}
+	c := IRI{IRI: "abba"}
 
 	if a.Eq(b) {
-		t.Errorf("two different URIs should not be equal")
+		t.Errorf("two different IRIs should not be equal")
 	}
 
 	if !a.Eq(c) {
-		t.Errorf("two identical URIs should be equal")
+		t.Errorf("two identical IRIs should be equal")
 	}
 
 }

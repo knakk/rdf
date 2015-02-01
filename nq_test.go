@@ -65,23 +65,23 @@ var nqTestSuite = []struct {
 }{
 	//<#nq-syntax-uri-01> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nq-syntax-uri-01" ;
-	//   rdfs:comment "URI graph with URI triple" ;
+	//   rdfs:comment "IRI graph with IRI triple" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <nq-syntax-uri-01.nq> ;
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> <http://example/g> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
-			Graph: URI{URI: "http://example/g"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
+			Graph: IRI{IRI: "http://example/g"},
 		},
 	}},
 
 	//<#nq-syntax-uri-02> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nq-syntax-uri-02" ;
-	//   rdfs:comment "URI graph with BNode subject" ;
+	//   rdfs:comment "IRI graph with BNode subject" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <nq-syntax-uri-02.nq> ;
 	//   .
@@ -89,88 +89,88 @@ var nqTestSuite = []struct {
 	{`_:s <http://example/p> <http://example/o> <http://example/g> .`, "", []Quad{
 		Quad{
 			Subj:  Blank{ID: "s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
-			Graph: URI{URI: "http://example/g"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
+			Graph: IRI{IRI: "http://example/g"},
 		},
 	}},
 
 	//<#nq-syntax-uri-03> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nq-syntax-uri-03" ;
-	//   rdfs:comment "URI graph with BNode object" ;
+	//   rdfs:comment "IRI graph with BNode object" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <nq-syntax-uri-03.nq> ;
 	//   .
 
 	{`<http://example/s> <http://example/p> _:o <http://example/g> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Blank{ID: "o"},
-			Graph: URI{URI: "http://example/g"},
+			Graph: IRI{IRI: "http://example/g"},
 		},
 	}},
 
 	//<#nq-syntax-uri-04> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nq-syntax-uri-04" ;
-	//   rdfs:comment "URI graph with simple literal" ;
+	//   rdfs:comment "IRI graph with simple literal" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <nq-syntax-uri-04.nq> ;
 	//   .
 
 	{`<http://example/s> <http://example/p> "o" <http://example/g> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "o", DataType: XSDString},
-			Graph: URI{URI: "http://example/g"},
+			Graph: IRI{IRI: "http://example/g"},
 		},
 	}},
 
 	//<#nq-syntax-uri-05> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nq-syntax-uri-05" ;
-	//   rdfs:comment "URI graph with language tagged literal" ;
+	//   rdfs:comment "IRI graph with language tagged literal" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <nq-syntax-uri-05.nq> ;
 	//   .
 
 	{`<http://example/s> <http://example/p> "o"@en <http://example/g> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "o", Lang: "en", DataType: XSDString},
-			Graph: URI{URI: "http://example/g"},
+			Graph: IRI{IRI: "http://example/g"},
 		},
 	}},
 
 	//<#nq-syntax-uri-06> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nq-syntax-uri-06" ;
-	//   rdfs:comment "URI graph with datatyped literal" ;
+	//   rdfs:comment "IRI graph with datatyped literal" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <nq-syntax-uri-06.nq> ;
 	//   .
 
 	{`<http://example/s> <http://example/p> "o"^^<http://www.w3.org/2001/XMLSchema#string> <http://example/g> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "o", DataType: XSDString},
-			Graph: URI{URI: "http://example/g"},
+			Graph: IRI{IRI: "http://example/g"},
 		},
 	}},
 
 	//<#nq-syntax-bnode-01> a rdft:TestNQuadsPositiveSyntax ;
 	//   mf:name    "nq-syntax-bnode-01" ;
-	//   rdfs:comment "BNode graph with URI triple" ;
+	//   rdfs:comment "BNode graph with IRI triple" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <nq-syntax-bnode-01.nq> ;
 	//   .
 
 	{`<http://example/s> <http://example/p> <http://example/o> _:g .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: Blank{ID: "g"},
 		},
 	}},
@@ -185,8 +185,8 @@ var nqTestSuite = []struct {
 	{`_:s <http://example/p> <http://example/o> _:g .`, "", []Quad{
 		Quad{
 			Subj:  Blank{ID: "s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: Blank{ID: "g"},
 		},
 	}},
@@ -200,8 +200,8 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> _:o _:g .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Blank{ID: "o"},
 			Graph: Blank{ID: "g"},
 		},
@@ -216,8 +216,8 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "o" _:g .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "o", DataType: XSDString},
 			Graph: Blank{ID: "g"},
 		},
@@ -232,8 +232,8 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "o"@en _:g .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "o", Lang: "en", DataType: XSDString},
 			Graph: Blank{ID: "g"},
 		},
@@ -248,8 +248,8 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "o"^^<http://www.w3.org/2001/XMLSchema#string> _:g .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "o", DataType: XSDString},
 			Graph: Blank{ID: "g"},
 		},
@@ -287,7 +287,7 @@ var nqTestSuite = []struct {
 
 	//<#nq-syntax-bad-uri-01> a rdft:TestNQuadsNegativeSyntax ;
 	//   mf:name    "nq-syntax-bad-uri-01" ;
-	//   rdfs:comment "Graph name URI must be absolute (negative test)" ;
+	//   rdfs:comment "Graph name IRI must be absolute (negative test)" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <nq-syntax-bad-uri-01.nq> ;
 	//   .
@@ -344,9 +344,9 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> <http://example/o> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -361,9 +361,9 @@ var nqTestSuite = []struct {
 	{`# x53 is capital S
 <http://example/\u0053> <http://example/p> <http://example/o> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/S"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Subj:  IRI{IRI: "http://example/S"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -378,9 +378,9 @@ var nqTestSuite = []struct {
 	{`# x53 is capital S
 <http://example/\U00000053> <http://example/p> <http://example/o> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/S"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Subj:  IRI{IRI: "http://example/S"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -395,9 +395,9 @@ var nqTestSuite = []struct {
 	{`# IRI with all chars in it.
 <http://example/s> <http://example/p> <scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -411,8 +411,8 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "string" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "string", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -427,8 +427,8 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "string"@en .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "string", DataType: XSDString, Lang: "en"},
 			Graph: defaultGraph,
 		},
@@ -443,8 +443,8 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "string"@en-uk .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "string", DataType: XSDString, Lang: "en-uk"},
 			Graph: defaultGraph,
 		},
@@ -459,8 +459,8 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "a\n" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "a\n", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -475,8 +475,8 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "a\u0020b" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "a b", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -491,8 +491,8 @@ var nqTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "a\U00000020b" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "a b", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -508,8 +508,8 @@ var nqTestSuite = []struct {
 	{`_:a  <http://example/p> <http://example/o> .`, "", []Quad{
 		Quad{
 			Subj:  Blank{ID: "a"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -524,15 +524,15 @@ var nqTestSuite = []struct {
 	{`<http://example/s> <http://example/p> _:a .
 _:a  <http://example/p> <http://example/o> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Blank{ID: "a"},
 			Graph: defaultGraph,
 		},
 		Quad{
 			Subj:  Blank{ID: "a"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -547,15 +547,15 @@ _:a  <http://example/p> <http://example/o> .`, "", []Quad{
 	{`<http://example/s> <http://example/p> _:1a .
 _:1a  <http://example/p> <http://example/o> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Blank{ID: "1a"},
 			Graph: defaultGraph,
 		},
 		Quad{
 			Subj:  Blank{ID: "1a"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 	}},
@@ -569,9 +569,9 @@ _:1a  <http://example/p> <http://example/o> .`, "", []Quad{
 
 	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#byte> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   Literal{Val: []byte("123"), DataType: URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   Literal{Val: []byte("123"), DataType: IRI{IRI: "http://www.w3.org/2001/XMLSchema#byte"}},
 			Graph: defaultGraph,
 		},
 	}},
@@ -585,8 +585,8 @@ _:1a  <http://example/p> <http://example/o> .`, "", []Quad{
 
 	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#string> .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "123", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -937,183 +937,183 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 <http://example.org/resource32> <http://example.org/property> "abc"^^<http://example.org/datatype1> .
 # resource33 test removed 2003-08-03`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource1"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   URI{URI: "http://example.org/resource2"},
+			Subj:  IRI{IRI: "http://example.org/resource1"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   IRI{IRI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
 		Quad{
 			Subj:  Blank{ID: "anon"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   URI{URI: "http://example.org/resource2"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   IRI{IRI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource2"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource2"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Blank{ID: "anon"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource3"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   URI{URI: "http://example.org/resource2"},
+			Subj:  IRI{IRI: "http://example.org/resource3"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   IRI{IRI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource4"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   URI{URI: "http://example.org/resource2"},
+			Subj:  IRI{IRI: "http://example.org/resource4"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   IRI{IRI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource5"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   URI{URI: "http://example.org/resource2"},
+			Subj:  IRI{IRI: "http://example.org/resource5"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   IRI{IRI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource6"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   URI{URI: "http://example.org/resource2"},
+			Subj:  IRI{IRI: "http://example.org/resource6"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   IRI{IRI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource7"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource7"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: "simple literal", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource8"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource8"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: `backslash:\`, DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource9"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource9"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: `dquote:"`, DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource10"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource10"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: "newline:\n", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource11"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource11"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: "return\r", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource12"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource12"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: "tab:\t", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource13"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   URI{URI: "http://example.org/resource2"},
+			Subj:  IRI{IRI: "http://example.org/resource13"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   IRI{IRI: "http://example.org/resource2"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource14"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource14"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: "x", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource15"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource15"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Blank{ID: "anon"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource16"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource16"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: "é", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource17"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource17"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: "€", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource21"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   Literal{Val: "", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj:  IRI{IRI: "http://example.org/resource21"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   Literal{Val: "", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource22"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   Literal{Val: " ", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj:  IRI{IRI: "http://example.org/resource22"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   Literal{Val: " ", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource23"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   Literal{Val: "x", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj:  IRI{IRI: "http://example.org/resource23"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   Literal{Val: "x", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource23"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   Literal{Val: `"`, DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj:  IRI{IRI: "http://example.org/resource23"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   Literal{Val: `"`, DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource24"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   Literal{Val: "<a></a>", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj:  IRI{IRI: "http://example.org/resource24"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   Literal{Val: "<a></a>", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource25"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   Literal{Val: "a <b></b>", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj:  IRI{IRI: "http://example.org/resource25"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   Literal{Val: "a <b></b>", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource26"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   Literal{Val: "a <b></b> c", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj:  IRI{IRI: "http://example.org/resource26"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   Literal{Val: "a <b></b> c", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource26"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   Literal{Val: "a\n<b></b>\nc", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj:  IRI{IRI: "http://example.org/resource26"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   Literal{Val: "a\n<b></b>\nc", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource27"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   Literal{Val: "chat", DataType: URI{URI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj:  IRI{IRI: "http://example.org/resource27"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   Literal{Val: "chat", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource30"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource30"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: "chat", Lang: "fr", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource31"},
-			Pred:  URI{URI: "http://example.org/property"},
+			Subj:  IRI{IRI: "http://example.org/resource31"},
+			Pred:  IRI{IRI: "http://example.org/property"},
 			Obj:   Literal{Val: "chat", Lang: "en", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example.org/resource32"},
-			Pred:  URI{URI: "http://example.org/property"},
-			Obj:   Literal{Val: "abc", DataType: URI{URI: "http://example.org/datatype1"}},
+			Subj:  IRI{IRI: "http://example.org/resource32"},
+			Pred:  IRI{IRI: "http://example.org/property"},
+			Obj:   Literal{Val: "abc", DataType: IRI{IRI: "http://example.org/datatype1"}},
 			Graph: defaultGraph,
 		},
 	}},
@@ -1131,32 +1131,32 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 <http://example/s> <http://example/p> "o"^^<http://example/dt> . # comment
 <http://example/s> <http://example/p> "o"@en . # comment`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Blank{ID: "o"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "o", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   Literal{Val: "o", DataType: URI{URI: "http://example/dt"}},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   Literal{Val: "o", DataType: IRI{IRI: "http://example/dt"}},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "o", Lang: "en", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1171,8 +1171,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{"<http://a.example/s> <http://a.example/p> \"\x00	&([]\" .", "", []Quad{
 		Quad{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj: Literal{Val: "\x00	&([]", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1187,8 +1187,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1204,8 +1204,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "\x00\x01\x02\x03\x04\x05\x06\a\b\t\v\f\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1221,8 +1221,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{"<http://a.example/s> <http://a.example/p> \" !\\\"#$%&():;<=>?@[]^_`{|}~\".", "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1237,8 +1237,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "x'y" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "x'y", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1253,8 +1253,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "x''y" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "x''y", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1269,8 +1269,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "x", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1285,8 +1285,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "x\"y" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: `x"y`, DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1301,8 +1301,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "x\"\"y" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: `x""y`, DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1317,8 +1317,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://example.org/ns#s> <http://example.org/ns#p1> "test-\\" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example.org/ns#s"},
-			Pred:  URI{URI: "http://example.org/ns#p1"},
+			Subj:  IRI{IRI: "http://example.org/ns#s"},
+			Pred:  IRI{IRI: "http://example.org/ns#p1"},
 			Obj:   Literal{Val: `test-\`, DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1333,8 +1333,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "\t" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "\t", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1349,8 +1349,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "\b" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "\b", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1365,8 +1365,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "\n" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "\n", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1381,8 +1381,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "\r" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "\r", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1397,8 +1397,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "\f" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "\f", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1413,8 +1413,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "\\" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "\\", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1429,8 +1429,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "\u006F" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "o", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1445,8 +1445,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "\U0000006F" .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "o", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1461,8 +1461,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://a.example/s"},
-			Pred:  URI{URI: "http://a.example/p"},
+			Subj:  IRI{IRI: "http://a.example/s"},
+			Pred:  IRI{IRI: "http://a.example/p"},
 			Obj:   Literal{Val: "chat", Lang: "en", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1477,8 +1477,8 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 
 	{`<http://example.org/ex#a> <http://example.org/ex#b> "Cheers"@en-UK .`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example.org/ex#a"},
-			Pred:  URI{URI: "http://example.org/ex#b"},
+			Subj:  IRI{IRI: "http://example.org/ex#a"},
+			Pred:  IRI{IRI: "http://example.org/ex#b"},
 			Obj:   Literal{Val: "Cheers", Lang: "en-UK", DataType: XSDString},
 			Graph: defaultGraph,
 		},
@@ -1498,38 +1498,38 @@ _:s<http://example/p><http://example/o>.
 _:s<http://example/p>"Alice".
 _:s<http://example/p>_:bnode1.`, "", []Quad{
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "Alice", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
-			Subj:  URI{URI: "http://example/s"},
-			Pred:  URI{URI: "http://example/p"},
+			Subj:  IRI{IRI: "http://example/s"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Blank{ID: "o"},
 			Graph: defaultGraph,
 		},
 		Quad{
 			Subj:  Blank{ID: "s"},
-			Pred:  URI{URI: "http://example/p"},
-			Obj:   URI{URI: "http://example/o"},
+			Pred:  IRI{IRI: "http://example/p"},
+			Obj:   IRI{IRI: "http://example/o"},
 			Graph: defaultGraph,
 		},
 		Quad{
 			Subj:  Blank{ID: "s"},
-			Pred:  URI{URI: "http://example/p"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Literal{Val: "Alice", DataType: XSDString},
 			Graph: defaultGraph,
 		},
 		Quad{
 			Subj:  Blank{ID: "s"},
-			Pred:  URI{URI: "http://example/p"},
+			Pred:  IRI{IRI: "http://example/p"},
 			Obj:   Blank{ID: "bnode1"},
 			Graph: defaultGraph,
 		},

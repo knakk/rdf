@@ -349,9 +349,9 @@ var ttlTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -365,9 +365,9 @@ var ttlTestSuite = []struct {
 
 	{`<http://a.example/\u0073> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -381,9 +381,9 @@ var ttlTestSuite = []struct {
 
 	{`<http://a.example/\U00000073> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -397,9 +397,9 @@ var ttlTestSuite = []struct {
 
 	{`<scheme:!$%25&amp;'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "scheme:!$%25&amp;'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "scheme:!$%25&amp;'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -413,9 +413,9 @@ var ttlTestSuite = []struct {
 
 	{`<http://a.example/s> a <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -430,9 +430,9 @@ var ttlTestSuite = []struct {
 	{`@prefix p: <http://a.example/>.
 p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -447,9 +447,9 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`PREFIX p: <http://a.example/>
 p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -464,9 +464,9 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/>.
 <http://a.example/s> p:p <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -481,9 +481,9 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/>.
 <http://a.example/s> <http://a.example/p> p:o .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -498,9 +498,9 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/s>.
 p: <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -515,9 +515,9 @@ p: <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽: <http://a.example/> .
 <http://a.example/s> <http://a.example/p> AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽:o .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -532,9 +532,9 @@ p: <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix a·̀ͯ‿.⁀: <http://a.example/>.
 a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -549,9 +549,9 @@ a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/> .
 <http://a.example/s> <http://a.example/p> p:AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯ .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯"},
 		},
 	}},
 
@@ -566,9 +566,9 @@ a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/> .
 <http://a.example/s> <http://a.example/p> p:AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯𐀀󠇯 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯𐀀󠇯"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/AZazÀÖØöø˿Ͱͽ΄῾‌‍⁰↉Ⰰ⿕、ퟻ﨎ﷇﷰ￯𐀀󠇯"},
 		},
 	}},
 
@@ -583,9 +583,9 @@ a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/> .
 <http://a.example/s> <http://a.example/p> p:AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿﨎﷏ﷰ￯𐀀󯿽 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿﨎﷏ﷰ￯𐀀󯿽"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿﨎﷏ﷰ￯𐀀󯿽"},
 		},
 	}},
 
@@ -600,9 +600,9 @@ a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix : <http://a.example/>.
 :s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -618,9 +618,9 @@ a·̀ͯ‿.⁀:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 @prefix p: <http://b.example/>.
 p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://b.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://b.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -635,9 +635,9 @@ p:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/>.
 p:\_\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\%00 <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/_~.-!$&'()*+,;=/?#@%00`},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: `http://a.example/_~.-!$&'()*+,;=/?#@%00`},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -652,9 +652,9 @@ p:\_\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\%00 <http://a.example/p> <http://a.exam
 	{`@prefix p: <http://a.example/>.
 p:%25 <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/%25`},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: `http://a.example/%25`},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -669,9 +669,9 @@ p:%25 <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/>.
 p:s- <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/s-`},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: `http://a.example/s-`},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -686,9 +686,9 @@ p:s- <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/>.
 p:s_ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/s_`},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: `http://a.example/s_`},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -703,9 +703,9 @@ p:s_ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/>.
 p:s: <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/s:`},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: `http://a.example/s:`},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -720,9 +720,9 @@ p:s: <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/>.
 p:_ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/_`},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: `http://a.example/_`},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -737,9 +737,9 @@ p:_ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/>.
 p:0 <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/0`},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: `http://a.example/0`},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -754,9 +754,9 @@ p:0 <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix p: <http://a.example/>.
 p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/a·̀ͯ‿.⁀`},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: `http://a.example/a·̀ͯ‿.⁀`},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -771,9 +771,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@base <http://a.example/>.
 <s> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/s`},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: `http://a.example/s`},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -788,9 +788,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`BASE <http://a.example/>
 <s> <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/s`},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: `http://a.example/s`},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -805,8 +805,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`_:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -820,8 +820,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> _:o .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/s`},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: `http://a.example/s`},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "o"},
 		},
 	}},
@@ -836,8 +836,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> _:AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/s`},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: `http://a.example/s`},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽"},
 		},
 	}},
@@ -852,8 +852,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> _:_ .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/s`},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: `http://a.example/s`},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "_"},
 		},
 	}},
@@ -868,8 +868,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> _:0 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/s`},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: `http://a.example/s`},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "0"},
 		},
 	}},
@@ -884,8 +884,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> _:a·̀ͯ‿.⁀ .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: `http://a.example/s`},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: `http://a.example/s`},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "a·̀ͯ‿.⁀"},
 		},
 	}},
@@ -901,8 +901,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`[] <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -916,8 +916,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> [] .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "b1"},
 		},
 	}},
@@ -933,8 +933,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`[ <http://a.example/p> <http://a.example/o> ] .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -949,13 +949,13 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`[ <http://a.example/p> <http://a.example/o> ] <http://a.example/p2> <http://a.example/o2> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p2"},
-			Obj:  URI{URI: "http://a.example/o2"},
+			Pred: IRI{IRI: "http://a.example/p2"},
+			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
 	}},
 
@@ -969,14 +969,14 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> [ <http://a.example/p2> <http://a.example/o2> ] .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "b1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p2"},
-			Obj:  URI{URI: "http://a.example/o2"},
+			Pred: IRI{IRI: "http://a.example/p2"},
+			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
 	}},
 
@@ -991,18 +991,18 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`[ <http://a.example/p1> <http://a.example/o1> ; <http://a.example/p2> <http://a.example/o2> ] <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p1"},
-			Obj:  URI{URI: "http://a.example/o1"},
+			Pred: IRI{IRI: "http://a.example/p1"},
+			Obj:  IRI{IRI: "http://a.example/o1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p2"},
-			Obj:  URI{URI: "http://a.example/o2"},
+			Pred: IRI{IRI: "http://a.example/p2"},
+			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -1017,18 +1017,18 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`[ <http://a.example/p1> [ <http://a.example/p2> <http://a.example/o2> ] ; <http://a.example/p> <http://a.example/o> ].`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p1"},
+			Pred: IRI{IRI: "http://a.example/p1"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://a.example/p2"},
-			Obj:  URI{URI: "http://a.example/o2"},
+			Pred: IRI{IRI: "http://a.example/p2"},
+			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -1043,18 +1043,18 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`[ <http://a.example/p1> (1) ] .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p1"},
+			Pred: IRI{IRI: "http://a.example/p1"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -1069,18 +1069,18 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`(1) <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -1094,19 +1094,19 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> (1) .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "b1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -1120,9 +1120,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> () .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -1136,29 +1136,29 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> ((1)) .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "b1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -1172,39 +1172,39 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> ((1) 2) .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "b1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  Blank{ID: "b3"},
 		},
 		Triple{
 			Subj: Blank{ID: "b3"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b3"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -1218,39 +1218,39 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> (1 (2)) .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Blank{ID: "b1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Blank{ID: "b3"},
 		},
 		Triple{
 			Subj: Blank{ID: "b3"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b3"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -1264,8 +1264,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> 'x' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "x", DataType: XSDString},
 		},
 	}},
@@ -1280,8 +1280,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{"<http://a.example/s> <http://a.example/p> '\x00	&([]' .", "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\u0000\t\u000B\u000C\u000E&([]\u007F", DataType: XSDString},
 		},
 	}},
@@ -1296,8 +1296,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 		},
 	}},
@@ -1312,8 +1312,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F", DataType: XSDString},
 		},
 	}},
@@ -1328,8 +1328,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{"<http://a.example/s> <http://a.example/p> ' !\"#$%&():;<=>?@[]^_`{|}~' .", "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: XSDString},
 		},
 	}},
@@ -1344,8 +1344,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '''x''' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "x", DataType: XSDString},
 		},
 	}},
@@ -1360,8 +1360,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{"<http://a.example/s> <http://a.example/p> '\x00&([]' .", "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\x00&([]", DataType: XSDString},
 		},
 	}},
@@ -1376,8 +1376,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '''߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽''' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 		},
 	}},
@@ -1392,8 +1392,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '''x'y''' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "x'y", DataType: XSDString},
 		},
 	}},
@@ -1408,8 +1408,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '''x''y''' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "x''y", DataType: XSDString},
 		},
 	}},
@@ -1424,8 +1424,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "x", DataType: XSDString},
 		},
 	}},
@@ -1440,8 +1440,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{"<http://a.example/s> <http://a.example/p> \"\x00	!#[]\" .", "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj: Literal{Val: "\x00	!#[]", DataType: XSDString},
 		},
 	}},
@@ -1456,8 +1456,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 		},
 	}},
@@ -1472,8 +1472,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> """x""" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "x", DataType: XSDString},
 		},
 	}},
@@ -1488,8 +1488,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{"<http://a.example/s> <http://a.example/p> \"\x00!#[]\" .", "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\x00!#[]", DataType: XSDString},
 		},
 	}},
@@ -1504,8 +1504,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> """߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽""" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
 		},
 	}},
@@ -1520,8 +1520,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> """x"y""" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: `x"y`, DataType: XSDString},
 		},
 	}},
@@ -1536,8 +1536,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> """x""y""" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: `x""y`, DataType: XSDString},
 		},
 	}},
@@ -1552,8 +1552,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '	' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj: Literal{Val: `	`, DataType: XSDString},
 		},
 	}},
@@ -1568,8 +1568,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj: Literal{Val: "", DataType: XSDString},
 		},
 	}},
@@ -1585,8 +1585,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`<http://a.example/s> <http://a.example/p> '''
 ''' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\n", DataType: XSDString},
 		},
 	}},
@@ -1601,8 +1601,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{"<http://a.example/s> <http://a.example/p> '''\r''' .", "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\r", DataType: XSDString},
 		},
 	}},
@@ -1617,8 +1617,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj: Literal{Val: "", DataType: XSDString},
 		},
 	}},
@@ -1633,8 +1633,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '\\' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: `\`, DataType: XSDString},
 		},
 	}},
@@ -1649,8 +1649,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '\t' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\t", DataType: XSDString},
 		},
 	}},
@@ -1665,8 +1665,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '\b' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\b", DataType: XSDString},
 		},
 	}},
@@ -1681,8 +1681,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '\n' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\n", DataType: XSDString},
 		},
 	}},
@@ -1697,8 +1697,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '\r' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\r", DataType: XSDString},
 		},
 	}},
@@ -1713,8 +1713,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '\f' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "\f", DataType: XSDString},
 		},
 	}},
@@ -1729,8 +1729,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '\u006F' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "o", DataType: XSDString},
 		},
 	}},
@@ -1745,8 +1745,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> '\U0000006F' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "o", DataType: XSDString},
 		},
 	}},
@@ -1761,8 +1761,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 	}},
@@ -1778,8 +1778,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 <http://a.example/s> <http://a.example/p> "1"^^xsd:integer .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 	}},
@@ -1794,8 +1794,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> 1 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 	}},
@@ -1810,8 +1810,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> 1.0 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
 	}},
@@ -1826,8 +1826,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> 1E0 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: 1.0, DataType: XSDDouble},
 		},
 	}},
@@ -1842,8 +1842,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> 1e0 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: 1.0, DataType: XSDDouble},
 		},
 	}},
@@ -1858,8 +1858,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> -1 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: -1, DataType: XSDInteger},
 		},
 	}},
@@ -1874,8 +1874,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> +1 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 	}},
@@ -1890,8 +1890,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> 01 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 	}},
@@ -1906,8 +1906,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> true .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: true, DataType: XSDBoolean},
 		},
 	}},
@@ -1922,8 +1922,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> false .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: false, DataType: XSDBoolean},
 		},
 	}},
@@ -1938,8 +1938,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "chat", Lang: "en", DataType: XSDString},
 		},
 	}},
@@ -1954,8 +1954,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> """chat"""@en .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "chat", Lang: "en", DataType: XSDString},
 		},
 	}},
@@ -1970,8 +1970,8 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> "chat"@en-us .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  Literal{Val: "chat", Lang: "en-us", DataType: XSDString},
 		},
 	}},
@@ -1986,14 +1986,14 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p> <http://a.example/o1>, <http://a.example/o2> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o1"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o2"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
 	}},
 
@@ -2007,14 +2007,14 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>; <http://a.example/p2> <http://a.example/o2> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p1"},
-			Obj:  URI{URI: "http://a.example/o1"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p1"},
+			Obj:  IRI{IRI: "http://a.example/o1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p2"},
-			Obj:  URI{URI: "http://a.example/o2"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p2"},
+			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
 	}},
 
@@ -2028,14 +2028,14 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>;; <http://a.example/p2> <http://a.example/o2> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p1"},
-			Obj:  URI{URI: "http://a.example/o1"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p1"},
+			Obj:  IRI{IRI: "http://a.example/o1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p2"},
-			Obj:  URI{URI: "http://a.example/o2"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p2"},
+			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
 	}},
 
@@ -2049,9 +2049,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://a.example/s> <http://a.example/p1> <http://a.example/o1>;; .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p1"},
-			Obj:  URI{URI: "http://a.example/o1"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p1"},
+			Obj:  IRI{IRI: "http://a.example/o1"},
 		},
 	}},
 
@@ -2093,9 +2093,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2109,9 +2109,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`# x53 is capital S
 <http://www.w3.org/2013/TurtleTests/\u0053> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/S"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/S"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2125,9 +2125,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`# x53 is capital S
 <http://www.w3.org/2013/TurtleTests/\U00000053> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/S"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/S"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2142,9 +2142,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 <http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p>
 <scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
 		},
 	}},
 
@@ -2176,9 +2176,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@base <http://www.w3.org/2013/TurtleTests/> .
 <s> <p> <o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2192,9 +2192,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`base <http://www.w3.org/2013/TurtleTests/>
 <s> <p> <o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2226,9 +2226,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`PREFIX : <http://www.w3.org/2013/TurtleTests/>
 :s :p :123 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/123"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/123"},
 		},
 	}},
 
@@ -2242,9 +2242,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p :%20 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/%20"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/%20"},
 		},
 	}},
 
@@ -2258,9 +2258,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 : : : .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/"},
 		},
 	}},
 
@@ -2276,9 +2276,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
 :a:b:c  x:d:e:f :::: .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/a:b:c"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/d:e:f"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/:::"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/a:b:c"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/d:e:f"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/:::"},
 		},
 	}},
 
@@ -2293,9 +2293,9 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
 x:a-b-c  x:p x:o .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/a-b-c"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/a-b-c"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2310,9 +2310,9 @@ x:a-b-c  x:p x:o .`, "", []Triple{
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
 x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/_"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p_1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/_"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p_1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2328,9 +2328,9 @@ x:_  x:p_1 x:o .`, "", []Triple{
 @prefix x: <http://www.w3.org/2013/TurtleTests/> .
 :a%3E  x:%25 :a%3Eb .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/a%3E"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/%25"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/a%3Eb"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/a%3E"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/%25"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/a%3Eb"},
 		},
 	}},
 
@@ -2343,8 +2343,8 @@ x:_  x:p_1 x:o .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "string", DataType: XSDString},
 		},
 	}},
@@ -2358,8 +2358,8 @@ x:_  x:p_1 x:o .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@en .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en"},
 		},
 	}},
@@ -2373,8 +2373,8 @@ x:_  x:p_1 x:o .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "string"@en-uk .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en-uk"},
 		},
 	}},
@@ -2388,8 +2388,8 @@ x:_  x:p_1 x:o .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "string", DataType: XSDString},
 		},
 	}},
@@ -2403,8 +2403,8 @@ x:_  x:p_1 x:o .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string'@en .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en"},
 		},
 	}},
@@ -2418,8 +2418,8 @@ x:_  x:p_1 x:o .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> 'string'@en-uk .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en-uk"},
 		},
 	}},
@@ -2433,8 +2433,8 @@ x:_  x:p_1 x:o .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc""def''ghi""" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: `abc""def''ghi`, DataType: XSDString},
 		},
 	}},
@@ -2449,8 +2449,8 @@ x:_  x:p_1 x:o .`, "", []Triple{
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc
 def""" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "abc\ndef", DataType: XSDString},
 		},
 	}},
@@ -2465,8 +2465,8 @@ def""" .`, "", []Triple{
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> '''abc
 def''' .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "abc\ndef", DataType: XSDString},
 		},
 	}},
@@ -2481,8 +2481,8 @@ def''' .`, "", []Triple{
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> """abc
 def"""@en .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "abc\ndef", DataType: XSDString, Lang: "en"},
 		},
 	}},
@@ -2497,8 +2497,8 @@ def"""@en .`, "", []Triple{
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> '''abc
 def'''@en .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "abc\ndef", DataType: XSDString, Lang: "en"},
 		},
 	}},
@@ -2512,8 +2512,8 @@ def'''@en .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\n" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "a\n", DataType: XSDString},
 		},
 	}},
@@ -2527,8 +2527,8 @@ def'''@en .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\u0020b" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "a b", DataType: XSDString},
 		},
 	}},
@@ -2542,8 +2542,8 @@ def'''@en .`, "", []Triple{
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> "a\U00000020b" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Literal{Val: "a b", DataType: XSDString},
 		},
 	}},
@@ -2558,9 +2558,9 @@ def'''@en .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p :\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\_\%AA .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/~.-!$&'()*+,;=/?#@_%AA"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/~.-!$&'()*+,;=/?#@_%AA"},
 		},
 	}},
 
@@ -2574,9 +2574,9 @@ def'''@en .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p :0123\~\.\-\!\$\&\'\(\)\*\+\,\;\=\/\?\#\@\_\%AA123 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/0123~.-!$&'()*+,;=/?#@_%AA123"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/0123~.-!$&'()*+,;=/?#@_%AA123"},
 		},
 	}},
 
@@ -2590,9 +2590,9 @@ def'''@en .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :xyz\~ :abc\.:  : .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/xyz~"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/abc.:"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/xyz~"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/abc.:"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/"},
 		},
 	}},
 
@@ -2607,8 +2607,8 @@ def'''@en .`, "", []Triple{
 [] :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2622,8 +2622,8 @@ def'''@en .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p [] .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Blank{ID: "b1"},
 		},
 	}},
@@ -2638,14 +2638,14 @@ def'''@en .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p [ :q :o ] .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Blank{ID: "b1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/q"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/q"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2659,19 +2659,19 @@ def'''@en .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p [ :q1 :o1 ; :q2 :o2 ] .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Blank{ID: "b1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/q1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/q1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/q2"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/q2"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -2686,18 +2686,18 @@ def'''@en .`, "", []Triple{
 [ :q1 :o1 ; :q2 :o2 ] :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/q1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/q1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/q2"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/q2"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2712,8 +2712,8 @@ def'''@en .`, "", []Triple{
 _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "a"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2728,14 +2728,14 @@ _:a  :p :o .`, "", []Triple{
 :s  :p _:a .
 _:a  :p :o .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Blank{ID: "a"},
 		},
 		Triple{
 			Subj: Blank{ID: "a"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2750,8 +2750,8 @@ _:a  :p :o .`, "", []Triple{
 [ :p  :o ] .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2767,18 +2767,18 @@ _:a  :p :o .`, "", []Triple{
 :s :p :o  .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/2"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/2"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2795,24 +2795,24 @@ _:a  :p :o .`, "", []Triple{
 [ :p1  :o1 ; :p2 :o2 ] .
 :s2 :p :o .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s1"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s2"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s2"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -2825,8 +2825,8 @@ _:a  :p :o .`, "", []Triple{
 
 	{`<s> <p> 123 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: 123, DataType: XSDInteger},
 		},
 	}},
@@ -2840,8 +2840,8 @@ _:a  :p :o .`, "", []Triple{
 
 	{`<s> <p> -123 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: -123, DataType: XSDInteger},
 		},
 	}},
@@ -2855,8 +2855,8 @@ _:a  :p :o .`, "", []Triple{
 
 	{`<s> <p> +123 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: 123, DataType: XSDInteger},
 		},
 	}},
@@ -2871,8 +2871,8 @@ _:a  :p :o .`, "", []Triple{
 	{`# This is a decimal.
 <s> <p> 123.0 . `, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: 123.0, DataType: XSDDecimal},
 		},
 	}},
@@ -2887,8 +2887,8 @@ _:a  :p :o .`, "", []Triple{
 	{`# This is a decimal.
 <s> <p> .1 . `, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: .1, DataType: XSDDecimal},
 		},
 	}},
@@ -2903,8 +2903,8 @@ _:a  :p :o .`, "", []Triple{
 	{`# This is a decimal.
 <s> <p> -123.0 . `, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: -123.0, DataType: XSDDecimal},
 		},
 	}},
@@ -2919,8 +2919,8 @@ _:a  :p :o .`, "", []Triple{
 	{`# This is a decimal.
 <s> <p> +123.0 . `, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: 123.0, DataType: XSDDecimal},
 		},
 	}},
@@ -2935,8 +2935,8 @@ _:a  :p :o .`, "", []Triple{
 	{`# This is an integer
 <s> <p> 123.`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: 123, DataType: XSDInteger},
 		},
 	}},
@@ -2950,8 +2950,8 @@ _:a  :p :o .`, "", []Triple{
 
 	{`<s> <p> 123.0e1 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: 123.0e1, DataType: XSDDouble},
 		},
 	}},
@@ -2965,8 +2965,8 @@ _:a  :p :o .`, "", []Triple{
 
 	{`<s> <p> -123e-1 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: -123.e-1, DataType: XSDDouble},
 		},
 	}},
@@ -2980,8 +2980,8 @@ _:a  :p :o .`, "", []Triple{
 
 	{`<s> <p> 123.E+1 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: 123.E+1, DataType: XSDDouble},
 		},
 	}},
@@ -2996,8 +2996,8 @@ _:a  :p :o .`, "", []Triple{
 	{`@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 <s> <p> "123"^^xsd:byte .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: []byte("123"), DataType: XSDByte},
 		},
 	}},
@@ -3013,8 +3013,8 @@ _:a  :p :o .`, "", []Triple{
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 <s> <p> "123"^^xsd:string .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: "123", DataType: XSDString},
 		},
 	}},
@@ -3028,8 +3028,8 @@ _:a  :p :o .`, "", []Triple{
 
 	{`<s> <p> true .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: true, DataType: XSDBoolean},
 		},
 	}},
@@ -3043,8 +3043,8 @@ _:a  :p :o .`, "", []Triple{
 
 	{`<s> <p> false .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "s"},
-			Pred: URI{URI: "p"},
+			Subj: IRI{IRI: "s"},
+			Pred: IRI{IRI: "p"},
 			Obj:  Literal{Val: false, DataType: XSDBoolean},
 		},
 	}},
@@ -3059,9 +3059,9 @@ _:a  :p :o .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s a :C .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/C"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/C"},
 		},
 	}},
 
@@ -3075,14 +3075,14 @@ _:a  :p :o .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p :o1 , :o2 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -3097,14 +3097,14 @@ _:a  :p :o .`, "", []Triple{
 :s :p1 :o1 ;
    :p2 :o2 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -3120,14 +3120,14 @@ _:a  :p :o .`, "", []Triple{
    :p2 :o2 ;
    .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -3143,14 +3143,14 @@ _:a  :p :o .`, "", []Triple{
    :p2 :o2 
    .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -3166,14 +3166,14 @@ _:a  :p :o .`, "", []Triple{
    :p2 :o2 ;;
    .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -3187,9 +3187,9 @@ _:a  :p :o .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p () .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -3203,39 +3203,39 @@ _:a  :p :o .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 :s :p (1 "2" :o) .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Blank{ID: "b1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: "2", DataType: XSDString},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  Blank{ID: "b3"},
 		},
 		Triple{
 			Subj: Blank{ID: "b3"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 		Triple{
 			Subj: Blank{ID: "b3"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -3250,28 +3250,28 @@ _:a  :p :o .`, "", []Triple{
 (1) :p (1) .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -3286,28 +3286,28 @@ _:a  :p :o .`, "", []Triple{
 (()) :p (()) .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -3322,98 +3322,98 @@ _:a  :p :o .`, "", []Triple{
 (1 2 (1 2)) :p (( "a") "b" :o) .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  Blank{ID: "b3"},
 		},
 		Triple{
 			Subj: Blank{ID: "b3"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Blank{ID: "b4"},
 		},
 		Triple{
 			Subj: Blank{ID: "b4"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b4"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  Blank{ID: "b5"},
 		},
 		Triple{
 			Subj: Blank{ID: "b5"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b5"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b3"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  Blank{ID: "b6"},
 		},
 		Triple{
 			Subj: Blank{ID: "b6"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Blank{ID: "b7"},
 		},
 		Triple{
 			Subj: Blank{ID: "b7"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: "a", DataType: XSDString},
 		},
 		Triple{
 			Subj: Blank{ID: "b7"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
 			Subj: Blank{ID: "b6"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  Blank{ID: "b8"},
 		},
 		Triple{
 			Subj: Blank{ID: "b8"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: "b", DataType: XSDString},
 		},
 		Triple{
 			Subj: Blank{ID: "b8"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  Blank{ID: "b9"},
 		},
 		Triple{
 			Subj: Blank{ID: "b9"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 		Triple{
 			Subj: Blank{ID: "b9"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -3495,13 +3495,13 @@ _:a  :p :o .`, "", []Triple{
 
 	//<#turtle-syntax-bad-prefix-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-03" ;
-	//   rdfs:comment "@prefix without URI (negative test)" ;
+	//   rdfs:comment "@prefix without IRI (negative test)" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <turtle-syntax-bad-prefix-03.ttl> ;
 	//   .
 
-	{`# @prefix without URI.
-@prefix ex: .`, "unexpected Dot as prefix URI", []Triple{}},
+	{`# @prefix without IRI.
+@prefix ex: .`, "unexpected Dot as prefix IRI", []Triple{}},
 
 	//<#turtle-syntax-bad-prefix-04> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-prefix-04" ;
@@ -3525,13 +3525,13 @@ _:a  :p :o .`, "", []Triple{
 
 	//<#turtle-syntax-bad-base-01> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-base-01" ;
-	//   rdfs:comment "@base without URI (negative test)" ;
+	//   rdfs:comment "@base without IRI (negative test)" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <turtle-syntax-bad-base-01.ttl> ;
 	//   .
 
-	{`# @base without URI.
-@base .`, "unexpected Dot as base URI", []Triple{}},
+	{`# @base without IRI.
+@base .`, "unexpected Dot as base IRI", []Triple{}},
 
 	//<#turtle-syntax-bad-base-02> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-base-02" ;
@@ -3545,7 +3545,7 @@ _:a  :p :o .`, "", []Triple{
 
 	//<#turtle-syntax-bad-base-03> rdf:type rdft:TestTurtleNegativeSyntax ;
 	//   mf:name    "turtle-syntax-bad-base-03" ;
-	//   rdfs:comment "BASE without URI (negative test)" ;
+	//   rdfs:comment "BASE without IRI (negative test)" ;
 	//   rdft:approval rdft:Approved ;
 	//   mf:action    <turtle-syntax-bad-base-03.ttl> ;
 	//   .
@@ -4166,9 +4166,9 @@ def`, "bad literal: no closing quote: '\"'", []Triple{}},
 
 	{`<http://www.w3.org/2013/TurtleTests/s> <http://www.w3.org/2013/TurtleTests/p> <http://www.w3.org/2013/TurtleTests/o> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -4185,14 +4185,14 @@ def`, "bad literal: no closing quote: '\"'", []Triple{}},
       <http://www.w3.org/2013/TurtleTests/p2> <http://www.w3.org/2013/TurtleTests/o2> ; 
       .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o1"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p2"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o2"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p2"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 	}},
 
@@ -4208,8 +4208,8 @@ def`, "bad literal: no closing quote: '\"'", []Triple{}},
 [] :x :y .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "#x"},
-			Obj:  URI{URI: "#y"},
+			Pred: IRI{IRI: "#x"},
+			Obj:  IRI{IRI: "#y"},
 		},
 	}},
 
@@ -4229,19 +4229,19 @@ def`, "bad literal: no closing quote: '\"'", []Triple{}},
 a:a a:b a:c .
 :a a:a b:a .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/base1#a"},
-			Pred: URI{URI: "http://example.org/base1#b"},
-			Obj:  URI{URI: "http://example.org/base1#c"},
+			Subj: IRI{IRI: "http://example.org/base1#a"},
+			Pred: IRI{IRI: "http://example.org/base1#b"},
+			Obj:  IRI{IRI: "http://example.org/base1#c"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/base2#a"},
-			Pred: URI{URI: "http://example.org/base2#b"},
-			Obj:  URI{URI: "http://example.org/base2#c"},
+			Subj: IRI{IRI: "http://example.org/base2#a"},
+			Pred: IRI{IRI: "http://example.org/base2#b"},
+			Obj:  IRI{IRI: "http://example.org/base2#c"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/base1#a"},
-			Pred: URI{URI: "http://example.org/base2#a"},
-			Obj:  URI{URI: "http://example.org/base3#a"},
+			Subj: IRI{IRI: "http://example.org/base1#a"},
+			Pred: IRI{IRI: "http://example.org/base2#a"},
+			Obj:  IRI{IRI: "http://example.org/base3#a"},
 		},
 	}},
 
@@ -4259,19 +4259,19 @@ a:a a:b a:c .
       :d,
       :e .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/base#a"},
-			Pred: URI{URI: "http://example.org/base#b"},
-			Obj:  URI{URI: "http://example.org/base#c"},
+			Subj: IRI{IRI: "http://example.org/base#a"},
+			Pred: IRI{IRI: "http://example.org/base#b"},
+			Obj:  IRI{IRI: "http://example.org/base#c"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/base#a"},
-			Pred: URI{URI: "http://example.org/base#b"},
-			Obj:  URI{URI: "http://example.org/base#d"},
+			Subj: IRI{IRI: "http://example.org/base#a"},
+			Pred: IRI{IRI: "http://example.org/base#b"},
+			Obj:  IRI{IRI: "http://example.org/base#d"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/base#a"},
-			Pred: URI{URI: "http://example.org/base#b"},
-			Obj:  URI{URI: "http://example.org/base#e"},
+			Subj: IRI{IRI: "http://example.org/base#a"},
+			Pred: IRI{IRI: "http://example.org/base#b"},
+			Obj:  IRI{IRI: "http://example.org/base#e"},
 		},
 	}},
 
@@ -4289,19 +4289,19 @@ a:a a:b a:c .
    :d :e ;
    :f :g .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/base#a"},
-			Pred: URI{URI: "http://example.org/base#b"},
-			Obj:  URI{URI: "http://example.org/base#c"},
+			Subj: IRI{IRI: "http://example.org/base#a"},
+			Pred: IRI{IRI: "http://example.org/base#b"},
+			Obj:  IRI{IRI: "http://example.org/base#c"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/base#a"},
-			Pred: URI{URI: "http://example.org/base#d"},
-			Obj:  URI{URI: "http://example.org/base#e"},
+			Subj: IRI{IRI: "http://example.org/base#a"},
+			Pred: IRI{IRI: "http://example.org/base#d"},
+			Obj:  IRI{IRI: "http://example.org/base#e"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/base#a"},
-			Pred: URI{URI: "http://example.org/base#f"},
-			Obj:  URI{URI: "http://example.org/base#g"},
+			Subj: IRI{IRI: "http://example.org/base#a"},
+			Pred: IRI{IRI: "http://example.org/base#f"},
+			Obj:  IRI{IRI: "http://example.org/base#g"},
 		},
 	}},
 
@@ -4319,12 +4319,12 @@ a:a a:b a:c .
 :c :d [] .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://example.org/base#a"},
-			Obj:  URI{URI: "http://example.org/base#b"},
+			Pred: IRI{IRI: "http://example.org/base#a"},
+			Obj:  IRI{IRI: "http://example.org/base#b"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/base#c"},
-			Pred: URI{URI: "http://example.org/base#d"},
+			Subj: IRI{IRI: "http://example.org/base#c"},
+			Pred: IRI{IRI: "http://example.org/base#d"},
 			Obj:  Blank{ID: "b2"},
 		},
 	}},
@@ -4343,23 +4343,23 @@ a:a a:b a:c .
 :e :f [ :g :h ] .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://example.org/base#a"},
-			Obj:  URI{URI: "http://example.org/base#b"},
+			Pred: IRI{IRI: "http://example.org/base#a"},
+			Obj:  IRI{IRI: "http://example.org/base#b"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://example.org/base#c"},
-			Obj:  URI{URI: "http://example.org/base#d"},
+			Pred: IRI{IRI: "http://example.org/base#c"},
+			Obj:  IRI{IRI: "http://example.org/base#d"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/base#e"},
-			Pred: URI{URI: "http://example.org/base#f"},
+			Subj: IRI{IRI: "http://example.org/base#e"},
+			Pred: IRI{IRI: "http://example.org/base#f"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://example.org/base#g"},
-			Obj:  URI{URI: "http://example.org/base#h"},
+			Pred: IRI{IRI: "http://example.org/base#g"},
+			Obj:  IRI{IRI: "http://example.org/base#h"},
 		},
 	}},
 
@@ -4375,9 +4375,9 @@ a:a a:b a:c .
 @prefix : <http://example.org/base#> .
 :a a :b .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/base#a"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			Obj:  URI{URI: "http://example.org/base#b"},
+			Subj: IRI{IRI: "http://example.org/base#a"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  IRI{IRI: "http://example.org/base#b"},
 		},
 	}},
 
@@ -4393,29 +4393,29 @@ a:a a:b a:c .
 :a :b ( "apple" "banana" ) .
 `, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/stuff/1.0/a"},
-			Pred: URI{URI: "http://example.org/stuff/1.0/b"},
+			Subj: IRI{IRI: "http://example.org/stuff/1.0/a"},
+			Pred: IRI{IRI: "http://example.org/stuff/1.0/b"},
 			Obj:  Blank{ID: "b1"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: "apple", DataType: XSDString},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: "banana", DataType: XSDString},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -4431,9 +4431,9 @@ a:a a:b a:c .
 :a :b ( ) .
 `, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/stuff/1.0/a"},
-			Pred: URI{URI: "http://example.org/stuff/1.0/b"},
-			Obj:  URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
+			Subj: IRI{IRI: "http://example.org/stuff/1.0/a"},
+			Pred: IRI{IRI: "http://example.org/stuff/1.0/b"},
+			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 	}},
 
@@ -4457,22 +4457,22 @@ _:hasParent a owl:ObjectProperty .
   owl:maxCardinality 2 .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "hasParent"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			Obj:  URI{URI: "http://www.w3.org/2002/07/owl#ObjectProperty"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  IRI{IRI: "http://www.w3.org/2002/07/owl#ObjectProperty"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-			Obj:  URI{URI: "http://www.w3.org/2002/07/owl#Restriction"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
+			Obj:  IRI{IRI: "http://www.w3.org/2002/07/owl#Restriction"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2002/07/owl#onProperty"},
+			Pred: IRI{IRI: "http://www.w3.org/2002/07/owl#onProperty"},
 			Obj:  Blank{ID: "hasParent"},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://www.w3.org/2002/07/owl#maxCardinality"},
+			Pred: IRI{IRI: "http://www.w3.org/2002/07/owl#maxCardinality"},
 			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
 	}},
@@ -4491,28 +4491,28 @@ _:hasParent a owl:ObjectProperty .
 <http://example.org/res4> <http://example.org/prop4> 2 .
 <http://example.org/res5> <http://example.org/prop5> 4 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/res1"},
-			Pred: URI{URI: "http://example.org/prop1"},
+			Subj: IRI{IRI: "http://example.org/res1"},
+			Pred: IRI{IRI: "http://example.org/prop1"},
 			Obj:  Literal{Val: 0, DataType: XSDInteger},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/res2"},
-			Pred: URI{URI: "http://example.org/prop2"},
+			Subj: IRI{IRI: "http://example.org/res2"},
+			Pred: IRI{IRI: "http://example.org/prop2"},
 			Obj:  Literal{Val: 0, DataType: XSDInteger},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/res3"},
-			Pred: URI{URI: "http://example.org/prop3"},
+			Subj: IRI{IRI: "http://example.org/res3"},
+			Pred: IRI{IRI: "http://example.org/prop3"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/res4"},
-			Pred: URI{URI: "http://example.org/prop4"},
+			Subj: IRI{IRI: "http://example.org/res4"},
+			Pred: IRI{IRI: "http://example.org/prop4"},
 			Obj:  Literal{Val: 2, DataType: XSDInteger},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/res5"},
-			Pred: URI{URI: "http://example.org/prop5"},
+			Subj: IRI{IRI: "http://example.org/res5"},
+			Pred: IRI{IRI: "http://example.org/prop5"},
 			Obj:  Literal{Val: 4, DataType: XSDInteger},
 		},
 	}},
@@ -4536,23 +4536,23 @@ ex-2:foo-bar ex-2:foo_bar "b" .
 ex3_:foo-bar ex3_:foo_bar "c" .
 ex4-:foo-bar ex4-:foo_bar "d" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/ex1#foo-bar"},
-			Pred: URI{URI: "http://example.org/ex1#foo_bar"},
+			Subj: IRI{IRI: "http://example.org/ex1#foo-bar"},
+			Pred: IRI{IRI: "http://example.org/ex1#foo_bar"},
 			Obj:  Literal{Val: "a", DataType: XSDString},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ex2#foo-bar"},
-			Pred: URI{URI: "http://example.org/ex2#foo_bar"},
+			Subj: IRI{IRI: "http://example.org/ex2#foo-bar"},
+			Pred: IRI{IRI: "http://example.org/ex2#foo_bar"},
 			Obj:  Literal{Val: "b", DataType: XSDString},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ex3#foo-bar"},
-			Pred: URI{URI: "http://example.org/ex3#foo_bar"},
+			Subj: IRI{IRI: "http://example.org/ex3#foo-bar"},
+			Pred: IRI{IRI: "http://example.org/ex3#foo_bar"},
 			Obj:  Literal{Val: "c", DataType: XSDString},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ex4#foo-bar"},
-			Pred: URI{URI: "http://example.org/ex4#foo_bar"},
+			Subj: IRI{IRI: "http://example.org/ex4#foo-bar"},
+			Pred: IRI{IRI: "http://example.org/ex4#foo_bar"},
 			Obj:  Literal{Val: "d", DataType: XSDString},
 		},
 	}},
@@ -4575,23 +4575,23 @@ ex:foo rdf:_2 "2" .
 ex:foo :_abc "def" .
 ex:foo :_345 "678" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/ex#foo"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_1"},
+			Subj: IRI{IRI: "http://example.org/ex#foo"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_1"},
 			Obj:  Literal{Val: "1", DataType: XSDString},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ex#foo"},
-			Pred: URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_2"},
+			Subj: IRI{IRI: "http://example.org/ex#foo"},
+			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_2"},
 			Obj:  Literal{Val: "2", DataType: XSDString},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ex#foo"},
-			Pred: URI{URI: "http://example.org/myprop#_abc"},
+			Subj: IRI{IRI: "http://example.org/ex#foo"},
+			Pred: IRI{IRI: "http://example.org/myprop#_abc"},
 			Obj:  Literal{Val: "def", DataType: XSDString},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ex#foo"},
-			Pred: URI{URI: "http://example.org/myprop#_345"},
+			Subj: IRI{IRI: "http://example.org/ex#foo"},
+			Pred: IRI{IRI: "http://example.org/myprop#_345"},
 			Obj:  Literal{Val: "678", DataType: XSDString},
 		},
 	}},
@@ -4613,13 +4613,13 @@ ex:foo :_345 "678" .`, "", []Triple{
 `, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
-			Pred: URI{URI: "http://example.org/ron"},
+			Pred: IRI{IRI: "http://example.org/ron"},
 			Obj:  Blank{ID: "b2"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ron"},
-			Pred: URI{URI: "http://example.org/ron"},
-			Obj:  URI{URI: "http://example.org/ron"},
+			Subj: IRI{IRI: "http://example.org/ron"},
+			Pred: IRI{IRI: "http://example.org/ron"},
+			Obj:  IRI{IRI: "http://example.org/ron"},
 		},
 	}},
 
@@ -4638,8 +4638,8 @@ ex:foo :_345 "678" .`, "", []Triple{
 with
 newlines""" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/ex#a"},
-			Pred: URI{URI: "http://example.org/ex#b"},
+			Subj: IRI{IRI: "http://example.org/ex#a"},
+			Pred: IRI{IRI: "http://example.org/ex#b"},
 			Obj:  Literal{Val: "a long\n\tliteral\nwith\nnewlines", DataType: XSDString},
 		},
 	}},
@@ -4673,13 +4673,13 @@ literal\uABCD
 one
 """ .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/foo#a"},
-			Pred: URI{URI: "http://example.org/foo#b"},
+			Subj: IRI{IRI: "http://example.org/foo#a"},
+			Pred: IRI{IRI: "http://example.org/foo#b"},
 			Obj:  Literal{Val: "\nthis \ris a \U00012451long\t\nliteral\uABCD\n", DataType: XSDString},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo#d"},
-			Pred: URI{URI: "http://example.org/foo#e"},
+			Subj: IRI{IRI: "http://example.org/foo#d"},
+			Pred: IRI{IRI: "http://example.org/foo#e"},
 			Obj:  Literal{Val: "\tThis \uABCDis\r \U00012451another\n\none\n", DataType: XSDString},
 		},
 	}},
@@ -4697,8 +4697,8 @@ one
 :a :b  1.0 .
 `, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/#a"},
-			Pred: URI{URI: "http://example.org/#b"},
+			Subj: IRI{IRI: "http://example.org/#a"},
+			Pred: IRI{IRI: "http://example.org/#b"},
 			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
 	}},
@@ -4718,13 +4718,13 @@ one
 :c :d """""" .
 `, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/#a"},
-			Pred: URI{URI: "http://example.org/#b"},
+			Subj: IRI{IRI: "http://example.org/#a"},
+			Pred: IRI{IRI: "http://example.org/#b"},
 			Obj:  Literal{Val: "", DataType: XSDString},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/#c"},
-			Pred: URI{URI: "http://example.org/#d"},
+			Subj: IRI{IRI: "http://example.org/#c"},
+			Pred: IRI{IRI: "http://example.org/#d"},
 			Obj:  Literal{Val: "", DataType: XSDString},
 		},
 	}},
@@ -4742,18 +4742,18 @@ one
 :c :d 1 .
 :e :f 1.0e0 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org#a"},
-			Pred: URI{URI: "http://example.org#b"},
+			Subj: IRI{IRI: "http://example.org#a"},
+			Pred: IRI{IRI: "http://example.org#b"},
 			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org#c"},
-			Pred: URI{URI: "http://example.org#d"},
+			Subj: IRI{IRI: "http://example.org#c"},
+			Pred: IRI{IRI: "http://example.org#d"},
 			Obj:  Literal{Val: 1, DataType: XSDInteger},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org#e"},
-			Pred: URI{URI: "http://example.org#f"},
+			Subj: IRI{IRI: "http://example.org#e"},
+			Pred: IRI{IRI: "http://example.org#f"},
 			Obj:  Literal{Val: 1.0, DataType: XSDDouble},
 		},
 	}},
@@ -4771,18 +4771,18 @@ one
 :c :d -1 .
 :e :f -1.0e0 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org#a"},
-			Pred: URI{URI: "http://example.org#b"},
+			Subj: IRI{IRI: "http://example.org#a"},
+			Pred: IRI{IRI: "http://example.org#b"},
 			Obj:  Literal{Val: -1.0, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org#c"},
-			Pred: URI{URI: "http://example.org#d"},
+			Subj: IRI{IRI: "http://example.org#c"},
+			Pred: IRI{IRI: "http://example.org#d"},
 			Obj:  Literal{Val: -1, DataType: XSDInteger},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org#e"},
-			Pred: URI{URI: "http://example.org#f"},
+			Subj: IRI{IRI: "http://example.org#e"},
+			Pred: IRI{IRI: "http://example.org#f"},
 			Obj:  Literal{Val: -1.0, DataType: XSDDouble},
 		},
 	}},
@@ -4799,8 +4799,8 @@ one
 @prefix :  <http://example.org/ex#> .
 :a :b """John said: "Hello World!\"""" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/ex#a"},
-			Pred: URI{URI: "http://example.org/ex#b"},
+			Subj: IRI{IRI: "http://example.org/ex#a"},
+			Pred: IRI{IRI: "http://example.org/ex#b"},
 			Obj:  Literal{Val: `John said: "Hello World!"`, DataType: XSDString},
 		},
 	}},
@@ -4817,13 +4817,13 @@ one
 :a :b true .
 :c :d false .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org#a"},
-			Pred: URI{URI: "http://example.org#b"},
+			Subj: IRI{IRI: "http://example.org#a"},
+			Pred: IRI{IRI: "http://example.org#b"},
 			Obj:  Literal{Val: true, DataType: XSDBoolean},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org#c"},
-			Pred: URI{URI: "http://example.org#d"},
+			Subj: IRI{IRI: "http://example.org#c"},
+			Pred: IRI{IRI: "http://example.org#d"},
 			Obj:  Literal{Val: false, DataType: XSDBoolean},
 		},
 	}},
@@ -4851,39 +4851,39 @@ one
    :n :o ; # and me
    :p :q . # and me`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/#a"},
-			Pred: URI{URI: "http://example.org/#b"},
-			Obj:  URI{URI: "http://example.org/#c"},
+			Subj: IRI{IRI: "http://example.org/#a"},
+			Pred: IRI{IRI: "http://example.org/#b"},
+			Obj:  IRI{IRI: "http://example.org/#c"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/#d"},
-			Pred: URI{URI: "http://example.org/#e"},
-			Obj:  URI{URI: "http://example.org/#f"},
+			Subj: IRI{IRI: "http://example.org/#d"},
+			Pred: IRI{IRI: "http://example.org/#e"},
+			Obj:  IRI{IRI: "http://example.org/#f"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/#g"},
-			Pred: URI{URI: "http://example.org/#h"},
-			Obj:  URI{URI: "http://example.org/#i"},
+			Subj: IRI{IRI: "http://example.org/#g"},
+			Pred: IRI{IRI: "http://example.org/#h"},
+			Obj:  IRI{IRI: "http://example.org/#i"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/#g"},
-			Pred: URI{URI: "http://example.org/#h"},
-			Obj:  URI{URI: "http://example.org/#j"},
+			Subj: IRI{IRI: "http://example.org/#g"},
+			Pred: IRI{IRI: "http://example.org/#h"},
+			Obj:  IRI{IRI: "http://example.org/#j"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/#k"},
-			Pred: URI{URI: "http://example.org/#l"},
-			Obj:  URI{URI: "http://example.org/#m"},
+			Subj: IRI{IRI: "http://example.org/#k"},
+			Pred: IRI{IRI: "http://example.org/#l"},
+			Obj:  IRI{IRI: "http://example.org/#m"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/#k"},
-			Pred: URI{URI: "http://example.org/#n"},
-			Obj:  URI{URI: "http://example.org/#o"},
+			Subj: IRI{IRI: "http://example.org/#k"},
+			Pred: IRI{IRI: "http://example.org/#n"},
+			Obj:  IRI{IRI: "http://example.org/#o"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/#k"},
-			Pred: URI{URI: "http://example.org/#p"},
-			Obj:  URI{URI: "http://example.org/#q"},
+			Subj: IRI{IRI: "http://example.org/#k"},
+			Pred: IRI{IRI: "http://example.org/#p"},
+			Obj:  IRI{IRI: "http://example.org/#q"},
 		},
 	}},
 
@@ -4900,9 +4900,9 @@ one
 :a :b :c .
 #foo`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/#a"},
-			Pred: URI{URI: "http://example.org/#b"},
-			Obj:  URI{URI: "http://example.org/#c"},
+			Subj: IRI{IRI: "http://example.org/#a"},
+			Pred: IRI{IRI: "http://example.org/#b"},
+			Obj:  IRI{IRI: "http://example.org/#c"},
 		},
 	}},
 
@@ -4920,9 +4920,9 @@ one
 foo:blah foo:blah foo:blah .
 `, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/bar#blah"},
-			Pred: URI{URI: "http://example.org/bar#blah"},
-			Obj:  URI{URI: "http://example.org/bar#blah"},
+			Subj: IRI{IRI: "http://example.org/bar#blah"},
+			Pred: IRI{IRI: "http://example.org/bar#blah"},
+			Obj:  IRI{IRI: "http://example.org/bar#blah"},
 		},
 	}},
 
@@ -4957,113 +4957,113 @@ foo:blah foo:blah foo:blah .
 <http://example.org/foo> <http://example.org/bar> "2.23400000000000000000005"^^<http://www.w3.org/2001/XMLSchema#decimal> .
 <http://example.org/foo> <http://example.org/bar> "1.2345678901234567890123457890"^^<http://www.w3.org/2001/XMLSchema#decimal> .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.345, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.3, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.234000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.2340000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.23400000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.234000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.2340000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.23400000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.234000000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.2340000000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.23400000000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.234000000000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.2340000000000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.23400000000000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.234000000000000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.2340000000000000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 2.23400000000000000000005, DataType: XSDDecimal},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/foo"},
-			Pred: URI{URI: "http://example.org/bar"},
+			Subj: IRI{IRI: "http://example.org/foo"},
+			Pred: IRI{IRI: "http://example.org/bar"},
 			Obj:  Literal{Val: 1.2345678901234567890123457890, DataType: XSDDecimal},
 		},
 	}},
@@ -5076,42 +5076,42 @@ foo:blah foo:blah foo:blah .
 	//   mf:result    <turtle-subm-27.nt> ;
 	//   .
 
-	{`# In-scope base URI is <http://www.w3.org/2013/TurtleTests/turtle-subm-27.ttl> at this point
+	{`# In-scope base IRI is <http://www.w3.org/2013/TurtleTests/turtle-subm-27.ttl> at this point
 <a1> <b1> <c1> .
 @base <http://example.org/ns/> .
-# In-scope base URI is http://example.org/ns/ at this point
+# In-scope base IRI is http://example.org/ns/ at this point
 <a2> <http://example.org/ns/b2> <c2> .
 @base <foo/> .
-# In-scope base URI is http://example.org/ns/foo/ at this point
+# In-scope base IRI is http://example.org/ns/foo/ at this point
 <a3> <b3> <c3> .
 @prefix : <bar#> .
 :a4 :b4 :c4 .
 @prefix : <http://example.org/ns2#> .
 :a5 :b5 :c5 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "a1"},
-			Pred: URI{URI: "b1"},
-			Obj:  URI{URI: "c1"},
+			Subj: IRI{IRI: "a1"},
+			Pred: IRI{IRI: "b1"},
+			Obj:  IRI{IRI: "c1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ns/a2"},
-			Pred: URI{URI: "http://example.org/ns/b2"},
-			Obj:  URI{URI: "http://example.org/ns/c2"},
+			Subj: IRI{IRI: "http://example.org/ns/a2"},
+			Pred: IRI{IRI: "http://example.org/ns/b2"},
+			Obj:  IRI{IRI: "http://example.org/ns/c2"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ns/foo/a3"},
-			Pred: URI{URI: "http://example.org/ns/foo/b3"},
-			Obj:  URI{URI: "http://example.org/ns/foo/c3"},
+			Subj: IRI{IRI: "http://example.org/ns/foo/a3"},
+			Pred: IRI{IRI: "http://example.org/ns/foo/b3"},
+			Obj:  IRI{IRI: "http://example.org/ns/foo/c3"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ns/foo/bar#a4"},
-			Pred: URI{URI: "http://example.org/ns/foo/bar#b4"},
-			Obj:  URI{URI: "http://example.org/ns/foo/bar#c4"},
+			Subj: IRI{IRI: "http://example.org/ns/foo/bar#a4"},
+			Pred: IRI{IRI: "http://example.org/ns/foo/bar#b4"},
+			Obj:  IRI{IRI: "http://example.org/ns/foo/bar#c4"},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ns2#a5"},
-			Pred: URI{URI: "http://example.org/ns2#b5"},
-			Obj:  URI{URI: "http://example.org/ns2#c5"},
+			Subj: IRI{IRI: "http://example.org/ns2#a5"},
+			Pred: IRI{IRI: "http://example.org/ns2#b5"},
+			Obj:  IRI{IRI: "http://example.org/ns2#c5"},
 		},
 	}},
 
@@ -5173,9 +5173,9 @@ foo:blah foo:blah foo:blah .
 <http://a.example/s> <http://a.example/p> p:o#comment
 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 	}},
 
@@ -5191,9 +5191,9 @@ foo:blah foo:blah foo:blah .
 <http://a.example/s> <http://a.example/p> p:o\#numbersign
 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/o#numbersign"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/o#numbersign"},
 		},
 	}},
 
@@ -5209,9 +5209,9 @@ foo:blah foo:blah foo:blah .
 <http://a.example/s> <http://a.example/p> p:#comment
 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/"},
 		},
 	}},
 
@@ -5227,9 +5227,9 @@ foo:blah foo:blah foo:blah .
 <http://a.example/s> <http://a.example/p> p:\#numbersign
 .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://a.example/s"},
-			Pred: URI{URI: "http://a.example/p"},
-			Obj:  URI{URI: "http://a.example/#numbersign"},
+			Subj: IRI{IRI: "http://a.example/s"},
+			Pred: IRI{IRI: "http://a.example/p"},
+			Obj:  IRI{IRI: "http://a.example/#numbersign"},
 		},
 	}},
 
@@ -5247,8 +5247,8 @@ foo:blah foo:blah foo:blah .
 
 :s :p1 """test-\\""" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/ns#s"},
-			Pred: URI{URI: "http://example.org/ns#p1"},
+			Subj: IRI{IRI: "http://example.org/ns#s"},
+			Pred: IRI{IRI: "http://example.org/ns#p1"},
 			Obj:  Literal{Val: "test-\\", DataType: XSDString},
 		},
 	}},
@@ -5276,13 +5276,13 @@ foo:blah foo:blah foo:blah .
 :a :b """first long literal""" .
 :c :d """second long literal""" .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/ex#a"},
-			Pred: URI{URI: "http://example.org/ex#b"},
+			Subj: IRI{IRI: "http://example.org/ex#a"},
+			Pred: IRI{IRI: "http://example.org/ex#b"},
 			Obj:  Literal{Val: "first long literal", DataType: XSDString},
 		},
 		Triple{
-			Subj: URI{URI: "http://example.org/ex#c"},
-			Pred: URI{URI: "http://example.org/ex#d"},
+			Subj: IRI{IRI: "http://example.org/ex#c"},
+			Pred: IRI{IRI: "http://example.org/ex#d"},
 			Obj:  Literal{Val: "second long literal", DataType: XSDString},
 		},
 	}},
@@ -5299,8 +5299,8 @@ foo:blah foo:blah foo:blah .
 @prefix :  <http://example.org/ex#> .
 :a :b """Cheers"""@en-UK .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://example.org/ex#a"},
-			Pred: URI{URI: "http://example.org/ex#b"},
+			Subj: IRI{IRI: "http://example.org/ex#a"},
+			Pred: IRI{IRI: "http://example.org/ex#b"},
 			Obj:  Literal{Val: "Cheers", Lang: "en-UK", DataType: XSDString},
 		},
 	}},
@@ -5413,19 +5413,19 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []Triple{}},
 :s..2 :p..2 :o..2.
 :3.s :3.p :3.`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s.1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p.1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o.1"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s.1"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p.1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o.1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s..2"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p..2"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o..2"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s..2"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p..2"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o..2"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/3.s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/3.p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/3"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/3.s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/3.p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/3"},
 		},
 	}},
 
@@ -5443,29 +5443,29 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []Triple{}},
 ::s ::p ::o .
 ::s: ::p: ::o: .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s:1"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p:1"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o:1"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s:1"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p:1"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o:1"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s::2"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p::2"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o::2"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s::2"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p::2"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o::2"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/3:s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/3:p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/3"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/3:s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/3:p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/3"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/:s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/:p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/:o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/:s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/:p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/:o"},
 		},
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/:s:"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/:p:"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/:o:"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/:s:"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/:p:"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/:o:"},
 		},
 	}},
 
@@ -5479,9 +5479,9 @@ eg.:s eg.:p eg.:o .`, "illegal token: \"eg. \"", []Triple{}},
 	{`@prefix e.g: <http://www.w3.org/2013/TurtleTests/> .
 e.g:s e.g:p e.g:o .`, "", []Triple{
 		Triple{
-			Subj: URI{URI: "http://www.w3.org/2013/TurtleTests/s"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 
@@ -5498,18 +5498,18 @@ _:_b :p :o . # Starts with underscore
 _:b.0 :p :o . # Contains dot, ends with digit`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "0b"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 		Triple{
 			Subj: Blank{ID: "_b"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 		Triple{
 			Subj: Blank{ID: "b.0"},
-			Pred: URI{URI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  URI{URI: "http://www.w3.org/2013/TurtleTests/o"},
+			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
+			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
 }

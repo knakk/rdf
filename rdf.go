@@ -1,10 +1,5 @@
-// Package rdf introduces data structures and functions for creating and
-// working with RDF resources.
-//
-// The main use case is representing data coming from or going to a
-// triple/quad-store via the SPARQL protocol.
-// The package will not include graph traversing or querying functions, as
-// this is much more efficently handled by a SPARQL query engine.
+// Package rdf introduces data structures for representing RDF resources,
+// and includes functions for parsing and serialization of RDF data.
 package rdf
 
 import (
@@ -17,8 +12,8 @@ import (
 // Exported errors.
 var (
 	ErrBlankNodeMissingID   = errors.New("blank node cannot have an empty ID")
-	ErrURIEmptyInput        = errors.New("URI cannot be an empty string")
-	ErrURIInvalidCharacters = errors.New(`URI cannot contain space or any of the charaters: <>{}|\^'"`)
+	ErrIRIEmptyInput        = errors.New("IRI cannot be an empty string")
+	ErrIRIInvalidCharacters = errors.New(`IRI cannot contain space or any of the charaters: <>{}|\^'"`)
 )
 
 // DateFormat defines the string representation of xsd:DateTime values. You can override
@@ -30,36 +25,36 @@ var DateFormat = time.RFC3339
 var (
 	// Core types:                                                    // Corresponding Go datatype:
 
-	XSDString  = URI{URI: "http://www.w3.org/2001/XMLSchema#string"}  // string
-	XSDBoolean = URI{URI: "http://www.w3.org/2001/XMLSchema#boolean"} // bool
-	XSDDecimal = URI{URI: "http://www.w3.org/2001/XMLSchema#decimal"} // float64
-	XSDInteger = URI{URI: "http://www.w3.org/2001/XMLSchema#integer"} // int
+	XSDString  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#string"}  // string
+	XSDBoolean = IRI{IRI: "http://www.w3.org/2001/XMLSchema#boolean"} // bool
+	XSDDecimal = IRI{IRI: "http://www.w3.org/2001/XMLSchema#decimal"} // float64
+	XSDInteger = IRI{IRI: "http://www.w3.org/2001/XMLSchema#integer"} // int
 
 	// IEEE floating-point numbers:
 
-	XSDDouble = URI{URI: "http://www.w3.org/2001/XMLSchema#double"} // float64
-	XSDFloat  = URI{URI: "http://www.w3.org/2001/XMLSchema#float"}  // float64
+	XSDDouble = IRI{IRI: "http://www.w3.org/2001/XMLSchema#double"} // float64
+	XSDFloat  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#float"}  // float64
 
 	// Time and date:
 
-	XSDDate          = URI{URI: "http://www.w3.org/2001/XMLSchema#date"}
-	XSDTime          = URI{URI: "http://www.w3.org/2001/XMLSchema#time"}
-	XSDDateTime      = URI{URI: "http://www.w3.org/2001/XMLSchema#dateTime"}
-	XSDDateTimeStamp = URI{URI: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
+	XSDDate          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#date"}
+	XSDTime          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#time"}
+	XSDDateTime      = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTime"}
+	XSDDateTimeStamp = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
 
 	// Recurring and partial dates:
 
-	XSDYear              = URI{URI: "http://www.w3.org/2001/XMLSchema#gYear"}
-	XSDMonth             = URI{URI: "http://www.w3.org/2001/XMLSchema#gMonth"}
-	XSDDay               = URI{URI: "http://www.w3.org/2001/XMLSchema#gDay"}
-	XSDYearMonth         = URI{URI: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
-	XSDDuration          = URI{URI: "http://www.w3.org/2001/XMLSchema#Duration"}
-	XSDYearMonthDuration = URI{URI: "http://www.w3.org/2001/XMLSchema#yearMonthDuration"}
-	XSDDayTimeDuration   = URI{URI: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
+	XSDYear              = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gYear"}
+	XSDMonth             = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gMonth"}
+	XSDDay               = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gDay"}
+	XSDYearMonth         = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
+	XSDDuration          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#Duration"}
+	XSDYearMonthDuration = IRI{IRI: "http://www.w3.org/2001/XMLSchema#yearMonthDuration"}
+	XSDDayTimeDuration   = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
 
 	// Limited-range integer numbers
 
-	XSDByte = URI{URI: "http://www.w3.org/2001/XMLSchema#byte"}
+	XSDByte = IRI{IRI: "http://www.w3.org/2001/XMLSchema#byte"}
 
 	// TODO
 
@@ -72,14 +67,14 @@ var (
 	// TODO
 )
 
-// Term is the interface for the RDF term types: blank node, literal and URI.
+// Term is the interface for the RDF term types: blank node, literal and IRI.
 type Term interface {
 	// String should return the string representation of a RDF term, in a
 	// form suitable for insertion into a SPARQL query.
 	String() string
 
 	// Value returns the typed value of a RDF term, boxed in an empty interface.
-	// For URIs and Blank nodes this would return the uri and blank label as strings.
+	// For IRIs and Blank nodes this would return the uri and blank label as strings.
 	Value() interface{}
 
 	// Eq tests for equality with another RDF term.
@@ -89,17 +84,17 @@ type Term interface {
 	Type() TermType
 }
 
-// TermType describes the type of RDF term: Blank node, URI or Literal
+// TermType describes the type of RDF term: Blank node, IRI or Literal
 type TermType int
 
 // Exported RDF term types.
 const (
 	TermBlank TermType = iota
-	TermURI
+	TermIRI
 	TermLiteral
 )
 
-// Blank represents a RDF blank node; an unqualified URI with an ID.
+// Blank represents a RDF blank node; an unqualified IRI with an ID.
 type Blank struct {
 	ID string
 }
@@ -136,49 +131,49 @@ func NewBlank(id string) (Blank, error) {
 	return Blank{ID: id}, nil
 }
 
-// URI represents a RDF URI resource.
+// IRI represents a RDF IRI resource.
 //
-// The URI term type is actially an IRI, meaning it can consist of non-latin
+// The IRI term type is actially an IRI, meaning it can consist of non-latin
 // characters as well.
-type URI struct {
-	URI string
+type IRI struct {
+	IRI string
 }
 
-// String returns the string representation of an URI.
-func (u URI) String() string {
-	return "<" + u.URI + ">"
+// String returns the string representation of an IRI.
+func (u IRI) String() string {
+	return "<" + u.IRI + ">"
 }
 
-// Value returns the URI as a string, without the enclosing <>.
-func (u URI) Value() interface{} {
-	return u.URI
+// Value returns the IRI as a string, without the enclosing <>.
+func (u IRI) Value() interface{} {
+	return u.IRI
 }
 
-// Eq tests a URI's equality with other RDF terms.
-func (u URI) Eq(other Term) bool {
+// Eq tests a IRI's equality with other RDF terms.
+func (u IRI) Eq(other Term) bool {
 	if other.Type() != u.Type() {
 		return false
 	}
 	return u.String() == other.String()
 }
 
-// Type returns the TermType of a URI.
-func (u URI) Type() TermType {
-	return TermURI
+// Type returns the TermType of a IRI.
+func (u IRI) Type() TermType {
+	return TermIRI
 }
 
-// NewURI returns a new URI, or an error if it's not valid.
-func NewURI(uri string) (URI, error) {
+// NewIRI returns a new IRI, or an error if it's not valid.
+func NewIRI(uri string) (IRI, error) {
 	if len(strings.TrimSpace(uri)) == 0 {
-		return URI{}, ErrURIEmptyInput
+		return IRI{}, ErrIRIEmptyInput
 	}
 	for _, r := range uri {
 		switch r {
 		case '<', '>', '"', '{', '}', '|', '^', '`', '\\':
-			return URI{}, ErrURIInvalidCharacters
+			return IRI{}, ErrIRIInvalidCharacters
 		}
 	}
-	return URI{URI: uri}, nil
+	return IRI{IRI: uri}, nil
 }
 
 // Literal represents a RDF literal; a value with a datatype and
@@ -197,7 +192,7 @@ type Literal struct {
 
 	// The datatype of the Literal.
 	// TODO should be a pointer, to easily check for nil??
-	DataType URI
+	DataType IRI
 }
 
 // String returns the string representation of a Literal.
@@ -223,7 +218,7 @@ func (l Literal) String() string {
 	return fmt.Sprintf("\"%v\"", l.Val)
 }
 
-// Value returns the string representation of an URI.
+// Value returns the string representation of an IRI.
 func (l Literal) Value() interface{} {
 	return l.Val
 }
@@ -283,5 +278,5 @@ type Quad struct {
 	Subj  Term
 	Pred  Term
 	Obj   Term
-	Graph Term // URI or BNode (Literal not valid as graph)
+	Graph Term // IRI or BNode (Literal not valid as graph)
 }

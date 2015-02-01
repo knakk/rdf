@@ -72,14 +72,14 @@ type Decoder struct {
 }
 
 // NewTTLDecoder creates a Turtle decoder
-func NewTTLDecoder(r io.Reader, baseURI string) *Decoder {
+func NewTTLDecoder(r io.Reader, baseIRI string) *Decoder {
 	d := Decoder{
 		l:        newLexer(r),
 		f:        formatTTL,
 		ns:       make(map[string]string),
 		ctxStack: make([]ctxTriple, 0, 8),
 		triples:  make([]Triple, 0, 4),
-		base:     baseURI,
+		base:     baseIRI,
 	}
 	return &d
 }
@@ -94,10 +94,10 @@ func NewNTDecoder(r io.Reader) *Decoder {
 }
 
 // NewNQDecoder creates a N-Quads decoder.
-// defaultGraph must be ether a URI or Blank.
+// defaultGraph must be ether a IRI or Blank.
 func NewNQDecoder(r io.Reader, defaultGraph Term) *Decoder {
 	if _, ok := defaultGraph.(Literal); ok {
-		panic("defaultGraph must be either an URI or Blank node")
+		panic("defaultGraph must be either an IRI or Blank node")
 	}
 	return &Decoder{
 		l: newLineLexer(r),
@@ -207,9 +207,9 @@ func parseStart(d *Decoder) parseFn {
 		if label.text == "" {
 			println("empty label")
 		}
-		tok := d.expectAs("prefix URI", tokenIRIAbs, tokenIRIRel)
+		tok := d.expectAs("prefix IRI", tokenIRIAbs, tokenIRIRel)
 		if tok.typ == tokenIRIRel {
-			// Resolve against document base URI
+			// Resolve against document base IRI
 			d.ns[label.text] = d.base + tok.text
 		} else {
 			d.ns[label.text] = tok.text
@@ -217,19 +217,19 @@ func parseStart(d *Decoder) parseFn {
 		d.expect1As("directive trailing dot", tokenDot)
 	case tokenSparqlPrefix:
 		label := d.expect1As("prefix label", tokenPrefixLabel)
-		uri := d.expect1As("prefix URI", tokenIRIAbs)
+		uri := d.expect1As("prefix IRI", tokenIRIAbs)
 		d.ns[label.text] = uri.text
 	case tokenBase:
-		tok := d.expectAs("base URI", tokenIRIAbs, tokenIRIRel)
+		tok := d.expectAs("base IRI", tokenIRIAbs, tokenIRIRel)
 		if tok.typ == tokenIRIRel {
-			// Resolve against document base URI
+			// Resolve against document base IRI
 			d.base = d.base + tok.text
 		} else {
 			d.base = tok.text
 		}
 		d.expect1As("directive trailing dot", tokenDot)
 	case tokenSparqlBase:
-		uri := d.expect1As("base URI", tokenIRIAbs)
+		uri := d.expect1As("base IRI", tokenIRIAbs)
 		d.base = uri.text
 	case tokenEOF:
 		return nil
@@ -282,8 +282,8 @@ func parseEnd(d *Decoder) parseFn {
 		return parseEnd
 	case tokenCollectionEnd:
 		// Emit collection closing triple { bnode rdf:rest rdf:nil }
-		d.current.Pred = URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
-		d.current.Obj = URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
+		d.current.Obj = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
 		d.emit()
 
 		// Restore parent triple
@@ -308,13 +308,13 @@ func parseEnd(d *Decoder) parseFn {
 			d.backup() // unread collection item, to be parsed on next iteration
 
 			d.bnodeN++
-			d.current.Pred = URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
+			d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
 			d.current.Obj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
 			d.emit()
 
 			d.current.Subj = d.current.Obj
 			d.current.Obj = nil
-			d.current.Pred = URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
+			d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
 			d.pushContext()
 			return nil
 		}
@@ -338,9 +338,9 @@ func parseSubject(d *Decoder) parseFn {
 	tok := d.next()
 	switch tok.typ {
 	case tokenIRIAbs:
-		d.current.Subj = URI{URI: tok.text}
+		d.current.Subj = IRI{IRI: tok.text}
 	case tokenIRIRel:
-		d.current.Subj = URI{URI: d.base + tok.text}
+		d.current.Subj = IRI{IRI: d.base + tok.text}
 	case tokenBNode:
 		d.current.Subj = Blank{ID: tok.text}
 	case tokenAnonBNode:
@@ -352,7 +352,7 @@ func parseSubject(d *Decoder) parseFn {
 			d.errorf("missing namespace for prefix: '%s'", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
-		d.current.Subj = URI{URI: ns + suf.text}
+		d.current.Subj = IRI{IRI: ns + suf.text}
 	case tokenPropertyListStart:
 		// Blank node is subject of a new triple
 		d.bnodeN++
@@ -362,13 +362,13 @@ func parseSubject(d *Decoder) parseFn {
 	case tokenCollectionStart:
 		if d.peek().typ == tokenCollectionEnd {
 			// An empty collection
-			d.current.Subj = URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+			d.current.Subj = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
 			break
 		}
 		d.bnodeN++
 		d.current.Subj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
 		d.pushContext()
-		d.current.Pred = URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
+		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
 		d.current.Ctx = ctxCollection
 		return parseObject
 	case tokenError:
@@ -387,18 +387,18 @@ func parsePredicate(d *Decoder) parseFn {
 	tok := d.next()
 	switch tok.typ {
 	case tokenIRIAbs:
-		d.current.Pred = URI{URI: tok.text}
+		d.current.Pred = IRI{IRI: tok.text}
 	case tokenIRIRel:
-		d.current.Pred = URI{URI: d.base + tok.text}
+		d.current.Pred = IRI{IRI: d.base + tok.text}
 	case tokenRDFType:
-		d.current.Pred = URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
+		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
 		if !ok {
 			d.errorf("missing namespace for prefix: '%s'", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
-		d.current.Pred = URI{URI: ns + suf.text}
+		d.current.Pred = IRI{IRI: ns + suf.text}
 	case tokenError:
 		d.errorf("syntax error: %v", tok.text)
 	default:
@@ -412,9 +412,9 @@ func parseObject(d *Decoder) parseFn {
 	tok := d.next()
 	switch tok.typ {
 	case tokenIRIAbs:
-		d.current.Obj = URI{URI: tok.text}
+		d.current.Obj = IRI{IRI: tok.text}
 	case tokenIRIRel:
-		d.current.Obj = URI{URI: d.base + tok.text}
+		d.current.Obj = IRI{IRI: d.base + tok.text}
 	case tokenBNode:
 		d.current.Obj = Blank{ID: tok.text}
 	case tokenAnonBNode:
@@ -440,7 +440,7 @@ func parseObject(d *Decoder) parseFn {
 				v, err := parseLiteral(val, tok.text)
 				if err == nil {
 					l.Val = v
-					l.DataType = URI{URI: tok.text}
+					l.DataType = IRI{IRI: tok.text}
 				} // TODO else set to xsd:string?
 			case tokenPrefixLabel:
 				ns, ok := d.ns[tok.text]
@@ -451,7 +451,7 @@ func parseObject(d *Decoder) parseFn {
 				v, err := parseLiteral(val, ns+tok2.text)
 				if err == nil {
 					l.Val = v
-					l.DataType = URI{URI: ns + tok2.text}
+					l.DataType = IRI{IRI: ns + tok2.text}
 				} // TODO else set to xsd:string?
 			}
 		}
@@ -490,7 +490,7 @@ func parseObject(d *Decoder) parseFn {
 			d.errorf("missing namespace for prefix: '%s'", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
-		d.current.Obj = URI{URI: ns + suf.text}
+		d.current.Obj = IRI{IRI: ns + suf.text}
 	case tokenPropertyListStart:
 		// Blank node is object of current triple
 		// Save current context, to be restored after the list ends
@@ -511,7 +511,7 @@ func parseObject(d *Decoder) parseFn {
 		if d.peek().typ == tokenCollectionEnd {
 			// an empty collection
 			d.next() // consume ')'
-			d.current.Obj = URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+			d.current.Obj = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
 			break
 		}
 		// Blank node is object of current triple
@@ -522,7 +522,7 @@ func parseObject(d *Decoder) parseFn {
 		d.current.Obj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
 		d.emit()
 		d.current.Subj = d.current.Obj
-		d.current.Pred = URI{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
+		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
 		d.current.Obj = nil
 		d.current.Ctx = ctxCollection
 		d.pushContext()
@@ -610,7 +610,7 @@ again:
 	// parse triple subject
 	tok := d.expectAs("subject", tokenIRIAbs, tokenBNode)
 	if tok.typ == tokenIRIAbs {
-		t.Subj = URI{URI: tok.text}
+		t.Subj = IRI{IRI: tok.text}
 	} else {
 		t.Subj = Blank{ID: tok.text}
 	}
@@ -618,7 +618,7 @@ again:
 	// parse triple predicate
 	tok = d.expectAs("predicate", tokenIRIAbs, tokenBNode)
 	if tok.typ == tokenIRIAbs {
-		t.Pred = URI{URI: tok.text}
+		t.Pred = IRI{IRI: tok.text}
 	} else {
 		t.Pred = Blank{ID: tok.text}
 	}
@@ -648,11 +648,11 @@ again:
 			if err == nil {
 				l.Val = v
 			}
-			l.DataType = URI{URI: tok.text}
+			l.DataType = IRI{IRI: tok.text}
 		}
 		t.Obj = l
 	case tokenIRIAbs:
-		t.Obj = URI{URI: tok.text}
+		t.Obj = IRI{IRI: tok.text}
 	}
 
 	// parse final dot
@@ -686,7 +686,7 @@ func (d *Decoder) parseNQ() (q Quad, err error) {
 	// parse quad subject
 	tok := d.expectAs("subject", tokenIRIAbs, tokenBNode)
 	if tok.typ == tokenIRIAbs {
-		q.Subj = URI{URI: tok.text}
+		q.Subj = IRI{IRI: tok.text}
 	} else {
 		q.Subj = Blank{ID: tok.text}
 	}
@@ -694,7 +694,7 @@ func (d *Decoder) parseNQ() (q Quad, err error) {
 	// parse quad predicate
 	tok = d.expectAs("predicate", tokenIRIAbs, tokenBNode)
 	if tok.typ == tokenIRIAbs {
-		q.Pred = URI{URI: tok.text}
+		q.Pred = IRI{IRI: tok.text}
 	} else {
 		q.Pred = Blank{ID: tok.text}
 	}
@@ -724,11 +724,11 @@ func (d *Decoder) parseNQ() (q Quad, err error) {
 			if err == nil {
 				l.Val = v
 			}
-			l.DataType = URI{URI: tok.text}
+			l.DataType = IRI{IRI: tok.text}
 		}
 		q.Obj = l
 	case tokenIRIAbs:
-		q.Obj = URI{URI: tok.text}
+		q.Obj = IRI{IRI: tok.text}
 	}
 
 	// parse optional graph
@@ -736,7 +736,7 @@ func (d *Decoder) parseNQ() (q Quad, err error) {
 	switch p.typ {
 	case tokenIRIAbs:
 		tok = d.next() // consume peeked token
-		q.Graph = URI{URI: tok.text}
+		q.Graph = IRI{IRI: tok.text}
 	case tokenBNode:
 		tok = d.next() // consume peeked token
 		q.Graph = Blank{ID: tok.text}
@@ -795,31 +795,31 @@ done:
 // parseLiteral
 func parseLiteral(val, datatype string) (interface{}, error) {
 	switch datatype {
-	case XSDInteger.URI:
+	case XSDInteger.IRI:
 		i, err := strconv.Atoi(val)
 		if err != nil {
 			return nil, err
 		}
 		return i, nil
-	case XSDFloat.URI, XSDDouble.URI, XSDDecimal.URI:
+	case XSDFloat.IRI, XSDDouble.IRI, XSDDecimal.IRI:
 		f, err := strconv.ParseFloat(val, 64)
 		if err != nil {
 			return nil, err
 		}
 		return f, nil
-	case XSDBoolean.URI:
+	case XSDBoolean.IRI:
 		bo, err := strconv.ParseBool(val)
 		if err != nil {
 			return nil, err
 		}
 		return bo, nil
-	case XSDDateTime.URI:
+	case XSDDateTime.IRI:
 		t, err := time.Parse(DateFormat, val)
 		if err != nil {
 			return nil, err
 		}
 		return t, nil
-	case XSDByte.URI:
+	case XSDByte.IRI:
 		return []byte(val), nil
 		// TODO: other xsd dataypes that maps to Go data types
 	default:
