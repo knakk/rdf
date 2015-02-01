@@ -25,46 +25,36 @@ var DateFormat = time.RFC3339
 var (
 	// Core types:                                                    // Corresponding Go datatype:
 
-	XSDString  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#string"}  // string
-	XSDBoolean = IRI{IRI: "http://www.w3.org/2001/XMLSchema#boolean"} // bool
-	XSDDecimal = IRI{IRI: "http://www.w3.org/2001/XMLSchema#decimal"} // float64
-	XSDInteger = IRI{IRI: "http://www.w3.org/2001/XMLSchema#integer"} // int
+	xsdString  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#string"}  // string
+	xsdBoolean = IRI{IRI: "http://www.w3.org/2001/XMLSchema#boolean"} // bool
+	xsdDecimal = IRI{IRI: "http://www.w3.org/2001/XMLSchema#decimal"} // float64
+	xsdInteger = IRI{IRI: "http://www.w3.org/2001/XMLSchema#integer"} // int
 
 	// IEEE floating-point numbers:
 
-	XSDDouble = IRI{IRI: "http://www.w3.org/2001/XMLSchema#double"} // float64
-	XSDFloat  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#float"}  // float64
+	xsdDouble = IRI{IRI: "http://www.w3.org/2001/XMLSchema#double"} // float64
+	xsdFloat  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#float"}  // float64
 
 	// Time and date:
 
-	XSDDate          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#date"}
-	XSDTime          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#time"}
-	XSDDateTime      = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTime"}
-	XSDDateTimeStamp = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
+	xsdDate          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#date"}
+	xsdTime          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#time"}
+	xsdDateTime      = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTime"}
+	xsdDateTimeStamp = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
 
 	// Recurring and partial dates:
 
-	XSDYear              = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gYear"}
-	XSDMonth             = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gMonth"}
-	XSDDay               = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gDay"}
-	XSDYearMonth         = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
-	XSDDuration          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#Duration"}
-	XSDYearMonthDuration = IRI{IRI: "http://www.w3.org/2001/XMLSchema#yearMonthDuration"}
-	XSDDayTimeDuration   = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
+	xsdYear              = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gYear"}
+	xsdMonth             = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gMonth"}
+	xsdDay               = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gDay"}
+	xsdYearMonth         = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
+	xsdDuration          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#Duration"}
+	xsdYearMonthDuration = IRI{IRI: "http://www.w3.org/2001/XMLSchema#yearMonthDuration"}
+	xsdDayTimeDuration   = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
 
 	// Limited-range integer numbers
 
-	XSDByte = IRI{IRI: "http://www.w3.org/2001/XMLSchema#byte"}
-
-	// TODO
-
-	// Encoded binary data
-
-	// TODO
-
-	// Miscellaneous XSD types
-
-	// TODO
+	xsdByte = IRI{IRI: "http://www.w3.org/2001/XMLSchema#byte"}
 )
 
 // Term is the interface for the RDF term types: blank node, literal and IRI.
@@ -205,7 +195,7 @@ func (l Literal) String() string {
 		case bool, int, float64:
 			return fmt.Sprintf("%v", t)
 		case string:
-			if l.DataType.Eq(XSDString) || l.DataType.String() == "" {
+			if l.DataType.Eq(xsdString) || l.DataType.String() == "" {
 				return fmt.Sprintf("\"%v\"", t)
 			}
 			return fmt.Sprintf("\"%v\"^^%v", t, l.DataType)
@@ -241,15 +231,15 @@ func (l Literal) Type() TermType {
 func NewLiteral(v interface{}) (Literal, error) {
 	switch t := v.(type) {
 	case bool:
-		return Literal{Val: t, DataType: XSDBoolean}, nil
+		return Literal{Val: t, DataType: xsdBoolean}, nil
 	case int:
-		return Literal{Val: t, DataType: XSDInteger}, nil
+		return Literal{Val: t, DataType: xsdInteger}, nil
 	case string:
-		return Literal{Val: t, DataType: XSDString}, nil
+		return Literal{Val: t, DataType: xsdString}, nil
 	case float64:
-		return Literal{Val: t, DataType: XSDFloat}, nil
+		return Literal{Val: t, DataType: xsdFloat}, nil
 	case time.Time:
-		return Literal{Val: t, DataType: XSDDateTime}, nil
+		return Literal{Val: t, DataType: xsdDateTime}, nil
 	default:
 		return Literal{}, fmt.Errorf("cannot infer xsd:datatype from %v", t)
 	}
@@ -259,7 +249,7 @@ func NewLiteral(v interface{}) (Literal, error) {
 // No validation is performed to check if the language tag conforms
 // to the BCP 47 spec: http://tools.ietf.org/html/bcp47
 func NewLangLiteral(v, lang string) Literal {
-	return Literal{Val: v, Lang: lang, DataType: XSDString}
+	return Literal{Val: v, Lang: lang, DataType: xsdString}
 }
 
 // Triple represents a RDF triple.

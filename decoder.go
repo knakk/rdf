@@ -424,7 +424,7 @@ func parseObject(d *Decoder) parseFn {
 		val := tok.text
 		l := Literal{
 			Val:      val,
-			DataType: XSDString,
+			DataType: xsdString,
 		}
 		p := d.peek()
 		switch p.typ {
@@ -461,28 +461,28 @@ func parseObject(d *Decoder) parseFn {
 		f, _ := strconv.ParseFloat(tok.text, 64)
 		d.current.Obj = Literal{
 			Val:      f,
-			DataType: XSDDouble,
+			DataType: xsdDouble,
 		}
 	case tokenLiteralDecimal:
 		// we can ignore the error, because we know it's an correctly lexed decimal value:
 		f, _ := strconv.ParseFloat(tok.text, 64)
 		d.current.Obj = Literal{
 			Val:      f,
-			DataType: XSDDecimal,
+			DataType: xsdDecimal,
 		}
 	case tokenLiteralInteger:
 		// we can ignore the error, because we know it's an correctly lexed integer value:
 		i, _ := strconv.Atoi(tok.text)
 		d.current.Obj = Literal{
 			Val:      i,
-			DataType: XSDInteger,
+			DataType: xsdInteger,
 		}
 	case tokenLiteralBoolean:
 		// we can ignore the error, because we know from the lexer it's either "true" or "false":
 		i, _ := strconv.ParseBool(tok.text)
 		d.current.Obj = Literal{
 			Val:      i,
-			DataType: XSDBoolean,
+			DataType: xsdBoolean,
 		}
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
@@ -633,7 +633,7 @@ again:
 		val := tok.text
 		l := Literal{
 			Val:      val,
-			DataType: XSDString,
+			DataType: xsdString,
 		}
 		p := d.peek()
 		switch p.typ {
@@ -709,7 +709,7 @@ func (d *Decoder) parseNQ() (q Quad, err error) {
 		val := tok.text
 		l := Literal{
 			Val:      val,
-			DataType: XSDString,
+			DataType: xsdString,
 		}
 		p := d.peek()
 		switch p.typ {
@@ -795,31 +795,31 @@ done:
 // parseLiteral
 func parseLiteral(val, datatype string) (interface{}, error) {
 	switch datatype {
-	case XSDInteger.IRI:
+	case xsdInteger.IRI:
 		i, err := strconv.Atoi(val)
 		if err != nil {
 			return nil, err
 		}
 		return i, nil
-	case XSDFloat.IRI, XSDDouble.IRI, XSDDecimal.IRI:
+	case xsdFloat.IRI, xsdDouble.IRI, xsdDecimal.IRI:
 		f, err := strconv.ParseFloat(val, 64)
 		if err != nil {
 			return nil, err
 		}
 		return f, nil
-	case XSDBoolean.IRI:
+	case xsdBoolean.IRI:
 		bo, err := strconv.ParseBool(val)
 		if err != nil {
 			return nil, err
 		}
 		return bo, nil
-	case XSDDateTime.IRI:
+	case xsdDateTime.IRI:
 		t, err := time.Parse(DateFormat, val)
 		if err != nil {
 			return nil, err
 		}
 		return t, nil
-	case XSDByte.IRI:
+	case xsdByte.IRI:
 		return []byte(val), nil
 		// TODO: other xsd dataypes that maps to Go data types
 	default:

@@ -1049,7 +1049,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
@@ -1070,7 +1070,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
@@ -1101,7 +1101,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
@@ -1148,7 +1148,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
@@ -1184,7 +1184,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
@@ -1199,7 +1199,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b3"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 2, DataType: XSDInteger},
+			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b3"},
@@ -1225,7 +1225,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
@@ -1240,7 +1240,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b3"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 2, DataType: XSDInteger},
+			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b3"},
@@ -1266,7 +1266,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "x", DataType: XSDString},
+			Obj:  Literal{Val: "x", DataType: xsdString},
 		},
 	}},
 
@@ -1282,7 +1282,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\u0000\t\u000B\u000C\u000E&([]\u007F", DataType: XSDString},
+			Obj:  Literal{Val: "\u0000\t\u000B\u000C\u000E&([]\u007F", DataType: xsdString},
 		},
 	}},
 
@@ -1298,7 +1298,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
+			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: xsdString},
 		},
 	}},
 
@@ -1314,7 +1314,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F", DataType: XSDString},
+			Obj:  Literal{Val: "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F", DataType: xsdString},
 		},
 	}},
 
@@ -1330,7 +1330,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: XSDString},
+			Obj:  Literal{Val: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: xsdString},
 		},
 	}},
 
@@ -1346,7 +1346,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "x", DataType: XSDString},
+			Obj:  Literal{Val: "x", DataType: xsdString},
 		},
 	}},
 
@@ -1362,7 +1362,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\x00&([]", DataType: XSDString},
+			Obj:  Literal{Val: "\x00&([]", DataType: xsdString},
 		},
 	}},
 
@@ -1378,7 +1378,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
+			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: xsdString},
 		},
 	}},
 
@@ -1394,7 +1394,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "x'y", DataType: XSDString},
+			Obj:  Literal{Val: "x'y", DataType: xsdString},
 		},
 	}},
 
@@ -1410,7 +1410,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "x''y", DataType: XSDString},
+			Obj:  Literal{Val: "x''y", DataType: xsdString},
 		},
 	}},
 
@@ -1426,7 +1426,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "x", DataType: XSDString},
+			Obj:  Literal{Val: "x", DataType: xsdString},
 		},
 	}},
 
@@ -1442,7 +1442,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj: Literal{Val: "\x00	!#[]", DataType: XSDString},
+			Obj: Literal{Val: "\x00	!#[]", DataType: xsdString},
 		},
 	}},
 
@@ -1458,7 +1458,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
+			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: xsdString},
 		},
 	}},
 
@@ -1474,7 +1474,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "x", DataType: XSDString},
+			Obj:  Literal{Val: "x", DataType: xsdString},
 		},
 	}},
 
@@ -1490,7 +1490,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\x00!#[]", DataType: XSDString},
+			Obj:  Literal{Val: "\x00!#[]", DataType: xsdString},
 		},
 	}},
 
@@ -1506,7 +1506,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: XSDString},
+			Obj:  Literal{Val: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: xsdString},
 		},
 	}},
 
@@ -1522,7 +1522,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: `x"y`, DataType: XSDString},
+			Obj:  Literal{Val: `x"y`, DataType: xsdString},
 		},
 	}},
 
@@ -1538,7 +1538,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: `x""y`, DataType: XSDString},
+			Obj:  Literal{Val: `x""y`, DataType: xsdString},
 		},
 	}},
 
@@ -1554,7 +1554,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj: Literal{Val: `	`, DataType: XSDString},
+			Obj: Literal{Val: `	`, DataType: xsdString},
 		},
 	}},
 
@@ -1570,7 +1570,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj: Literal{Val: "", DataType: XSDString},
+			Obj: Literal{Val: "", DataType: xsdString},
 		},
 	}},
 
@@ -1587,7 +1587,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\n", DataType: XSDString},
+			Obj:  Literal{Val: "\n", DataType: xsdString},
 		},
 	}},
 
@@ -1603,7 +1603,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\r", DataType: XSDString},
+			Obj:  Literal{Val: "\r", DataType: xsdString},
 		},
 	}},
 
@@ -1619,7 +1619,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj: Literal{Val: "", DataType: XSDString},
+			Obj: Literal{Val: "", DataType: xsdString},
 		},
 	}},
 
@@ -1635,7 +1635,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: `\`, DataType: XSDString},
+			Obj:  Literal{Val: `\`, DataType: xsdString},
 		},
 	}},
 
@@ -1651,7 +1651,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\t", DataType: XSDString},
+			Obj:  Literal{Val: "\t", DataType: xsdString},
 		},
 	}},
 
@@ -1667,7 +1667,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\b", DataType: XSDString},
+			Obj:  Literal{Val: "\b", DataType: xsdString},
 		},
 	}},
 
@@ -1683,7 +1683,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\n", DataType: XSDString},
+			Obj:  Literal{Val: "\n", DataType: xsdString},
 		},
 	}},
 
@@ -1699,7 +1699,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\r", DataType: XSDString},
+			Obj:  Literal{Val: "\r", DataType: xsdString},
 		},
 	}},
 
@@ -1715,7 +1715,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "\f", DataType: XSDString},
+			Obj:  Literal{Val: "\f", DataType: xsdString},
 		},
 	}},
 
@@ -1731,7 +1731,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "o", DataType: XSDString},
+			Obj:  Literal{Val: "o", DataType: xsdString},
 		},
 	}},
 
@@ -1747,7 +1747,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "o", DataType: XSDString},
+			Obj:  Literal{Val: "o", DataType: xsdString},
 		},
 	}},
 
@@ -1763,7 +1763,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 	}},
 
@@ -1780,7 +1780,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 	}},
 
@@ -1796,7 +1796,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 	}},
 
@@ -1812,7 +1812,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: 1.0, DataType: xsdDecimal},
 		},
 	}},
 
@@ -1828,7 +1828,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: 1.0, DataType: XSDDouble},
+			Obj:  Literal{Val: 1.0, DataType: xsdDouble},
 		},
 	}},
 
@@ -1844,7 +1844,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: 1.0, DataType: XSDDouble},
+			Obj:  Literal{Val: 1.0, DataType: xsdDouble},
 		},
 	}},
 
@@ -1860,7 +1860,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: -1, DataType: XSDInteger},
+			Obj:  Literal{Val: -1, DataType: xsdInteger},
 		},
 	}},
 
@@ -1876,7 +1876,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 	}},
 
@@ -1892,7 +1892,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 	}},
 
@@ -1908,7 +1908,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: true, DataType: XSDBoolean},
+			Obj:  Literal{Val: true, DataType: xsdBoolean},
 		},
 	}},
 
@@ -1924,7 +1924,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: false, DataType: XSDBoolean},
+			Obj:  Literal{Val: false, DataType: xsdBoolean},
 		},
 	}},
 
@@ -1940,7 +1940,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "chat", Lang: "en", DataType: XSDString},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: xsdString},
 		},
 	}},
 
@@ -1956,7 +1956,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "chat", Lang: "en", DataType: XSDString},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: xsdString},
 		},
 	}},
 
@@ -1972,7 +1972,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "chat", Lang: "en-us", DataType: XSDString},
+			Obj:  Literal{Val: "chat", Lang: "en-us", DataType: xsdString},
 		},
 	}},
 
@@ -2345,7 +2345,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "string", DataType: XSDString},
+			Obj:  Literal{Val: "string", DataType: xsdString},
 		},
 	}},
 
@@ -2360,7 +2360,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en"},
+			Obj:  Literal{Val: "string", DataType: xsdString, Lang: "en"},
 		},
 	}},
 
@@ -2375,7 +2375,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en-uk"},
+			Obj:  Literal{Val: "string", DataType: xsdString, Lang: "en-uk"},
 		},
 	}},
 
@@ -2390,7 +2390,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "string", DataType: XSDString},
+			Obj:  Literal{Val: "string", DataType: xsdString},
 		},
 	}},
 
@@ -2405,7 +2405,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en"},
+			Obj:  Literal{Val: "string", DataType: xsdString, Lang: "en"},
 		},
 	}},
 
@@ -2420,7 +2420,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "string", DataType: XSDString, Lang: "en-uk"},
+			Obj:  Literal{Val: "string", DataType: xsdString, Lang: "en-uk"},
 		},
 	}},
 
@@ -2435,7 +2435,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: `abc""def''ghi`, DataType: XSDString},
+			Obj:  Literal{Val: `abc""def''ghi`, DataType: xsdString},
 		},
 	}},
 
@@ -2451,7 +2451,7 @@ def""" .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "abc\ndef", DataType: XSDString},
+			Obj:  Literal{Val: "abc\ndef", DataType: xsdString},
 		},
 	}},
 
@@ -2467,7 +2467,7 @@ def''' .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "abc\ndef", DataType: XSDString},
+			Obj:  Literal{Val: "abc\ndef", DataType: xsdString},
 		},
 	}},
 
@@ -2483,7 +2483,7 @@ def"""@en .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "abc\ndef", DataType: XSDString, Lang: "en"},
+			Obj:  Literal{Val: "abc\ndef", DataType: xsdString, Lang: "en"},
 		},
 	}},
 
@@ -2499,7 +2499,7 @@ def'''@en .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "abc\ndef", DataType: XSDString, Lang: "en"},
+			Obj:  Literal{Val: "abc\ndef", DataType: xsdString, Lang: "en"},
 		},
 	}},
 
@@ -2514,7 +2514,7 @@ def'''@en .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "a\n", DataType: XSDString},
+			Obj:  Literal{Val: "a\n", DataType: xsdString},
 		},
 	}},
 
@@ -2529,7 +2529,7 @@ def'''@en .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "a b", DataType: XSDString},
+			Obj:  Literal{Val: "a b", DataType: xsdString},
 		},
 	}},
 
@@ -2544,7 +2544,7 @@ def'''@en .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "a b", DataType: XSDString},
+			Obj:  Literal{Val: "a b", DataType: xsdString},
 		},
 	}},
 
@@ -2827,7 +2827,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: 123, DataType: XSDInteger},
+			Obj:  Literal{Val: 123, DataType: xsdInteger},
 		},
 	}},
 
@@ -2842,7 +2842,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: -123, DataType: XSDInteger},
+			Obj:  Literal{Val: -123, DataType: xsdInteger},
 		},
 	}},
 
@@ -2857,7 +2857,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: 123, DataType: XSDInteger},
+			Obj:  Literal{Val: 123, DataType: xsdInteger},
 		},
 	}},
 
@@ -2873,7 +2873,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: 123.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: 123.0, DataType: xsdDecimal},
 		},
 	}},
 
@@ -2889,7 +2889,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: .1, DataType: XSDDecimal},
+			Obj:  Literal{Val: .1, DataType: xsdDecimal},
 		},
 	}},
 
@@ -2905,7 +2905,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: -123.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: -123.0, DataType: xsdDecimal},
 		},
 	}},
 
@@ -2921,7 +2921,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: 123.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: 123.0, DataType: xsdDecimal},
 		},
 	}},
 
@@ -2937,7 +2937,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: 123, DataType: XSDInteger},
+			Obj:  Literal{Val: 123, DataType: xsdInteger},
 		},
 	}},
 
@@ -2952,7 +2952,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: 123.0e1, DataType: XSDDouble},
+			Obj:  Literal{Val: 123.0e1, DataType: xsdDouble},
 		},
 	}},
 
@@ -2967,7 +2967,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: -123.e-1, DataType: XSDDouble},
+			Obj:  Literal{Val: -123.e-1, DataType: xsdDouble},
 		},
 	}},
 
@@ -2982,7 +2982,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: 123.E+1, DataType: XSDDouble},
+			Obj:  Literal{Val: 123.E+1, DataType: xsdDouble},
 		},
 	}},
 
@@ -2998,7 +2998,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: []byte("123"), DataType: XSDByte},
+			Obj:  Literal{Val: []byte("123"), DataType: xsdByte},
 		},
 	}},
 
@@ -3015,7 +3015,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: "123", DataType: XSDString},
+			Obj:  Literal{Val: "123", DataType: xsdString},
 		},
 	}},
 
@@ -3030,7 +3030,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: true, DataType: XSDBoolean},
+			Obj:  Literal{Val: true, DataType: xsdBoolean},
 		},
 	}},
 
@@ -3045,7 +3045,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "s"},
 			Pred: IRI{IRI: "p"},
-			Obj:  Literal{Val: false, DataType: XSDBoolean},
+			Obj:  Literal{Val: false, DataType: xsdBoolean},
 		},
 	}},
 
@@ -3210,7 +3210,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
@@ -3220,7 +3220,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: "2", DataType: XSDString},
+			Obj:  Literal{Val: "2", DataType: xsdString},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
@@ -3251,7 +3251,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
@@ -3266,7 +3266,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
@@ -3323,7 +3323,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
@@ -3333,7 +3333,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 2, DataType: XSDInteger},
+			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
@@ -3348,7 +3348,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b4"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b4"},
@@ -3358,7 +3358,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b5"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: 2, DataType: XSDInteger},
+			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: Blank{ID: "b5"},
@@ -3383,7 +3383,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b7"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: "a", DataType: XSDString},
+			Obj:  Literal{Val: "a", DataType: xsdString},
 		},
 		Triple{
 			Subj: Blank{ID: "b7"},
@@ -3398,7 +3398,7 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: Blank{ID: "b8"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: "b", DataType: XSDString},
+			Obj:  Literal{Val: "b", DataType: xsdString},
 		},
 		Triple{
 			Subj: Blank{ID: "b8"},
@@ -4400,7 +4400,7 @@ a:a a:b a:c .
 		Triple{
 			Subj: Blank{ID: "b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: "apple", DataType: XSDString},
+			Obj:  Literal{Val: "apple", DataType: xsdString},
 		},
 		Triple{
 			Subj: Blank{ID: "b1"},
@@ -4410,7 +4410,7 @@ a:a a:b a:c .
 		Triple{
 			Subj: Blank{ID: "b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Literal{Val: "banana", DataType: XSDString},
+			Obj:  Literal{Val: "banana", DataType: xsdString},
 		},
 		Triple{
 			Subj: Blank{ID: "b2"},
@@ -4473,7 +4473,7 @@ _:hasParent a owl:ObjectProperty .
 		Triple{
 			Subj: Blank{ID: "b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2002/07/owl#maxCardinality"},
-			Obj:  Literal{Val: 2, DataType: XSDInteger},
+			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
 	}},
 
@@ -4493,27 +4493,27 @@ _:hasParent a owl:ObjectProperty .
 		Triple{
 			Subj: IRI{IRI: "http://example.org/res1"},
 			Pred: IRI{IRI: "http://example.org/prop1"},
-			Obj:  Literal{Val: 0, DataType: XSDInteger},
+			Obj:  Literal{Val: 0, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/res2"},
 			Pred: IRI{IRI: "http://example.org/prop2"},
-			Obj:  Literal{Val: 0, DataType: XSDInteger},
+			Obj:  Literal{Val: 0, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/res3"},
 			Pred: IRI{IRI: "http://example.org/prop3"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/res4"},
 			Pred: IRI{IRI: "http://example.org/prop4"},
-			Obj:  Literal{Val: 2, DataType: XSDInteger},
+			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/res5"},
 			Pred: IRI{IRI: "http://example.org/prop5"},
-			Obj:  Literal{Val: 4, DataType: XSDInteger},
+			Obj:  Literal{Val: 4, DataType: xsdInteger},
 		},
 	}},
 
@@ -4538,22 +4538,22 @@ ex4-:foo-bar ex4-:foo_bar "d" .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex1#foo-bar"},
 			Pred: IRI{IRI: "http://example.org/ex1#foo_bar"},
-			Obj:  Literal{Val: "a", DataType: XSDString},
+			Obj:  Literal{Val: "a", DataType: xsdString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex2#foo-bar"},
 			Pred: IRI{IRI: "http://example.org/ex2#foo_bar"},
-			Obj:  Literal{Val: "b", DataType: XSDString},
+			Obj:  Literal{Val: "b", DataType: xsdString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex3#foo-bar"},
 			Pred: IRI{IRI: "http://example.org/ex3#foo_bar"},
-			Obj:  Literal{Val: "c", DataType: XSDString},
+			Obj:  Literal{Val: "c", DataType: xsdString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex4#foo-bar"},
 			Pred: IRI{IRI: "http://example.org/ex4#foo_bar"},
-			Obj:  Literal{Val: "d", DataType: XSDString},
+			Obj:  Literal{Val: "d", DataType: xsdString},
 		},
 	}},
 
@@ -4577,22 +4577,22 @@ ex:foo :_345 "678" .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#foo"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_1"},
-			Obj:  Literal{Val: "1", DataType: XSDString},
+			Obj:  Literal{Val: "1", DataType: xsdString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#foo"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#_2"},
-			Obj:  Literal{Val: "2", DataType: XSDString},
+			Obj:  Literal{Val: "2", DataType: xsdString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#foo"},
 			Pred: IRI{IRI: "http://example.org/myprop#_abc"},
-			Obj:  Literal{Val: "def", DataType: XSDString},
+			Obj:  Literal{Val: "def", DataType: xsdString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#foo"},
 			Pred: IRI{IRI: "http://example.org/myprop#_345"},
-			Obj:  Literal{Val: "678", DataType: XSDString},
+			Obj:  Literal{Val: "678", DataType: xsdString},
 		},
 	}},
 
@@ -4640,7 +4640,7 @@ newlines""" .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#a"},
 			Pred: IRI{IRI: "http://example.org/ex#b"},
-			Obj:  Literal{Val: "a long\n\tliteral\nwith\nnewlines", DataType: XSDString},
+			Obj:  Literal{Val: "a long\n\tliteral\nwith\nnewlines", DataType: xsdString},
 		},
 	}},
 
@@ -4675,12 +4675,12 @@ one
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo#a"},
 			Pred: IRI{IRI: "http://example.org/foo#b"},
-			Obj:  Literal{Val: "\nthis \ris a \U00012451long\t\nliteral\uABCD\n", DataType: XSDString},
+			Obj:  Literal{Val: "\nthis \ris a \U00012451long\t\nliteral\uABCD\n", DataType: xsdString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo#d"},
 			Pred: IRI{IRI: "http://example.org/foo#e"},
-			Obj:  Literal{Val: "\tThis \uABCDis\r \U00012451another\n\none\n", DataType: XSDString},
+			Obj:  Literal{Val: "\tThis \uABCDis\r \U00012451another\n\none\n", DataType: xsdString},
 		},
 	}},
 
@@ -4699,7 +4699,7 @@ one
 		Triple{
 			Subj: IRI{IRI: "http://example.org/#a"},
 			Pred: IRI{IRI: "http://example.org/#b"},
-			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: 1.0, DataType: xsdDecimal},
 		},
 	}},
 
@@ -4720,12 +4720,12 @@ one
 		Triple{
 			Subj: IRI{IRI: "http://example.org/#a"},
 			Pred: IRI{IRI: "http://example.org/#b"},
-			Obj:  Literal{Val: "", DataType: XSDString},
+			Obj:  Literal{Val: "", DataType: xsdString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/#c"},
 			Pred: IRI{IRI: "http://example.org/#d"},
-			Obj:  Literal{Val: "", DataType: XSDString},
+			Obj:  Literal{Val: "", DataType: xsdString},
 		},
 	}},
 
@@ -4744,17 +4744,17 @@ one
 		Triple{
 			Subj: IRI{IRI: "http://example.org#a"},
 			Pred: IRI{IRI: "http://example.org#b"},
-			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: 1.0, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org#c"},
 			Pred: IRI{IRI: "http://example.org#d"},
-			Obj:  Literal{Val: 1, DataType: XSDInteger},
+			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org#e"},
 			Pred: IRI{IRI: "http://example.org#f"},
-			Obj:  Literal{Val: 1.0, DataType: XSDDouble},
+			Obj:  Literal{Val: 1.0, DataType: xsdDouble},
 		},
 	}},
 
@@ -4773,17 +4773,17 @@ one
 		Triple{
 			Subj: IRI{IRI: "http://example.org#a"},
 			Pred: IRI{IRI: "http://example.org#b"},
-			Obj:  Literal{Val: -1.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: -1.0, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org#c"},
 			Pred: IRI{IRI: "http://example.org#d"},
-			Obj:  Literal{Val: -1, DataType: XSDInteger},
+			Obj:  Literal{Val: -1, DataType: xsdInteger},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org#e"},
 			Pred: IRI{IRI: "http://example.org#f"},
-			Obj:  Literal{Val: -1.0, DataType: XSDDouble},
+			Obj:  Literal{Val: -1.0, DataType: xsdDouble},
 		},
 	}},
 
@@ -4801,7 +4801,7 @@ one
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#a"},
 			Pred: IRI{IRI: "http://example.org/ex#b"},
-			Obj:  Literal{Val: `John said: "Hello World!"`, DataType: XSDString},
+			Obj:  Literal{Val: `John said: "Hello World!"`, DataType: xsdString},
 		},
 	}},
 
@@ -4819,12 +4819,12 @@ one
 		Triple{
 			Subj: IRI{IRI: "http://example.org#a"},
 			Pred: IRI{IRI: "http://example.org#b"},
-			Obj:  Literal{Val: true, DataType: XSDBoolean},
+			Obj:  Literal{Val: true, DataType: xsdBoolean},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org#c"},
 			Pred: IRI{IRI: "http://example.org#d"},
-			Obj:  Literal{Val: false, DataType: XSDBoolean},
+			Obj:  Literal{Val: false, DataType: xsdBoolean},
 		},
 	}},
 
@@ -4959,112 +4959,112 @@ foo:blah foo:blah foo:blah .
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.345, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.345, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: 1.0, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: 1.0, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: 1.0, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 1.0, DataType: XSDDecimal},
+			Obj:  Literal{Val: 1.0, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.3, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.3, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.234000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.234000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.2340000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.2340000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.23400000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.23400000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.234000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.234000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.2340000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.2340000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.23400000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.23400000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.234000000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.234000000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.2340000000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.2340000000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.23400000000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.23400000000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.234000000000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.234000000000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.2340000000000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.2340000000000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.23400000000000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.23400000000000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.234000000000000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.234000000000000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.2340000000000000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.2340000000000000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 2.23400000000000000000005, DataType: XSDDecimal},
+			Obj:  Literal{Val: 2.23400000000000000000005, DataType: xsdDecimal},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/foo"},
 			Pred: IRI{IRI: "http://example.org/bar"},
-			Obj:  Literal{Val: 1.2345678901234567890123457890, DataType: XSDDecimal},
+			Obj:  Literal{Val: 1.2345678901234567890123457890, DataType: xsdDecimal},
 		},
 	}},
 
@@ -5249,7 +5249,7 @@ foo:blah foo:blah foo:blah .
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ns#s"},
 			Pred: IRI{IRI: "http://example.org/ns#p1"},
-			Obj:  Literal{Val: "test-\\", DataType: XSDString},
+			Obj:  Literal{Val: "test-\\", DataType: xsdString},
 		},
 	}},
 
@@ -5278,12 +5278,12 @@ foo:blah foo:blah foo:blah .
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#a"},
 			Pred: IRI{IRI: "http://example.org/ex#b"},
-			Obj:  Literal{Val: "first long literal", DataType: XSDString},
+			Obj:  Literal{Val: "first long literal", DataType: xsdString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#c"},
 			Pred: IRI{IRI: "http://example.org/ex#d"},
-			Obj:  Literal{Val: "second long literal", DataType: XSDString},
+			Obj:  Literal{Val: "second long literal", DataType: xsdString},
 		},
 	}},
 
@@ -5301,7 +5301,7 @@ foo:blah foo:blah foo:blah .
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#a"},
 			Pred: IRI{IRI: "http://example.org/ex#b"},
-			Obj:  Literal{Val: "Cheers", Lang: "en-UK", DataType: XSDString},
+			Obj:  Literal{Val: "Cheers", Lang: "en-UK", DataType: xsdString},
 		},
 	}},
 
