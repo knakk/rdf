@@ -54,21 +54,17 @@ var (
 
 	// Limited-range integer numbers
 
-	xsdByte = IRI{IRI: "http://www.w3.org/2001/XMLSchema#byte"}
+	xsdByte = IRI{IRI: "http://www.w3.org/2001/XMLSchema#byte"} // []byte
 )
 
 // Term is the interface for the RDF term types: blank node, literal and IRI.
 type Term interface {
-	// String should return the string representation of a RDF term, in a
-	// form suitable for insertion into a SPARQL query.
+	// String returns a string representation of the Term.
 	String() string
 
 	// Value returns the typed value of a RDF term, boxed in an empty interface.
 	// For IRIs and Blank nodes this would return the uri and blank label as strings.
 	Value() interface{}
-
-	// Eq tests for equality with another RDF term.
-	Eq(other Term) bool
 
 	// Type returns the RDF term type.
 	Type() TermType
@@ -99,14 +95,6 @@ func (b Blank) String() string {
 	return "_:" + b.ID
 }
 
-// Eq tests a blank node's equality with other RDF terms.
-func (b Blank) Eq(other Term) bool {
-	if other.Type() != b.Type() {
-		return false
-	}
-	return b.String() == other.String()
-}
-
 // Type returns the TermType of a blank node.
 func (b Blank) Type() TermType {
 	return TermBlank
@@ -122,9 +110,6 @@ func NewBlank(id string) (Blank, error) {
 }
 
 // IRI represents a RDF IRI resource.
-//
-// The IRI term type is actially an IRI, meaning it can consist of non-latin
-// characters as well.
 type IRI struct {
 	IRI string
 }
@@ -137,14 +122,6 @@ func (u IRI) String() string {
 // Value returns the IRI as a string, without the enclosing <>.
 func (u IRI) Value() interface{} {
 	return u.IRI
-}
-
-// Eq tests a IRI's equality with other RDF terms.
-func (u IRI) Eq(other Term) bool {
-	if other.Type() != u.Type() {
-		return false
-	}
-	return u.String() == other.String()
 }
 
 // Type returns the TermType of a IRI.
@@ -195,7 +172,7 @@ func (l Literal) String() string {
 		case bool, int, float64:
 			return fmt.Sprintf("%v", t)
 		case string:
-			if l.DataType.Eq(xsdString) || l.DataType.String() == "" {
+			if l.DataType == xsdString || l.DataType.String() == "" {
 				return fmt.Sprintf("\"%v\"", t)
 			}
 			return fmt.Sprintf("\"%v\"^^%v", t, l.DataType)
@@ -211,14 +188,6 @@ func (l Literal) String() string {
 // Value returns the string representation of an IRI.
 func (l Literal) Value() interface{} {
 	return l.Val
-}
-
-// Eq tests a Literal's equality with other RDF terms.
-func (l Literal) Eq(other Term) bool {
-	if other.Type() != l.Type() {
-		return false
-	}
-	return l.String() == other.String()
 }
 
 // Type returns the TermType of a Literal.

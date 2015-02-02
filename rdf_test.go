@@ -25,17 +25,6 @@ func TestTermTypeBlank(t *testing.T) {
 	if b.String() != want {
 		t.Errorf("NewBlank(\"a\").String() => %v; want %v", b.String(), want)
 	}
-
-	b2 := Blank{ID: "a"}
-	b3 := Blank{ID: "b"}
-
-	if !b.Eq(b2) {
-		t.Errorf("two blank nodes with same ID should be equal")
-	}
-
-	if b.Eq(b3) {
-		t.Errorf("two blank nodes with different IDs should not be equal")
-	}
 }
 
 func TestTermTypeIRI(t *testing.T) {
@@ -54,19 +43,6 @@ func TestTermTypeIRI(t *testing.T) {
 	if err != ErrIRIInvalidCharacters {
 		t.Errorf("NewIRI(\"<&http.dott\") => %v; want errIRIInvalidCharacters", err)
 	}
-
-	a := IRI{IRI: "abba"}
-	b := IRI{IRI: "ABBA"}
-	c := IRI{IRI: "abba"}
-
-	if a.Eq(b) {
-		t.Errorf("two different IRIs should not be equal")
-	}
-
-	if !a.Eq(c) {
-		t.Errorf("two identical IRIs should be equal")
-	}
-
 }
 
 func TestTermTypeLiteral(t *testing.T) {
@@ -84,23 +60,6 @@ func TestTermTypeLiteral(t *testing.T) {
 	l7, _ := NewLiteral("fisk")
 	l8, _ := NewLiteral(time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))
 
-	var eqTests = []struct {
-		a, b Literal
-		want bool
-	}{
-		{l1, l2, false},
-		{l1, l3, false},
-		{l3, l4, false},
-		{l5, l6, false},
-		{l6, l7, false},
-	}
-
-	for _, tt := range eqTests {
-		if tt.a.Eq(tt.b) != tt.want {
-			t.Errorf("%v.Eq(%v) => %v, want %v", tt.a, tt.b, tt.want, tt.a.Eq(tt.b))
-		}
-	}
-
 	var formatTests = []struct {
 		l    Literal
 		want string
@@ -110,6 +69,7 @@ func TestTermTypeLiteral(t *testing.T) {
 		{l3, "true"},
 		{l4, "false"},
 		{l5, `"fisk"@nno`},
+		{l6, `"fisk"@no`},
 		{l7, `"fisk"`},
 		{l8, `"2009-11-10T23:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>`},
 	}
