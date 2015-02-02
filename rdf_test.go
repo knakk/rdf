@@ -6,28 +6,6 @@ import (
 	"time"
 )
 
-func TestTermTypeBlank(t *testing.T) {
-	_, err := NewBlank("")
-	if err != ErrBlankNodeMissingID {
-		t.Errorf("NewBlank(\" \") => %v; want ErrBlankNodeMissingID", err)
-	}
-
-	_, err = NewBlank(" \n\r \t ")
-	if err != ErrBlankNodeMissingID {
-		t.Errorf("NewBlank(\" \n\r \t \") => %v; want ErrBlankNodeMissingID", nil)
-	}
-
-	b, err := NewBlank("a")
-	if err != nil {
-		t.Fatalf("NewBlank(\"a\") failed with %v", err)
-	}
-
-	want := "_:a"
-	if b.String() != want {
-		t.Errorf("NewBlank(\"a\").String() => %v; want %v", b.String(), want)
-	}
-}
-
 func TestIRI(t *testing.T) {
 	var errTests = []struct {
 		input string

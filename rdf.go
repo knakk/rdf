@@ -9,11 +9,6 @@ import (
 	"time"
 )
 
-// Exported errors.
-var (
-	ErrBlankNodeMissingID = errors.New("blank node cannot have an empty ID")
-)
-
 // DateFormat defines the string representation of xsd:DateTime values. You can override
 // it if you need another layout.
 var DateFormat = time.RFC3339
@@ -102,7 +97,7 @@ func (b Blank) Type() TermType {
 // an error only if the supplied ID is blank.
 func NewBlank(id string) (Blank, error) {
 	if len(strings.TrimSpace(id)) == 0 {
-		return Blank{}, ErrBlankNodeMissingID
+		return Blank{}, errors.New("blank id")
 	}
 	return Blank{ID: id}, nil
 }
