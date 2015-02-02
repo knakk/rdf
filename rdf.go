@@ -11,9 +11,7 @@ import (
 
 // Exported errors.
 var (
-	ErrBlankNodeMissingID   = errors.New("blank node cannot have an empty ID")
-	ErrIRIEmptyInput        = errors.New("IRI cannot be an empty string")
-	ErrIRIInvalidCharacters = errors.New(`IRI cannot contain space or any of the charaters: <>{}|\^'"`)
+	ErrBlankNodeMissingID = errors.New("blank node cannot have an empty ID")
 )
 
 // DateFormat defines the string representation of xsd:DateTime values. You can override
@@ -130,17 +128,23 @@ func (u IRI) Type() TermType {
 }
 
 // NewIRI returns a new IRI, or an error if it's not valid.
-func NewIRI(uri string) (IRI, error) {
-	if len(strings.TrimSpace(uri)) == 0 {
-		return IRI{}, ErrIRIEmptyInput
+//
+// A valid IRI cannot be empty, or contain any of the disallowed characters: [\x00-\x20<>"{}|^`\].
+func NewIRI(iri string) (IRI, error) {
+	// http://www.ietf.org/rfc/rfc3987.txt
+	if len(iri) == 0 {
+		return IRI{}, errors.New("empty IRI")
 	}
-	for _, r := range uri {
+	for _, r := range iri {
+		if r >= '\x00' && r <= '\x20' {
+			return IRI{}, fmt.Errorf("disallowed character: %q", r)
+		}
 		switch r {
 		case '<', '>', '"', '{', '}', '|', '^', '`', '\\':
-			return IRI{}, ErrIRIInvalidCharacters
+			return IRI{}, fmt.Errorf("disallowed character: %q", r)
 		}
 	}
-	return IRI{IRI: uri}, nil
+	return IRI{IRI: iri}, nil
 }
 
 // Literal represents a RDF literal; a value with a datatype and

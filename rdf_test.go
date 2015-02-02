@@ -1,6 +1,7 @@
 package rdf
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -27,22 +28,25 @@ func TestTermTypeBlank(t *testing.T) {
 	}
 }
 
-func TestTermTypeIRI(t *testing.T) {
-	uri := IRI{IRI: "x://y/z"}
-	want := "<x://y/z>"
-	if uri.String() != want {
-		t.Errorf("NewIRI(\"x://y/z\").String() => %s; want %s", uri.String(), want)
+func TestIRI(t *testing.T) {
+	var errTests = []struct {
+		input string
+		want  string
+	}{
+		{"", "empty IRI"},
+		{"http://dott\ncom", "disallowed character: '\\n'"},
+		{"<a>", "disallowed character: '<'"},
+		{"here are spaces", "disallowed character: ' '"},
+		{"myscheme://abc/xyz/伝言/æøå#hei?f=88", "<nil>"},
 	}
 
-	_, err := NewIRI("")
-	if err != ErrIRIEmptyInput {
-		t.Errorf("NewIRI(\" \") => %v want ErrIRIEmptyInput", err)
+	for _, tt := range errTests {
+		_, err := NewIRI(tt.input)
+		if fmt.Sprintf("%v", err) != tt.want {
+			t.Errorf("NewURI(%q) => %v; want %v", tt.input, err, tt.want)
+		}
 	}
 
-	_, err = NewIRI("<&httoop.dott")
-	if err != ErrIRIInvalidCharacters {
-		t.Errorf("NewIRI(\"<&http.dott\") => %v; want errIRIInvalidCharacters", err)
-	}
 }
 
 func TestTermTypeLiteral(t *testing.T) {
