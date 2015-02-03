@@ -312,7 +312,7 @@ func parseEnd(d *Decoder) parseFn {
 			d.current.Obj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
 			d.emit()
 
-			d.current.Subj = d.current.Obj
+			d.current.Subj = d.current.Obj.(Subject)
 			d.current.Obj = nil
 			d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
 			d.pushContext()
@@ -501,7 +501,7 @@ func parseObject(d *Decoder) parseFn {
 		d.emit()
 
 		// Set blank node as subject of the next triple. Push to stack and return.
-		d.current.Subj = d.current.Obj
+		d.current.Subj = d.current.Obj.(Subject)
 		d.current.Pred = nil
 		d.current.Obj = nil
 		d.current.Ctx = ctxList
@@ -521,7 +521,7 @@ func parseObject(d *Decoder) parseFn {
 		d.bnodeN++
 		d.current.Obj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
 		d.emit()
-		d.current.Subj = d.current.Obj
+		d.current.Subj = d.current.Obj.(Subject)
 		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
 		d.current.Obj = nil
 		d.current.Ctx = ctxCollection
@@ -676,8 +676,8 @@ func (d *Decoder) parseNQ() (q Quad, err error) {
 		return q, io.EOF
 	}
 
-	// Set Quad graph to default graph
-	q.Graph = d.g
+	// Set Quad context to default graph
+	q.Ctx = d.g.(Context)
 
 	// parse quad subject
 	tok := d.expectAs("subject", tokenIRIAbs, tokenBNode)
@@ -728,10 +728,10 @@ func (d *Decoder) parseNQ() (q Quad, err error) {
 	switch p.typ {
 	case tokenIRIAbs:
 		tok = d.next() // consume peeked token
-		q.Graph = IRI{IRI: tok.text}
+		q.Ctx = IRI{IRI: tok.text}
 	case tokenBNode:
 		tok = d.next() // consume peeked token
-		q.Graph = Blank{ID: tok.text}
+		q.Ctx = Blank{ID: tok.text}
 	case tokenDot:
 		break
 	default:

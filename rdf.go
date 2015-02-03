@@ -78,6 +78,12 @@ type Blank struct {
 	ID string
 }
 
+// ValidAsSubject denotes that a Blank node is valid as a Triple's Subject.
+func (b Blank) ValidAsSubject() {}
+
+// ValidAsObject denotes that a Blank node is valid as a Triple's Object.
+func (b Blank) ValidAsObject() {}
+
 // Value returns the string label of the blank node, without the '_:' prefix.
 func (b Blank) Value() interface{} {
 	return b.ID
@@ -106,6 +112,15 @@ func NewBlank(id string) (Blank, error) {
 type IRI struct {
 	IRI string
 }
+
+// ValidAsSubject denotes that an IRI is valid as a Triple's Subject.
+func (u IRI) ValidAsSubject() {}
+
+// ValidAsPredicate denotes that an IRI is valid as a Triple's Predicate.
+func (u IRI) ValidAsPredicate() {}
+
+// ValidAsObject denotes that an IRI is valid as a Triple's Object.
+func (u IRI) ValidAsObject() {}
 
 // String returns the string representation of an IRI.
 func (u IRI) String() string {
@@ -194,6 +209,9 @@ func (l Literal) Type() TermType {
 	return TermLiteral
 }
 
+// ValidAsObject denotes that a Literal is valid as a Triple's Object.
+func (l Literal) ValidAsObject() {}
+
 // NewLiteral returns a new Literal, or an error on invalid input. It tries
 // to map the given Go values to a corresponding xsd datatype.
 func NewLiteral(v interface{}) (Literal, error) {
@@ -248,19 +266,36 @@ func NewLangLiteral(v, lang string) (Literal, error) {
 	return Literal{Val: v, Lang: lang, DataType: xsdString}, nil
 }
 
+// Subject interface distiguishes which Terms are valid as a Subject of a Triple.
+type Subject interface {
+	ValidAsSubject()
+}
+
+// Predicate interface distiguishes which Terms are valid as a Predicate of a Triple.
+type Predicate interface {
+	ValidAsPredicate()
+}
+
+// Object interface distiguishes which Terms are valid as a Object of a Triple.
+type Object interface {
+	ValidAsObject()
+}
+
+// Context interface distiguishes which Terms are valid as a Quad's Context.
+// Incidently, this is the same as Terms valid as a Subject of a Triple.
+type Context interface {
+	ValidAsSubject()
+}
+
 // Triple represents a RDF triple.
 type Triple struct {
-	Subj, Pred, Obj Term
+	Subj Subject
+	Pred Predicate
+	Obj  Object
 }
 
-// NT returns a string representation of the triple in N-Triples format.
-func (t Triple) NT() string {
-	// TODO only xsd:string doesn't need datatype, all others do
-	return fmt.Sprintf("%v %v %v .", t.Subj, t.Pred, t.Obj)
-}
-
-// Quad represents a RDF quad; that is, a triple with a named graph.
+// Quad represents a RDF Quad; a Triple plus the context in which it occurs.
 type Quad struct {
 	Triple
-	Graph Term // IRI or BNode (Literal not valid as graph)
+	Ctx Context
 }
