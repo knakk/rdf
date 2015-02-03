@@ -616,12 +616,8 @@ again:
 	}
 
 	// parse triple predicate
-	tok = d.expectAs("predicate", tokenIRIAbs, tokenBNode)
-	if tok.typ == tokenIRIAbs {
-		t.Pred = IRI{IRI: tok.text}
-	} else {
-		t.Pred = Blank{ID: tok.text}
-	}
+	tok = d.expect1As("predicate", tokenIRIAbs)
+	t.Pred = IRI{IRI: tok.text}
 
 	// parse triple object
 	tok = d.expectAs("object", tokenIRIAbs, tokenBNode, tokenLiteral)
@@ -692,12 +688,8 @@ func (d *Decoder) parseNQ() (q Quad, err error) {
 	}
 
 	// parse quad predicate
-	tok = d.expectAs("predicate", tokenIRIAbs, tokenBNode)
-	if tok.typ == tokenIRIAbs {
-		q.Pred = IRI{IRI: tok.text}
-	} else {
-		q.Pred = Blank{ID: tok.text}
-	}
+	tok = d.expect1As("predicate", tokenIRIAbs)
+	q.Pred = IRI{IRI: tok.text}
 
 	// parse quad object
 	tok = d.expectAs("object", tokenIRIAbs, tokenBNode, tokenLiteral)
