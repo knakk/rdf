@@ -3,11 +3,10 @@ package rdf
 import (
 	"fmt"
 	"testing"
-	"time"
 )
 
 func TestIRI(t *testing.T) {
-	var errTests = []struct {
+	errTests := []struct {
 		input string
 		want  string
 	}{
@@ -27,38 +26,75 @@ func TestIRI(t *testing.T) {
 
 }
 
-func TestTermTypeLiteral(t *testing.T) {
-	_, err := NewLiteral([]int{1, 2, 3})
-	if err == nil {
-		t.Errorf("Expected an error creating Literal, got nil")
-	}
-
-	l1, _ := NewLiteral(42)
-	l2, _ := NewLiteral(42.00001)
-	l3, _ := NewLiteral(true)
-	l4, _ := NewLiteral(false)
-	l5 := NewLangLiteral("fisk", "nno")
-	l6 := NewLangLiteral("fisk", "no")
-	l7, _ := NewLiteral("fisk")
-	l8, _ := NewLiteral(time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC))
-
-	var formatTests = []struct {
-		l    Literal
-		want string
+func TestLiteral(t *testing.T) {
+	inferTypeTests := []struct {
+		input     interface{}
+		dt        IRI
+		errString string
 	}{
-		{l1, "42"},
-		{l2, "42.00001"},
-		{l3, "true"},
-		{l4, "false"},
-		{l5, `"fisk"@nno`},
-		{l6, `"fisk"@no`},
-		{l7, `"fisk"`},
-		{l8, `"2009-11-10T23:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>`},
+		{1, xsdInteger, ""},
+		{int64(1), xsdInteger, ""},
+		{int32(1), xsdInteger, ""},
+		{3.14, xsdDouble, ""},
+		{float32(3.14), xsdDouble, ""},
+		{float64(3.14), xsdDouble, ""},
+		{true, xsdBoolean, ""},
+		{false, xsdBoolean, ""},
+		{"a", xsdString, ""},
+		{[]byte("123"), xsdByte, ""},
+		{struct{ a, b string }{"1", "2"}, IRI{}, `cannot infer XSD datatype from struct { a string; b string }{a:"1", b:"2"}`},
 	}
 
-	for _, tt := range formatTests {
-		if tt.l.String() != tt.want {
-			t.Errorf("Literal string formatting \"%v\", want \"%v\"", tt.want, tt.l.String())
+	for _, tt := range inferTypeTests {
+		l, err := NewLiteral(tt.input)
+		if err != nil {
+			if tt.errString == "" {
+				t.Errorf("NewLiteral(%#v) failed with %v; want no error", tt.input, err)
+				continue
+			}
+			if tt.errString != err.Error() {
+				t.Errorf("NewLiteral(%#v) failed with %v; want %v", tt.input, err, tt.errString)
+				continue
+			}
 		}
+		if err == nil && tt.errString != "" {
+			t.Errorf("NewLiteral(%#v) => <no error>; want error %v", tt.input, tt.errString)
+			continue
+		}
+		if l.DataType != tt.dt {
+			t.Errorf("NewLiteral(%#v).DataType => %v; want %v", tt.input, l.DataType, tt.dt)
+		}
+	}
+
+	langTagTests := []struct {
+		tag     string
+		errWant string
+	}{
+		{"en", ""},
+		{"en-GB", ""},
+		{"nb-no2", ""},
+		{"no-no-a", "invalid language tag: only one '-' allowed"},
+		{"1", "invalid language tag: unexpected character: '1'"},
+		{"fr-ø", "invalid language tag: unexpected character: 'ø'"},
+		{"en-", "invalid language tag: trailing '-' disallowed"},
+		{"-en", "invalid language tag: must start with a letter"},
+	}
+	for _, tt := range langTagTests {
+		_, err := NewLangLiteral("string", tt.tag)
+		if err != nil {
+			if tt.errWant == "" {
+				t.Errorf("NewLangLiteral(\"string\", %#v) failed with %v; want no error", tt.tag, err)
+				continue
+			}
+			if tt.errWant != err.Error() {
+				t.Errorf("NewLangLiteral(\"string\", %#v) failed with %v; want %v", tt.tag, err, tt.errWant)
+				continue
+			}
+		}
+		if err == nil && tt.errWant != "" {
+			t.Errorf("NewLangLiteral(\"string\", %#v) => <no error>; want error %v", tt.tag, tt.errWant)
+			continue
+		}
+
 	}
 }

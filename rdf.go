@@ -200,24 +200,52 @@ func NewLiteral(v interface{}) (Literal, error) {
 	switch t := v.(type) {
 	case bool:
 		return Literal{Val: t, DataType: xsdBoolean}, nil
-	case int:
+	case int, int32, int64:
 		return Literal{Val: t, DataType: xsdInteger}, nil
 	case string:
 		return Literal{Val: t, DataType: xsdString}, nil
-	case float64:
-		return Literal{Val: t, DataType: xsdFloat}, nil
+	case float32, float64:
+		return Literal{Val: t, DataType: xsdDouble}, nil
 	case time.Time:
 		return Literal{Val: t, DataType: xsdDateTime}, nil
+	case []byte:
+		return Literal{Val: t, DataType: xsdByte}, nil
 	default:
-		return Literal{}, fmt.Errorf("cannot infer xsd:datatype from %v", t)
+		return Literal{}, fmt.Errorf("cannot infer XSD datatype from %#v", t)
 	}
 }
 
-// NewLangLiteral creates a RDF literal with a givne language tag.
-// No validation is performed to check if the language tag conforms
-// to the BCP 47 spec: http://tools.ietf.org/html/bcp47
-func NewLangLiteral(v, lang string) Literal {
-	return Literal{Val: v, Lang: lang, DataType: xsdString}
+// NewLangLiteral creates a RDF literal with a given language tag, or fails
+// if the language tag is not well-formed.
+//
+// The literal will have the datatype IRI xsd:String.
+func NewLangLiteral(v, lang string) (Literal, error) {
+	afterDash := false
+	if len(lang) >= 1 && lang[0] == '-' {
+		return Literal{}, errors.New("invalid language tag: must start with a letter")
+	}
+	for _, r := range lang {
+		switch {
+		case (r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z'):
+			continue
+		case r == '-':
+			if afterDash {
+				return Literal{}, errors.New("invalid language tag: only one '-' allowed")
+			}
+			afterDash = true
+		case r >= '0' && r <= '9':
+			if afterDash {
+				continue
+			}
+			fallthrough
+		default:
+			return Literal{}, fmt.Errorf("invalid language tag: unexpected character: %q", r)
+		}
+	}
+	if lang[len(lang)-1] == '-' {
+		return Literal{}, errors.New("invalid language tag: trailing '-' disallowed")
+	}
+	return Literal{Val: v, Lang: lang, DataType: xsdString}, nil
 }
 
 // Triple represents a RDF triple.
