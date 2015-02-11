@@ -1,10 +1,83 @@
 // Package rdf introduces data structures for representing RDF resources,
 // and includes functions for parsing and serialization of RDF data.
+//
+// Data structures
+//
+// RDF is a graph-based data model, where the graph is encoded as a set
+// of triples. A triple consist of a subject, predicate and an object.
+// In the case of multigraphs, the data is represented by quads. A quad
+// includes the named graph (also called context) in addition to the triple.
+//
+// The fundamental semantic entities are IRIs, Blank nodes and Literals, collectively
+// known as RDF Terms. The package provides constructors for creating RDF Terms,
+// ensuring that a given term conforms to the RDF 1.1 standards:
+//
+//    myiri, err := rdf.NewIRI("an invalid iri")
+//    if err != nil {
+//    	// space character not allowed in IRIs
+//    }
+//
+// There are 3 functions to create a Literal.
+//
+// NewLiteral() will infer the datatype from the given value:
+//
+//    l1, _ := rdf.NewLiteral(3.14)     // l1 will be stored as a Go float with datatype IRI xsd:Double
+//    l2, _ := rdf.NewLiteral("abc")    // l2 will be stored as a Go string with datatype IRI xsd:String
+//    l3, _ := rdf.NewLiteral(false)    // l3 will be stored as a Go bool with datatype IRI xsd:Boolean
+//    ...etc
+//
+//    l4, err := rdf.NewLiteral(struct{a string}{"aA"})
+//    if err != nil {
+//    	// cannot infer datatype of compisite values, like structs and maps.
+//    }
+//
+// NewLangLiteral() is used to create a language tagged literal. The dataype will be xsd:String:
+//
+//    l5, _ := rdf.NewLangLiteral("bonjour", "fr")
+//    l6, err := rdf.NewLangLiteral("hei", "123-")
+//    if err != nil {
+//    	// will fail on invalid language tags
+//    }
+//
+//
+// Parsing
+//
+// The package currently includes parsers for N-Triples, N-Quads and Turtle.
+//
+// They parsers are implemented as streaming decoders, consuming an io.Reader
+// and emitting triples/quads as soon as they are available. Simply call
+// DecodeTriple()/DecodeQuad() until the reader is exhausted and emits io.EOF:
+//
+//    f, err := os.Open("mytriples.ttl")
+//    if err != nil {
+//    	// handle err
+//    }
+//    dec := rdf.NewTTLDecoder(f, "my.base.uri")
+//    for triple, err := dec.DecodeTriple(); err != io.EOF; triple, err = dec.DecodeTriple() {
+//    	// do something with triple ..
+//    }
+// Parsers for RDFXML, JSON-LD and TriG are planned.
+//
+// RDF literals will get converted into corresponding Go types based on the XSD datatypes, according to the following mapping:
+//
+//    datatype IRI   Go type
+//    --------------------------
+//    xsd:string     string
+//    xsd:boolean    bool
+//    xsd:integer    int
+//    xsd:long       int
+//    xsd:decimal    float64
+//    xsd:double     float64
+//    xsd:float      float64
+//    xsd:byte       []byte
+//    xsd:dateTime   time.Time
+// Any other datatypes will be stored as a string.
 package rdf
 
 import (
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 )
@@ -32,7 +105,7 @@ var (
 
 	xsdDate          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#date"}
 	xsdTime          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#time"}
-	xsdDateTime      = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTime"}
+	xsdDateTime      = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTime"} // time.Time
 	xsdDateTimeStamp = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
 
 	// Recurring and partial dates:
@@ -47,19 +120,39 @@ var (
 
 	// Limited-range integer numbers
 
-	xsdByte = IRI{IRI: "http://www.w3.org/2001/XMLSchema#byte"} // []byte
+	xsdByte  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#byte"}  // []byte
+	xsdShort = IRI{IRI: "http://www.w3.org/2001/XMLSchema#short"} // int16
+	xsdInt   = IRI{IRI: "http://www.w3.org/2001/XMLSchema#int"}   // int32
+	xsdLong  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#long"}  // int64
 )
 
-// Term is the interface for the RDF term types: blank node, literal and IRI.
+// Format represents a RDF serialization format.
+type Format int
+
+// Supported parser/serialization formats for Triples and Quads.
+const (
+	// Triple serialization:
+
+	FormatNT  Format = iota // N-Triples
+	FormatTTL               // Turtle
+	// TODO: FormatRDFXML, JSON-LD
+
+	// Quad serialization:
+
+	FormatNQ // N-Quads
+	// TODO: Format TriG
+)
+
+// Term represents an RDF term. There are 3 term types: Blank node, Literal and IRI.
 type Term interface {
-	// String returns a string representation of the Term.
-	String() string
+	// Serialize returns a string representation of the Term in the specified serialization format.
+	Serialize(Format) string
 
 	// Value returns the typed value of a RDF term, boxed in an empty interface.
-	// For IRIs and Blank nodes this would return the uri and blank label as strings.
+	// For IRIs and Blank nodes this would return the iri and blank label as strings.
 	Value() interface{}
 
-	// Type returns the RDF term type.
+	// Type returns the Term type.
 	Type() TermType
 }
 
@@ -89,8 +182,8 @@ func (b Blank) Value() interface{} {
 	return b.ID
 }
 
-// String returns the string representation of a blank node.
-func (b Blank) String() string {
+// Serialize returns a string representation of a Blank node.
+func (b Blank) Serialize(f Format) string {
 	return "_:" + b.ID
 }
 
@@ -122,11 +215,6 @@ func (u IRI) ValidAsPredicate() {}
 // ValidAsObject denotes that an IRI is valid as a Triple's Object.
 func (u IRI) ValidAsObject() {}
 
-// String returns the string representation of an IRI.
-func (u IRI) String() string {
-	return "<" + u.IRI + ">"
-}
-
 // Value returns the IRI as a string, without the enclosing <>.
 func (u IRI) Value() interface{} {
 	return u.IRI
@@ -135,6 +223,11 @@ func (u IRI) Value() interface{} {
 // Type returns the TermType of a IRI.
 func (u IRI) Type() TermType {
 	return TermIRI
+}
+
+// Serialize returns a string representation of an IRI.
+func (u IRI) Serialize(f Format) string {
+	return fmt.Sprintf("<%s>", u.IRI)
 }
 
 // NewIRI returns a new IRI, or an error if it's not valid.
@@ -160,9 +253,7 @@ func NewIRI(iri string) (IRI, error) {
 // Literal represents a RDF literal; a value with a datatype and
 // (optionally) an associated language tag for strings.
 //
-// So called untyped literals are given the datatype xsd:string, so in practice
-// they are not untyped anymore. This is according to the RDF1.1 spec:
-// http://www.w3.org/TR/2014/REC-rdf11-concepts-20140225/#section-Graph-Literal
+// Untyped literals are not supported.
 type Literal struct {
 	// Val represents the typed value of a RDF Literal, boxed in an empty interface.
 	// A type assertion is needed to get the value in the corresponding Go type.
@@ -172,36 +263,23 @@ type Literal struct {
 	Lang string
 
 	// The datatype of the Literal.
-	// TODO should be a pointer, to easily check for nil??
 	DataType IRI
-}
-
-// String returns the string representation of a Literal.
-func (l Literal) String() string {
-	if l.Lang != "" {
-		return fmt.Sprintf("\"%v\"@%s", l.Val, l.Lang)
-	}
-	if l.DataType.String() != "" {
-		switch t := l.Val.(type) {
-		case bool, int, float64:
-			return fmt.Sprintf("%v", t)
-		case string:
-			if l.DataType == xsdString || l.DataType.String() == "" {
-				return fmt.Sprintf("\"%v\"", t)
-			}
-			return fmt.Sprintf("\"%v\"^^%v", t, l.DataType)
-		case time.Time:
-			return fmt.Sprintf("\"%v\"^^%v", t.Format(DateFormat), l.DataType)
-		default:
-			return fmt.Sprintf("%v^^%v", t, l.DataType)
-		}
-	}
-	return fmt.Sprintf("\"%v\"", l.Val)
 }
 
 // Value returns the string representation of an IRI.
 func (l Literal) Value() interface{} {
 	return l.Val
+}
+
+// Serialize returns a string representation of a Literal.
+func (l Literal) Serialize(f Format) string {
+	if l.Lang != "" {
+		return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"@` + l.Lang
+	}
+	if l.DataType != xsdString {
+		return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"^^` + l.DataType.Serialize(f)
+	}
+	return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"`
 }
 
 // Type returns the TermType of a Literal.
@@ -268,22 +346,26 @@ func NewLangLiteral(v, lang string) (Literal, error) {
 
 // Subject interface distiguishes which Terms are valid as a Subject of a Triple.
 type Subject interface {
+	Term
 	ValidAsSubject()
 }
 
 // Predicate interface distiguishes which Terms are valid as a Predicate of a Triple.
 type Predicate interface {
+	Term
 	ValidAsPredicate()
 }
 
 // Object interface distiguishes which Terms are valid as a Object of a Triple.
 type Object interface {
+	Term
 	ValidAsObject()
 }
 
 // Context interface distiguishes which Terms are valid as a Quad's Context.
 // Incidently, this is the same as Terms valid as a Subject of a Triple.
 type Context interface {
+	Term
 	ValidAsSubject()
 }
 
@@ -294,8 +376,60 @@ type Triple struct {
 	Obj  Object
 }
 
+// Serialize returns a string representation of a Triple in the specified format.
+//
+// However, it will only serialize the triple itself, and not include the prefix directives.
+// For a full serialization including directives, use the Serialize method on Triples.
+func (t Triple) Serialize(f Format) string {
+	var s, o string
+	switch term := t.Subj.(type) {
+	case IRI:
+		s = term.Serialize(f)
+	case Blank:
+		s = term.Serialize(f)
+	}
+	switch term := t.Obj.(type) {
+	case IRI:
+		o = term.Serialize(f)
+	case Literal:
+		o = term.Serialize(f)
+	case Blank:
+		o = term.Serialize(f)
+	}
+	return fmt.Sprintf(
+		"%s %s %s .\n",
+		s,
+		t.Pred.(IRI).Serialize(f),
+		o,
+	)
+}
+
 // Quad represents a RDF Quad; a Triple plus the context in which it occurs.
 type Quad struct {
 	Triple
 	Ctx Context
 }
+
+// Triples represents a collection of triples.
+type Triples []Triple
+
+// Serialize serializes Triples into given io.Writer in the specified format.
+func (ts Triples) Serialize(w io.Writer, f Format) error {
+	switch f {
+	case FormatNT, FormatNQ:
+		// N-Triples are serialized to as canonical form:
+		// http://www.w3.org/TR/n-triples/#canonical-ntriples
+		for _, t := range ts {
+			_, err := w.Write([]byte(t.Serialize(f)))
+			if err != nil {
+				return err
+			}
+		}
+	case FormatTTL:
+		panic("TODO")
+	}
+	return nil
+}
+
+// Quads represents a collection of quads.
+type Quads []Quad

@@ -1,6 +1,7 @@
 package rdf
 
 import (
+	"bytes"
 	"math"
 	"unicode"
 )
@@ -205,4 +206,24 @@ func decodeRune(s []byte) (r rune, size int) {
 
 	// error
 	return runeError, 1
+}
+
+// escapeLiteral escapes a Literal string for serialization to N-Triples (canonical form).
+func escapeLiteral(l string) string {
+	var buf bytes.Buffer
+	for _, r := range l {
+		switch r {
+		case '\n':
+			buf.WriteString(`\n`)
+		case '\r':
+			buf.WriteString(`\r`)
+		case '"':
+			buf.WriteString(`\"`)
+		case '\\':
+			buf.WriteString(`\\`)
+		default:
+			buf.WriteRune(r)
+		}
+	}
+	return buf.String()
 }
