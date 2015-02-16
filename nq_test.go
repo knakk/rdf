@@ -13,26 +13,16 @@ var defaultGraph = Blank{ID: "defaultGraph"}
 func BenchmarkDecodeNQ(b *testing.B) {
 	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer> <http://example/g>"
 	for n := 0; n < b.N; n++ {
-		dec := NewNQDecoder(bytes.NewBufferString(input), Blank{ID: "g"})
-		for _, err := dec.DecodeQuad(); err != io.EOF; _, err = dec.DecodeQuad() {
+		dec := NewQuadDecoder(bytes.NewBufferString(input), FormatNQ)
+		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 		}
 	}
-}
-
-func parseAllNQ(s string) (r []Quad, err error) {
-	dec := NewNQDecoder(bytes.NewBufferString(s), defaultGraph)
-	for q, err := dec.DecodeQuad(); err != io.EOF; q, err = dec.DecodeQuad() {
-		if err != nil {
-			return r, err
-		}
-		r = append(r, q)
-	}
-	return r, err
 }
 
 func TestNQ(t *testing.T) {
 	for _, test := range nqTestSuite {
-		quads, err := parseAllNQ(test.input)
+		dec := NewQuadDecoder(bytes.NewBufferString(test.input), FormatNQ)
+		quads, err := dec.DecodeAll()
 		if test.errWant != "" && err == nil {
 			t.Errorf("parseNQ(%s) => <no error>, want %q", test.input, test.errWant)
 			continue

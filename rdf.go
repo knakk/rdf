@@ -46,16 +46,17 @@
 //
 // They parsers are implemented as streaming decoders, consuming an io.Reader
 // and emitting triples/quads as soon as they are available. Simply call
-// DecodeTriple()/DecodeQuad() until the reader is exhausted and emits io.EOF:
+// Decode() until the reader is exhausted and emits io.EOF:
 //
 //    f, err := os.Open("mytriples.ttl")
 //    if err != nil {
 //    	// handle err
 //    }
-//    dec := rdf.NewTTLDecoder(f, "my.base.uri")
-//    for triple, err := dec.DecodeTriple(); err != io.EOF; triple, err = dec.DecodeTriple() {
+//    dec := rdf.NewTripleDecoder(f, rdf.FormatTTL)
+//    for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
 //    	// do something with triple ..
 //    }
+//
 // Parsers for RDFXML, JSON-LD and TriG are planned.
 //
 // RDF literals will get converted into corresponding Go types based on the XSD datatypes, according to the following mapping:
@@ -77,9 +78,9 @@ package rdf
 import (
 	"errors"
 	"fmt"
-	"io"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // DateFormat defines the string representation of xsd:DateTime values. You can override
@@ -228,6 +229,19 @@ func (u IRI) Type() TermType {
 // Serialize returns a string representation of an IRI.
 func (u IRI) Serialize(f Format) string {
 	return fmt.Sprintf("<%s>", u.IRI)
+}
+
+func (u IRI) split() (prefix, suffix string) {
+	i := len(u.IRI)
+	for i > 0 {
+		r, w := utf8.DecodeLastRuneInString(u.IRI[0:i])
+		if r == '#' || r == '/' {
+			prefix, suffix = u.IRI[0:i], u.IRI[i:len(u.IRI)]
+			break
+		}
+		i -= w
+	}
+	return prefix, suffix
 }
 
 // NewIRI returns a new IRI, or an error if it's not valid.
@@ -409,27 +423,3 @@ type Quad struct {
 	Triple
 	Ctx Context
 }
-
-// Triples represents a collection of triples.
-type Triples []Triple
-
-// Serialize serializes Triples into given io.Writer in the specified format.
-func (ts Triples) Serialize(w io.Writer, f Format) error {
-	switch f {
-	case FormatNT, FormatNQ:
-		// N-Triples are serialized to as canonical form:
-		// http://www.w3.org/TR/n-triples/#canonical-ntriples
-		for _, t := range ts {
-			_, err := w.Write([]byte(t.Serialize(f)))
-			if err != nil {
-				return err
-			}
-		}
-	case FormatTTL:
-		panic("TODO")
-	}
-	return nil
-}
-
-// Quads represents a collection of quads.
-type Quads []Quad

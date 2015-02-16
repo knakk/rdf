@@ -8,29 +8,265 @@ import (
 	"testing"
 )
 
-func BenchmarkDecodeNT(b *testing.B) {
-	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer>"
-	for n := 0; n < b.N; n++ {
-		dec := NewNTDecoder(bytes.NewBufferString(input))
-		for _, err := dec.DecodeTriple(); err != io.EOF; _, err = dec.DecodeTriple() {
+func TestNTSerialization(t *testing.T) {
+	tests := []struct {
+		t   Triple
+		out string
+	}{
+		{
+			Triple{Subj: IRI{IRI: "http://example/s"}, Pred: IRI{IRI: "http://example/p"}, Obj: IRI{IRI: "http://example/o"}},
+			`<http://example/s> <http://example/p> <http://example/o> .
+`,
+		},
+		{
+			Triple{
+				Subj: IRI{IRI: "http://example/æøå"},
+				Pred: IRI{IRI: "http://example/禅"},
+				Obj:  Literal{Val: "\"\\\r\n Здра́вствуйте\t☺", DataType: xsdString},
+			},
+			`<http://example/æøå> <http://example/禅> "\"\\\r\n Здра́вствуйте	☺" .
+`,
+		},
+		{
+			Triple{Subj: Blank{ID: "he"}, Pred: IRI{IRI: "http://xmlns.com/foaf/0.1/knows"}, Obj: Blank{ID: "she"}},
+			`_:he <http://xmlns.com/foaf/0.1/knows> _:she .
+`,
+		},
+		{
+			Triple{
+				Subj: IRI{IRI: "http://example/s"},
+				Pred: IRI{IRI: "http://example/p"},
+				Obj:  Literal{Val: 1, DataType: xsdInteger},
+			},
+			`<http://example/s> <http://example/p> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+`,
+		},
+		{
+			Triple{
+				Subj: IRI{IRI: "http://example/s"},
+				Pred: IRI{IRI: "http://example/p"},
+				Obj:  Literal{Val: "bonjour", DataType: xsdString, Lang: "fr"},
+			},
+			`<http://example/s> <http://example/p> "bonjour"@fr .
+`,
+		},
+	}
+
+	for _, tt := range tests {
+		s := tt.t.Serialize(FormatNT)
+		if s != tt.out {
+			t.Errorf("Serializing %v, \ngot:\n\t%s\nwant:\n\t%s", tt.t, s, tt.out)
 		}
+	}
+
+	triples := []Triple{
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource1"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  IRI{IRI: "http://example.org/resource2"},
+		},
+		Triple{
+			Subj: Blank{ID: "anon"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  IRI{IRI: "http://example.org/resource2"},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource2"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Blank{ID: "anon"},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource3"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  IRI{IRI: "http://example.org/resource2"},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource4"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  IRI{IRI: "http://example.org/resource2"},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource5"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  IRI{IRI: "http://example.org/resource2"},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource6"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  IRI{IRI: "http://example.org/resource2"},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource7"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "simple literal", DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource8"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: `backslash:\`, DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource9"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: `dquote:"`, DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource10"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "newline:\n", DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource11"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "return\r", DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource12"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "tab:\t", DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource13"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  IRI{IRI: "http://example.org/resource2"},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource14"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "x", DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource15"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Blank{ID: "anon"},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource16"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "é", DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource17"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "€", DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource21"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource22"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: " ", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource23"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "x", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource23"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: `"`, DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource24"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "<a></a>", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource25"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "a <b></b>", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource26"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "a <b></b> c", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource26"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "a\n<b></b>\nc", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource27"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "chat", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource30"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "chat", Lang: "fr", DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource31"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: xsdString},
+		},
+		Triple{
+			Subj: IRI{IRI: "http://example.org/resource32"},
+			Pred: IRI{IRI: "http://example.org/property"},
+			Obj:  Literal{Val: "abc", DataType: IRI{IRI: "http://example.org/datatype1"}},
+		},
+	}
+	var buf bytes.Buffer
+	want := `<http://example.org/resource1> <http://example.org/property> <http://example.org/resource2> .
+_:anon <http://example.org/property> <http://example.org/resource2> .
+<http://example.org/resource2> <http://example.org/property> _:anon .
+<http://example.org/resource3> <http://example.org/property> <http://example.org/resource2> .
+<http://example.org/resource4> <http://example.org/property> <http://example.org/resource2> .
+<http://example.org/resource5> <http://example.org/property> <http://example.org/resource2> .
+<http://example.org/resource6> <http://example.org/property> <http://example.org/resource2> .
+<http://example.org/resource7> <http://example.org/property> "simple literal" .
+<http://example.org/resource8> <http://example.org/property> "backslash:\\" .
+<http://example.org/resource9> <http://example.org/property> "dquote:\"" .
+<http://example.org/resource10> <http://example.org/property> "newline:\n" .
+<http://example.org/resource11> <http://example.org/property> "return\r" .
+<http://example.org/resource12> <http://example.org/property> "tab:	" .
+<http://example.org/resource13> <http://example.org/property> <http://example.org/resource2> .
+<http://example.org/resource14> <http://example.org/property> "x" .
+<http://example.org/resource15> <http://example.org/property> _:anon .
+<http://example.org/resource16> <http://example.org/property> "é" .
+<http://example.org/resource17> <http://example.org/property> "€" .
+<http://example.org/resource21> <http://example.org/property> ""^^<http://www.w3.org/2000/01/rdf-schema#XMLLiteral> .
+<http://example.org/resource22> <http://example.org/property> " "^^<http://www.w3.org/2000/01/rdf-schema#XMLLiteral> .
+<http://example.org/resource23> <http://example.org/property> "x"^^<http://www.w3.org/2000/01/rdf-schema#XMLLiteral> .
+<http://example.org/resource23> <http://example.org/property> "\""^^<http://www.w3.org/2000/01/rdf-schema#XMLLiteral> .
+<http://example.org/resource24> <http://example.org/property> "<a></a>"^^<http://www.w3.org/2000/01/rdf-schema#XMLLiteral> .
+<http://example.org/resource25> <http://example.org/property> "a <b></b>"^^<http://www.w3.org/2000/01/rdf-schema#XMLLiteral> .
+<http://example.org/resource26> <http://example.org/property> "a <b></b> c"^^<http://www.w3.org/2000/01/rdf-schema#XMLLiteral> .
+<http://example.org/resource26> <http://example.org/property> "a\n<b></b>\nc"^^<http://www.w3.org/2000/01/rdf-schema#XMLLiteral> .
+<http://example.org/resource27> <http://example.org/property> "chat"^^<http://www.w3.org/2000/01/rdf-schema#XMLLiteral> .
+<http://example.org/resource30> <http://example.org/property> "chat"@fr .
+<http://example.org/resource31> <http://example.org/property> "chat"@en .
+<http://example.org/resource32> <http://example.org/property> "abc"^^<http://example.org/datatype1> .
+`
+	enc := NewTripleEncoder(&buf, FormatNT)
+	err := enc.EncodeAll(triples)
+	if err != nil {
+		t.Fatalf("Serializing N-Triples to io.Writer failed: %v", err)
+	}
+	enc.Close()
+	if buf.String() != want {
+		t.Errorf("Serializing N-Triples:\n%v\ngot:\n%v\nwant:%v", triples, buf.String(), want)
 	}
 }
 
-func parseAllNT(s string) (r []Triple, err error) {
-	dec := NewNTDecoder(bytes.NewBufferString(s))
-	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {
-		if err != nil {
-			return r, err
+func BenchmarkDecodeNT(b *testing.B) {
+	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer>"
+	for n := 0; n < b.N; n++ {
+		dec := NewTripleDecoder(bytes.NewBufferString(input), FormatNT)
+		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 		}
-		r = append(r, tr)
 	}
-	return r, err
 }
 
 func TestNT(t *testing.T) {
 	for _, test := range ntTestSuite {
-		triples, err := parseAllNT(test.input)
+		dec := NewTripleDecoder(bytes.NewBufferString(test.input), FormatNT)
+		triples, err := dec.DecodeAll()
 		if test.errWant != "" && err == nil {
 			t.Errorf("parseNT(%s) => <no error>, want %q", test.input, test.errWant)
 			continue

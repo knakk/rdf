@@ -250,8 +250,8 @@ ericFoaf:ericP :givenName "Eric" ;
 func BenchmarkDecodeTTL(b *testing.B) {
 	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer> ."
 	for n := 0; n < b.N; n++ {
-		dec := NewTTLDecoder(bytes.NewBufferString(input), "http://baseuri")
-		for _, err := dec.DecodeTriple(); err != io.EOF; _, err = dec.DecodeTriple() {
+		dec := NewTripleDecoder(bytes.NewBufferString(input), FormatTTL)
+		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 		}
 	}
 }
@@ -259,8 +259,8 @@ func BenchmarkDecodeTTL(b *testing.B) {
 func benchmarkTTLEx(i int, b *testing.B) {
 	input := ttlBenchInputs[i]
 	for n := 0; n < b.N; n++ {
-		dec := NewTTLDecoder(bytes.NewBufferString(input), "http://baseuri")
-		for _, err := dec.DecodeTriple(); err != io.EOF; _, err = dec.DecodeTriple() {
+		dec := NewTripleDecoder(bytes.NewBufferString(input), FormatTTL)
+		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 			if err != nil {
 				b.Fatal(err)
 			}
@@ -298,20 +298,10 @@ func BenchmarkTTLEx27(b *testing.B) { benchmarkTTLEx(26, b) }
 func BenchmarkTTLEx28(b *testing.B) { benchmarkTTLEx(27, b) }
 func BenchmarkTTLEx29(b *testing.B) { benchmarkTTLEx(28, b) }
 
-func parseAllTTL(s string) (r []Triple, err error) {
-	dec := NewTTLDecoder(bytes.NewBufferString(s), "")
-	for tr, err := dec.DecodeTriple(); err != io.EOF; tr, err = dec.DecodeTriple() {
-		if err != nil {
-			return r, err
-		}
-		r = append(r, tr)
-	}
-	return r, err
-}
-
 func TestTTL(t *testing.T) {
 	for _, test := range ttlTestSuite {
-		triples, err := parseAllTTL(test.input)
+		dec := NewTripleDecoder(bytes.NewBufferString(test.input), FormatTTL)
+		triples, err := dec.DecodeAll()
 		if err != nil {
 			if test.errWant == "" {
 				t.Fatalf("ParseTTL(%s) => %v, want %v\ntriples:%v", test.input, err, test.want, triples)

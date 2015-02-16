@@ -48,13 +48,17 @@ func (ctx context) String() string {
 	}
 }
 
-// Decoder implements a Turtle/Trig parser
-type Decoder struct {
-	l *lexer
-	f format
+// TripleDecoder parses RDF triples in one of the following formats:
+// N-Triples, Turtle, RDF/XML.
+//
+// For streaming parsing, use the Decode() method to decode a single Triple
+// at a time. Or, if you want to read the whole source in one go, DecodeAll().
+type TripleDecoder struct {
+	l      *lexer
+	format Format
 
 	state     parseFn           // state of parser
-	base      string            // base (default IRI)
+	Base      string            // base (default IRI)
 	bnodeN    int               // anonymous blank node counter
 	g         Term              // default graph
 	ns        map[string]string // map[prefix]namespace
@@ -71,70 +75,59 @@ type Decoder struct {
 	triples []Triple
 }
 
-// NewTTLDecoder creates a Turtle decoder
-func NewTTLDecoder(r io.Reader, baseIRI string) *Decoder {
-	d := Decoder{
-		l:        newLexer(r),
-		f:        formatTTL,
+// NewTripleDecoder returns a new TripleDecoder capable of parsing triples
+// from the given io.Reader in the given serialization format.
+func NewTripleDecoder(r io.Reader, f Format) *TripleDecoder {
+	var l *lexer
+	switch f {
+	case FormatNT:
+		l = newLineLexer(r)
+	default:
+		l = newLexer(r)
+	}
+	d := TripleDecoder{
+		l:        l,
+		format:   f,
 		ns:       make(map[string]string),
 		ctxStack: make([]ctxTriple, 0, 8),
 		triples:  make([]Triple, 0, 4),
-		base:     baseIRI,
+		Base:     "",
 	}
 	return &d
 }
 
-// NewNTDecoder creates a N-Triples decoder
-func NewNTDecoder(r io.Reader) *Decoder {
-	d := Decoder{
-		l: newLineLexer(r),
-		f: formatNT,
-	}
-	return &d
-}
-
-// NewNQDecoder creates a N-Quads decoder.
-// defaultGraph must be ether a IRI or Blank.
-func NewNQDecoder(r io.Reader, defaultGraph Term) *Decoder {
-	if _, ok := defaultGraph.(Literal); ok {
-		panic("defaultGraph must be either an IRI or Blank node")
-	}
-	return &Decoder{
-		l: newLineLexer(r),
-		f: formatNQ,
-		g: defaultGraph,
-	}
-}
-
-// Public decoder methods:
-
-// DecodeTriple returns the next valid triple, or an error
-func (d *Decoder) DecodeTriple() (Triple, error) {
-	switch d.f {
-	case formatNT:
+// Decode returns the next valid Triple, or an error.
+func (d *TripleDecoder) Decode() (Triple, error) {
+	switch d.format {
+	case FormatNT:
 		return d.parseNT()
-	case formatTTL:
+	case FormatTTL:
 		return d.parseTTL()
 	}
 
-	return Triple{}, fmt.Errorf("can't decode triples in format %v", d.f)
+	return Triple{}, fmt.Errorf("can't decode triples in format %v", d.format)
 }
 
-// DecodeQuad returns the next valid quad, or an error
-func (d *Decoder) DecodeQuad() (Quad, error) {
-	return d.parseNQ()
+// DecodeAll decodes and returns all Triples from source, or an error
+func (d *TripleDecoder) DecodeAll() ([]Triple, error) {
+	var ts []Triple
+	for t, err := d.Decode(); err != io.EOF; t, err = d.Decode() {
+		if err != nil {
+			return nil, err
+		}
+		ts = append(ts, t)
+	}
+	return ts, nil
 }
-
-// Private parsing helpers:
 
 // pushContext pushes the current triple and context to the context stack.
-func (d *Decoder) pushContext() {
+func (d *TripleDecoder) pushContext() {
 	d.ctxStack = append(d.ctxStack, d.current)
 }
 
 // popContext restores the next context on the stack as the current context.
 // If allready at the topmost context, it clears the current triple.
-func (d *Decoder) popContext() {
+func (d *TripleDecoder) popContext() {
 	switch len(d.ctxStack) {
 	case 0:
 		d.current.Ctx = ctxTop
@@ -151,12 +144,12 @@ func (d *Decoder) popContext() {
 }
 
 // emit adds the current triple to the slice of completed triples.
-func (d *Decoder) emit() {
+func (d *TripleDecoder) emit() {
 	d.triples = append(d.triples, d.current.Triple)
 }
 
 // next returns the next token.
-func (d *Decoder) next() token {
+func (d *TripleDecoder) next() token {
 	if d.peekCount > 0 {
 		d.peekCount--
 	} else {
@@ -167,7 +160,7 @@ func (d *Decoder) next() token {
 }
 
 // peek returns but does not consume the next token.
-func (d *Decoder) peek() token {
+func (d *TripleDecoder) peek() token {
 	if d.peekCount > 0 {
 		return d.tokens[d.peekCount-1]
 	}
@@ -177,18 +170,18 @@ func (d *Decoder) peek() token {
 }
 
 // backup backs the input stream up one token.
-func (d *Decoder) backup() {
+func (d *TripleDecoder) backup() {
 	d.peekCount++
 }
 
 // backup2 backs the input stream up two tokens.
-func (d *Decoder) backup2(t1 token) {
+func (d *TripleDecoder) backup2(t1 token) {
 	d.tokens[1] = t1
 	d.peekCount = 2
 }
 
 // backup3 backs the input stream up three tokens.
-func (d *Decoder) backup3(t2, t1 token) {
+func (d *TripleDecoder) backup3(t2, t1 token) {
 	d.tokens[1] = t1
 	d.tokens[2] = t2
 	d.peekCount = 3
@@ -197,10 +190,10 @@ func (d *Decoder) backup3(t2, t1 token) {
 // Parsing:
 
 // parseFn represents the state of the parser as a function that returns the next state.
-type parseFn func(*Decoder) parseFn
+type parseFn func(*TripleDecoder) parseFn
 
 // parseStart parses top context
-func parseStart(d *Decoder) parseFn {
+func parseStart(d *TripleDecoder) parseFn {
 	switch d.next().typ {
 	case tokenPrefix:
 		label := d.expect1As("prefix label", tokenPrefixLabel)
@@ -210,7 +203,7 @@ func parseStart(d *Decoder) parseFn {
 		tok := d.expectAs("prefix IRI", tokenIRIAbs, tokenIRIRel)
 		if tok.typ == tokenIRIRel {
 			// Resolve against document base IRI
-			d.ns[label.text] = d.base + tok.text
+			d.ns[label.text] = d.Base + tok.text
 		} else {
 			d.ns[label.text] = tok.text
 		}
@@ -223,14 +216,14 @@ func parseStart(d *Decoder) parseFn {
 		tok := d.expectAs("base IRI", tokenIRIAbs, tokenIRIRel)
 		if tok.typ == tokenIRIRel {
 			// Resolve against document base IRI
-			d.base = d.base + tok.text
+			d.Base = d.Base + tok.text
 		} else {
-			d.base = tok.text
+			d.Base = tok.text
 		}
 		d.expect1As("directive trailing dot", tokenDot)
 	case tokenSparqlBase:
 		uri := d.expect1As("base IRI", tokenIRIAbs)
-		d.base = uri.text
+		d.Base = uri.text
 	case tokenEOF:
 		return nil
 	default:
@@ -241,7 +234,7 @@ func parseStart(d *Decoder) parseFn {
 }
 
 // parseEnd parses punctuation [.,;\])] before emitting the current triple.
-func parseEnd(d *Decoder) parseFn {
+func parseEnd(d *TripleDecoder) parseFn {
 	tok := d.next()
 	switch tok.typ {
 	case tokenSemicolon:
@@ -324,11 +317,11 @@ func parseEnd(d *Decoder) parseFn {
 
 }
 
-func parseTriple(d *Decoder) parseFn {
+func parseTriple(d *TripleDecoder) parseFn {
 	return parseSubject
 }
 
-func parseSubject(d *Decoder) parseFn {
+func parseSubject(d *TripleDecoder) parseFn {
 	// restore triple context, or clear current
 	d.popContext()
 
@@ -340,7 +333,7 @@ func parseSubject(d *Decoder) parseFn {
 	case tokenIRIAbs:
 		d.current.Subj = IRI{IRI: tok.text}
 	case tokenIRIRel:
-		d.current.Subj = IRI{IRI: d.base + tok.text}
+		d.current.Subj = IRI{IRI: d.Base + tok.text}
 	case tokenBNode:
 		d.current.Subj = Blank{ID: tok.text}
 	case tokenAnonBNode:
@@ -380,7 +373,7 @@ func parseSubject(d *Decoder) parseFn {
 	return parsePredicate
 }
 
-func parsePredicate(d *Decoder) parseFn {
+func parsePredicate(d *TripleDecoder) parseFn {
 	if d.current.Pred != nil {
 		return parseObject
 	}
@@ -389,7 +382,7 @@ func parsePredicate(d *Decoder) parseFn {
 	case tokenIRIAbs:
 		d.current.Pred = IRI{IRI: tok.text}
 	case tokenIRIRel:
-		d.current.Pred = IRI{IRI: d.base + tok.text}
+		d.current.Pred = IRI{IRI: d.Base + tok.text}
 	case tokenRDFType:
 		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
 	case tokenPrefixLabel:
@@ -408,13 +401,13 @@ func parsePredicate(d *Decoder) parseFn {
 	return parseObject
 }
 
-func parseObject(d *Decoder) parseFn {
+func parseObject(d *TripleDecoder) parseFn {
 	tok := d.next()
 	switch tok.typ {
 	case tokenIRIAbs:
 		d.current.Obj = IRI{IRI: tok.text}
 	case tokenIRIRel:
-		d.current.Obj = IRI{IRI: d.base + tok.text}
+		d.current.Obj = IRI{IRI: d.Base + tok.text}
 	case tokenBNode:
 		d.current.Obj = Blank{ID: tok.text}
 	case tokenAnonBNode:
@@ -540,19 +533,19 @@ func parseObject(d *Decoder) parseFn {
 }
 
 // errorf formats the error and terminates parsing.
-func (d *Decoder) errorf(format string, args ...interface{}) {
+func (d *TripleDecoder) errorf(format string, args ...interface{}) {
 	format = fmt.Sprintf("%s", format)
 	panic(fmt.Errorf(format, args...))
 }
 
 // unexpected complains about the given token and terminates parsing.
-func (d *Decoder) unexpected(t token, context string) {
+func (d *TripleDecoder) unexpected(t token, context string) {
 	d.errorf("%d:%d unexpected %v as %s", t.line, t.col, t.typ, context)
 }
 
 // recover catches non-runtime panics and binds the panic error
 // to the given error pointer.
-func (d *Decoder) recover(errp *error) {
+func (d *TripleDecoder) recover(errp *error) {
 	e := recover()
 	if e != nil {
 		if _, ok := e.(runtime.Error); ok {
@@ -566,7 +559,7 @@ func (d *Decoder) recover(errp *error) {
 }
 
 // expect1As consumes the next token and guarantees that it has the expected type.
-func (d *Decoder) expect1As(context string, expected tokenType) token {
+func (d *TripleDecoder) expect1As(context string, expected tokenType) token {
 	t := d.next()
 	if t.typ != expected {
 		if t.typ == tokenError {
@@ -579,7 +572,7 @@ func (d *Decoder) expect1As(context string, expected tokenType) token {
 }
 
 // expectAs consumes the next token and guarantees that it has the one of the expected types.
-func (d *Decoder) expectAs(context string, expected ...tokenType) token {
+func (d *TripleDecoder) expectAs(context string, expected ...tokenType) token {
 	t := d.next()
 	for _, e := range expected {
 		if t.typ == e {
@@ -595,7 +588,7 @@ func (d *Decoder) expectAs(context string, expected ...tokenType) token {
 }
 
 // parseNT parses a line of N-Triples and returns a valid triple or an error.
-func (d *Decoder) parseNT() (t Triple, err error) {
+func (d *TripleDecoder) parseNT() (t Triple, err error) {
 	defer d.recover(&err)
 
 again:
@@ -665,8 +658,194 @@ again:
 	return t, err
 }
 
+// parseTTL parses a Turtle document, and returns the first available triple.
+func (d *TripleDecoder) parseTTL() (t Triple, err error) {
+	defer d.recover(&err)
+
+	// Check if there is allready a triple in the pipeline:
+	if len(d.triples) >= 1 {
+		goto done
+	}
+
+	// Return io.EOF when there is no more tokens to parse.
+	if d.next().typ == tokenEOF {
+		return t, io.EOF
+	}
+	d.backup()
+
+	// Run the parser state machine.
+	for d.state = parseStart; d.state != nil; {
+		d.state = d.state(d)
+	}
+
+	if len(d.triples) == 0 {
+		// No triples to emit, i.e only comments and possibly directives was parsed.
+		return t, io.EOF
+	}
+
+done:
+	t = d.triples[0]
+	d.triples = d.triples[1:]
+	return t, err
+}
+
+// parseLiteral
+func parseLiteral(val, datatype string) (interface{}, error) {
+	switch datatype {
+	case xsdInteger.IRI:
+		i, err := strconv.Atoi(val)
+		if err != nil {
+			return nil, err
+		}
+		return i, nil
+	case xsdFloat.IRI, xsdDouble.IRI, xsdDecimal.IRI:
+		f, err := strconv.ParseFloat(val, 64)
+		if err != nil {
+			return nil, err
+		}
+		return f, nil
+	case xsdBoolean.IRI:
+		bo, err := strconv.ParseBool(val)
+		if err != nil {
+			return nil, err
+		}
+		return bo, nil
+	case xsdDateTime.IRI:
+		t, err := time.Parse(DateFormat, val)
+		if err != nil {
+			return nil, err
+		}
+		return t, nil
+	case xsdByte.IRI:
+		return []byte(val), nil
+		// TODO: other xsd dataypes that maps to Go data types
+	default:
+		return nil, fmt.Errorf("don't know how to represent %q with datatype %q as a Go type", val, datatype)
+	}
+}
+
+// QuadDecoder parses RDF quads in one of the following formats:
+// N-Quads.
+//
+// For streaming parsing, use the Decode() method to decode a single Quad
+// at a time. Or, if you want to read the whole source in one go, DecodeAll().
+type QuadDecoder struct {
+	l      *lexer
+	format Format
+
+	state        parseFn  // state of parser
+	Base         string   // base (default IRI)
+	bnodeN       int      // anonymous blank node counter
+	DefaultGraph Context  // default graph
+	tokens       [3]token // 3 token lookahead
+	peekCount    int      // number of tokens peeked at (position in tokens lookahead array)
+}
+
+// NewQuadDecoder returns a new QuadDecoder capable of parsing quads
+// from the given io.Reader in the given serialization format.
+func NewQuadDecoder(r io.Reader, f Format) *QuadDecoder {
+	return &QuadDecoder{
+		l:            newLineLexer(r),
+		format:       f,
+		DefaultGraph: Blank{ID: "defaultGraph"},
+	}
+}
+
+// Decode returns the next valid Quad, or an error
+func (d *QuadDecoder) Decode() (Quad, error) {
+	return d.parseNQ()
+}
+
+// DecodeAll decodes and returns all Quads from source, or an error
+func (d *QuadDecoder) DecodeAll() ([]Quad, error) {
+	var qs []Quad
+	for q, err := d.Decode(); err != io.EOF; q, err = d.Decode() {
+		if err != nil {
+			return nil, err
+		}
+		qs = append(qs, q)
+	}
+	return qs, nil
+}
+
+// next returns the next token.
+func (d *QuadDecoder) next() token {
+	if d.peekCount > 0 {
+		d.peekCount--
+	} else {
+		d.tokens[0] = d.l.nextToken()
+	}
+
+	return d.tokens[d.peekCount]
+}
+
+// peek returns but does not consume the next token.
+func (d *QuadDecoder) peek() token {
+	if d.peekCount > 0 {
+		return d.tokens[d.peekCount-1]
+	}
+	d.peekCount = 1
+	d.tokens[0] = d.l.nextToken()
+	return d.tokens[0]
+}
+
+// recover catches non-runtime panics and binds the panic error
+// to the given error pointer.
+func (d *QuadDecoder) recover(errp *error) {
+	e := recover()
+	if e != nil {
+		if _, ok := e.(runtime.Error); ok {
+			// Don't recover from runtime errors.
+			panic(e)
+		}
+		//d.stop() something to clean up?
+		*errp = e.(error)
+	}
+	return
+}
+
+// expect1As consumes the next token and guarantees that it has the expected type.
+func (d *QuadDecoder) expect1As(context string, expected tokenType) token {
+	t := d.next()
+	if t.typ != expected {
+		if t.typ == tokenError {
+			d.errorf("%d:%d: syntax error: %s", t.line, t.col, t.text)
+		} else {
+			d.unexpected(t, context)
+		}
+	}
+	return t
+}
+
+// expectAs consumes the next token and guarantees that it has the one of the expected types.
+func (d *QuadDecoder) expectAs(context string, expected ...tokenType) token {
+	t := d.next()
+	for _, e := range expected {
+		if t.typ == e {
+			return t
+		}
+	}
+	if t.typ == tokenError {
+		d.errorf("syntax error: %s", t.text)
+	} else {
+		d.unexpected(t, context)
+	}
+	return t
+}
+
+// errorf formats the error and terminates parsing.
+func (d *QuadDecoder) errorf(format string, args ...interface{}) {
+	format = fmt.Sprintf("%s", format)
+	panic(fmt.Errorf(format, args...))
+}
+
+// unexpected complains about the given token and terminates parsing.
+func (d *QuadDecoder) unexpected(t token, context string) {
+	d.errorf("%d:%d unexpected %v as %s", t.line, t.col, t.typ, context)
+}
+
 // parseNQ parses a line of N-Quads and returns a valid quad or an error.
-func (d *Decoder) parseNQ() (q Quad, err error) {
+func (d *QuadDecoder) parseNQ() (q Quad, err error) {
 	defer d.recover(&err)
 
 	for d.peek().typ == tokenEOL {
@@ -677,7 +856,7 @@ func (d *Decoder) parseNQ() (q Quad, err error) {
 	}
 
 	// Set Quad context to default graph
-	q.Ctx = d.g.(Context)
+	q.Ctx = d.DefaultGraph
 
 	// parse quad subject
 	tok := d.expectAs("subject", tokenIRIAbs, tokenBNode)
@@ -749,72 +928,4 @@ func (d *Decoder) parseNQ() (q Quad, err error) {
 		d.next()
 	}
 	return q, err
-}
-
-// parseTTL parses a Turtle document, and returns the first available triple.
-func (d *Decoder) parseTTL() (t Triple, err error) {
-	defer d.recover(&err)
-
-	// Check if there is allready a triple in the pipeline:
-	if len(d.triples) >= 1 {
-		goto done
-	}
-
-	// Return io.EOF when there is no more tokens to parse.
-	if d.next().typ == tokenEOF {
-		return t, io.EOF
-	}
-	d.backup()
-
-	// Run the parser state machine.
-	for d.state = parseStart; d.state != nil; {
-		d.state = d.state(d)
-	}
-
-	if len(d.triples) == 0 {
-		// No triples to emit, i.e only comments and possibly directives was parsed.
-		return t, io.EOF
-	}
-
-done:
-	t = d.triples[0]
-	d.triples = d.triples[1:]
-	return t, err
-}
-
-// Helper functions:
-
-// parseLiteral
-func parseLiteral(val, datatype string) (interface{}, error) {
-	switch datatype {
-	case xsdInteger.IRI:
-		i, err := strconv.Atoi(val)
-		if err != nil {
-			return nil, err
-		}
-		return i, nil
-	case xsdFloat.IRI, xsdDouble.IRI, xsdDecimal.IRI:
-		f, err := strconv.ParseFloat(val, 64)
-		if err != nil {
-			return nil, err
-		}
-		return f, nil
-	case xsdBoolean.IRI:
-		bo, err := strconv.ParseBool(val)
-		if err != nil {
-			return nil, err
-		}
-		return bo, nil
-	case xsdDateTime.IRI:
-		t, err := time.Parse(DateFormat, val)
-		if err != nil {
-			return nil, err
-		}
-		return t, nil
-	case xsdByte.IRI:
-		return []byte(val), nil
-		// TODO: other xsd dataypes that maps to Go data types
-	default:
-		return nil, fmt.Errorf("don't know how to represent %q with datatype %q as a Go type", val, datatype)
-	}
 }
