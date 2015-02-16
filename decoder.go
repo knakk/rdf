@@ -10,15 +10,6 @@ import (
 
 type format int
 
-const (
-	formatUnknown format = iota
-	formatRDFXML
-	formatTTL
-	formatNT
-	formatNQ
-	formatTriG
-)
-
 // ctxTriple contains a Triple, plus the context in which the Triple appears.
 type ctxTriple struct {
 	Triple
@@ -60,7 +51,6 @@ type TripleDecoder struct {
 	state     parseFn           // state of parser
 	Base      string            // base (default IRI)
 	bnodeN    int               // anonymous blank node counter
-	g         Term              // default graph
 	ns        map[string]string // map[prefix]namespace
 	tokens    [3]token          // 3 token lookahead
 	peekCount int               // number of tokens peeked at (position in tokens lookahead array)
@@ -733,9 +723,6 @@ type QuadDecoder struct {
 	l      *lexer
 	format Format
 
-	state        parseFn  // state of parser
-	Base         string   // base (default IRI)
-	bnodeN       int      // anonymous blank node counter
 	DefaultGraph Context  // default graph
 	tokens       [3]token // 3 token lookahead
 	peekCount    int      // number of tokens peeked at (position in tokens lookahead array)
