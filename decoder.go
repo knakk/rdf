@@ -49,7 +49,7 @@ type TripleDecoder struct {
 	format Format
 
 	state     parseFn           // state of parser
-	Base      string            // base (default IRI)
+	Base      IRI               // base (default IRI)
 	bnodeN    int               // anonymous blank node counter
 	ns        map[string]string // map[prefix]namespace
 	tokens    [3]token          // 3 token lookahead
@@ -81,7 +81,7 @@ func NewTripleDecoder(r io.Reader, f Format) *TripleDecoder {
 		ns:       make(map[string]string),
 		ctxStack: make([]ctxTriple, 0, 8),
 		triples:  make([]Triple, 0, 4),
-		Base:     "",
+		Base:     IRI{IRI: ""},
 	}
 	return &d
 }
@@ -193,7 +193,7 @@ func parseStart(d *TripleDecoder) parseFn {
 		tok := d.expectAs("prefix IRI", tokenIRIAbs, tokenIRIRel)
 		if tok.typ == tokenIRIRel {
 			// Resolve against document base IRI
-			d.ns[label.text] = d.Base + tok.text
+			d.ns[label.text] = d.Base.IRI + tok.text
 		} else {
 			d.ns[label.text] = tok.text
 		}
@@ -206,14 +206,14 @@ func parseStart(d *TripleDecoder) parseFn {
 		tok := d.expectAs("base IRI", tokenIRIAbs, tokenIRIRel)
 		if tok.typ == tokenIRIRel {
 			// Resolve against document base IRI
-			d.Base = d.Base + tok.text
+			d.Base.IRI = d.Base.IRI + tok.text
 		} else {
-			d.Base = tok.text
+			d.Base.IRI = tok.text
 		}
 		d.expect1As("directive trailing dot", tokenDot)
 	case tokenSparqlBase:
 		uri := d.expect1As("base IRI", tokenIRIAbs)
-		d.Base = uri.text
+		d.Base.IRI = uri.text
 	case tokenEOF:
 		return nil
 	default:
@@ -323,7 +323,7 @@ func parseSubject(d *TripleDecoder) parseFn {
 	case tokenIRIAbs:
 		d.current.Subj = IRI{IRI: tok.text}
 	case tokenIRIRel:
-		d.current.Subj = IRI{IRI: d.Base + tok.text}
+		d.current.Subj = IRI{IRI: d.Base.IRI + tok.text}
 	case tokenBNode:
 		d.current.Subj = Blank{ID: tok.text}
 	case tokenAnonBNode:
@@ -372,7 +372,7 @@ func parsePredicate(d *TripleDecoder) parseFn {
 	case tokenIRIAbs:
 		d.current.Pred = IRI{IRI: tok.text}
 	case tokenIRIRel:
-		d.current.Pred = IRI{IRI: d.Base + tok.text}
+		d.current.Pred = IRI{IRI: d.Base.IRI + tok.text}
 	case tokenRDFType:
 		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
 	case tokenPrefixLabel:
@@ -397,7 +397,7 @@ func parseObject(d *TripleDecoder) parseFn {
 	case tokenIRIAbs:
 		d.current.Obj = IRI{IRI: tok.text}
 	case tokenIRIRel:
-		d.current.Obj = IRI{IRI: d.Base + tok.text}
+		d.current.Obj = IRI{IRI: d.Base.IRI + tok.text}
 	case tokenBNode:
 		d.current.Obj = Blank{ID: tok.text}
 	case tokenAnonBNode:
