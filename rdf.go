@@ -172,11 +172,11 @@ type Blank struct {
 	ID string
 }
 
-// ValidAsSubject denotes that a Blank node is valid as a Triple's Subject.
-func (b Blank) ValidAsSubject() {}
+// validAsSubject denotes that a Blank node is valid as a Triple's Subject.
+func (b Blank) validAsSubject() {}
 
-// ValidAsObject denotes that a Blank node is valid as a Triple's Object.
-func (b Blank) ValidAsObject() {}
+// validAsObject denotes that a Blank node is valid as a Triple's Object.
+func (b Blank) validAsObject() {}
 
 // Value returns the string label of the blank node, without the '_:' prefix.
 func (b Blank) Value() interface{} {
@@ -207,14 +207,14 @@ type IRI struct {
 	IRI string
 }
 
-// ValidAsSubject denotes that an IRI is valid as a Triple's Subject.
-func (u IRI) ValidAsSubject() {}
+// validAsSubject denotes that an IRI is valid as a Triple's Subject.
+func (u IRI) validAsSubject() {}
 
-// ValidAsPredicate denotes that an IRI is valid as a Triple's Predicate.
-func (u IRI) ValidAsPredicate() {}
+// validAsPredicate denotes that an IRI is valid as a Triple's Predicate.
+func (u IRI) validAsPredicate() {}
 
-// ValidAsObject denotes that an IRI is valid as a Triple's Object.
-func (u IRI) ValidAsObject() {}
+// validAsObject denotes that an IRI is valid as a Triple's Object.
+func (u IRI) validAsObject() {}
 
 // Value returns the IRI as a string, without the enclosing <>.
 func (u IRI) Value() interface{} {
@@ -301,8 +301,8 @@ func (l Literal) Type() TermType {
 	return TermLiteral
 }
 
-// ValidAsObject denotes that a Literal is valid as a Triple's Object.
-func (l Literal) ValidAsObject() {}
+// validAsObject denotes that a Literal is valid as a Triple's Object.
+func (l Literal) validAsObject() {}
 
 // NewLiteral returns a new Literal, or an error on invalid input. It tries
 // to map the given Go values to a corresponding xsd datatype.
@@ -361,26 +361,26 @@ func NewLangLiteral(v, lang string) (Literal, error) {
 // Subject interface distiguishes which Terms are valid as a Subject of a Triple.
 type Subject interface {
 	Term
-	ValidAsSubject()
+	validAsSubject()
 }
 
 // Predicate interface distiguishes which Terms are valid as a Predicate of a Triple.
 type Predicate interface {
 	Term
-	ValidAsPredicate()
+	validAsPredicate()
 }
 
 // Object interface distiguishes which Terms are valid as a Object of a Triple.
 type Object interface {
 	Term
-	ValidAsObject()
+	validAsObject()
 }
 
 // Context interface distiguishes which Terms are valid as a Quad's Context.
 // Incidently, this is the same as Terms valid as a Subject of a Triple.
 type Context interface {
 	Term
-	ValidAsSubject()
+	validAsSubject()
 }
 
 // Triple represents a RDF triple.
