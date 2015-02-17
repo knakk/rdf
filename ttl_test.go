@@ -98,7 +98,8 @@ show:218 rdfs:label "That Seventies Show" .                                     
 show:218 show:localName "That Seventies Show"@en .                 # literal with a language tag
 show:218 show:localName 'Cette Série des Années Soixante-dix'@fr . # literal delimited by single quote
 show:218 show:localName "Cette Série des Années Septante"@fr-be .  # literal with a region subtag
-show:218 show:blurb '''This is a multi-line                        # literal with embedded new lines and quotes
+																   # literal with embedded new lines and quotes
+show:218 show:blurb '''This is a multi-line
 literal with many quotes (""""")
 and up to two sequential apostrophes ('').''' .`,
 
@@ -247,6 +248,226 @@ ericFoaf:ericP :givenName "Eric" ;
 <http://books.example.com/works/45U8QJGZSQKDH8N> a frbr:Work .`,
 }
 
+var ttlBenchOutputs = []string{
+	`@prefix ns0:	<http://example.org/#> .
+@prefix ns1:	<http://www.perceive.net/schemas/relationship/> .
+ns0:green\-goblin	ns1:enemyOf	ns0:spiderman .
+@prefix ns2:	<http://xmlns.com/foaf/0.1/> .
+ns0:green\-goblin	a	ns2:Person ;
+	ns2:name	"Green Goblin" .
+ns0:spiderman	ns1:enemyOf	ns0:green\-goblin ;
+	a	ns2:Person ;
+	ns2:name	"Spiderman" ,
+			"Человек-паук"@ru .`,
+
+	`@prefix ns0:	<http://example.org/#> .
+@prefix ns1:	<http://www.perceive.net/schemas/relationship/> .
+ns0:spiderman	ns1:enemyOf	ns0:green\-goblin .`,
+
+	`@prefix ns0:	<http://example.org/#> .
+@prefix ns1:	<http://www.perceive.net/schemas/relationship/> .
+ns0:spiderman	ns1:enemyOf	ns0:green\-goblin .
+@prefix ns2:	<http://xmlns.com/foaf/0.1/> .
+ns0:spiderman	ns2:name	"Spiderman" .`,
+
+	`@prefix ns0:	<http://example.org/#> .
+@prefix ns1:	<http://www.perceive.net/schemas/relationship/> .
+ns0:spiderman	ns1:enemyOf	ns0:green\-goblin .
+@prefix ns2:	<http://xmlns.com/foaf/0.1/> .
+ns0:spiderman	ns2:name	"Spiderman" .`,
+
+	`@prefix ns0:	<http://xmlns.com/foaf/0.1/> .
+@prefix ns1:	<http://example.org/#> .
+ns1:spiderman	ns0:name	"Spiderman" ,
+			"Человек-паук"@ru .`,
+
+	`@prefix ns0:	<http://xmlns.com/foaf/0.1/> .
+@prefix ns1:	<http://example.org/#> .
+ns1:spiderman	ns0:name	"Spiderman" ,
+			"Человек-паук"@ru .`,
+
+	`@prefix ns0:	<http://example.org/#> .
+@prefix ns1:	<http://www.perceive.net/schemas/relationship/> .
+ns0:green\-goblin	ns1:enemyOf	ns0:spiderman .`,
+
+	`@prefix ns0:	<http://example.org/#> .
+@prefix ns1:	<http://www.perceive.net/schemas/relationship/> .
+ns0:green\-goblin	ns1:enemyOf	ns0:spiderman .`,
+
+	`@prefix ns0:	<http://another.example/> .
+ns0:subject5	ns0:predicate5	ns0:object5 .
+ns0:subject6	a	ns0:subject7 .
+@prefix ns1:	<http://one.example/path/> .
+ns1:subject4	ns1:predicate4	ns1:object4 .
+@prefix ns2:	<http://one.example/> .
+ns2:subject1	ns2:predicate1	ns2:object1 .
+ns2:subject2	ns2:predicate2	ns2:object2 .
+@prefix ns3:	<http://two.example/> .
+ns3:subject3	ns3:predicate3	ns3:object3 .
+@prefix ns4:	<http://伝言.example/> .
+ns4:\?user\=أكرم\&amp\;channel\=R\%26D	a	ns0:subject8 .`,
+
+	`@prefix ns0:	<http://xmlns.com/foaf/0.1/> .
+@prefix ns1:	<http://example.org/#> .
+ns1:green\-goblin	ns0:name	"Green Goblin" .
+ns1:spiderman	ns0:name	"Spiderman" .`,
+
+	`@prefix ns0:	<http://example.org/vocab/show/> .
+ns0:218	ns0:blurb	"This is a multi-line\nliteral with many quotes (\"\"\"\"\")\nand up to two sequential apostrophes ('')." ;
+	ns0:localName	"That Seventies Show"@en ,
+			"Cette Série des Années Soixante-dix"@fr ,
+			"Cette Série des Années Septante"@fr-be .
+@prefix ns1:	<http://www.w3.org/2000/01/rdf-schema#> .
+ns0:218	ns1:label	"That Seventies Show" .`,
+
+	`@prefix ns0:	<http://example.org/> .
+@prefix ns1:	<http://en.wikipedia.org/wiki/> .
+ns1:Helium	ns0:elementsatomicMass	4.002602 ;
+	ns0:elementsatomicNumber	2 ;
+	ns0:elementsspecificGravity	1.663000e-04 .`,
+
+	`@prefix ns0:	<http://example.org/> .
+@prefix ns1:	<http://somecountry.example/> .
+ns1:census2007	ns0:statsisLandlocked	false .`,
+
+	`@prefix ns0:	<http://xmlns.com/foaf/0.1/> .
+_:alice	ns0:knows	_:bob .
+_:bob	ns0:knows	_:alice .`,
+
+	`@prefix ns0:	<http://xmlns.com/foaf/0.1/> .
+_:b1	ns0:knows	_:b2 .
+_:b2	ns0:name	"Bob" .`,
+
+	`@prefix ns0:	<http://xmlns.com/foaf/0.1/> .
+_:b1	ns0:knows	_:b2 ;
+	ns0:name	"Alice" .
+_:b2	ns0:knows	_:b3 ;
+	ns0:mbox	<bob@example.com> ;
+	ns0:name	"Bob" .
+_:b3	ns0:name	"Eve" .`,
+
+	`@prefix ns0:	<http://xmlns.com/foaf/0.1/> .
+_:a	ns0:knows	_:b ;
+	ns0:name	"Alice" .
+_:b	ns0:knows	_:c ;
+	ns0:mbox	<bob@example.com> ;
+	ns0:name	"Bob" .
+_:c	ns0:name	"Eve" .`,
+
+	`@prefix ns0:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ns1:	<http://example.org/> .
+ns1:foosubject	ns1:foopredicate2	ns0:nil ;
+	ns1:foopredicate	_:b1 .
+_:b1	ns0:first	ns1:fooa ;
+	ns0:rest	_:b2 .
+_:b2	ns0:first	ns1:foob ;
+	ns0:rest	_:b3 .
+_:b3	ns0:first	ns1:fooc ;
+	ns0:rest	ns0:nil .`,
+
+	`@prefix ns0:	<http://example.org/stuff/1.0/> .
+@prefix ns1:	<http://www.w3.org/TR/> .
+ns1:rdf\-syntax\-grammar	ns0:editor	_:b1 .
+@prefix ns2:	<http://purl.org/dc/elements/1.1/> .
+ns1:rdf\-syntax\-grammar	ns2:title	"RDF/XML Syntax Specification (Revised)" .
+_:b1	ns0:fullname	"Dave Beckett" .
+@prefix ns3:	<http://purl.org/net/dajobe/> .
+_:b1	ns0:homePage	ns3: .`,
+
+	`@prefix ns0:	<http://example.org/stuff/1.0/> .
+ns0:a	ns0:b	_:b1 .
+@prefix ns1:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b1	ns1:first	"apple" ;
+	ns1:rest	_:b2 .
+_:b2	ns1:first	"banana" ;
+	ns1:rest	ns1:nil .`,
+
+	`@prefix ns0:	<http://example.org/stuff/1.0/> .
+ns0:a	ns0:b	_:b1 .
+@prefix ns1:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b1	ns1:first	"apple" ;
+	ns1:rest	_:b2 .
+_:b2	ns1:first	"banana" ;
+	ns1:rest	ns1:nil .`,
+
+	`@prefix ns0:	<http://example.org/stuff/1.0/> .
+ns0:a	ns0:b	"The first line\nThe second line\n  more" .`,
+
+	`@prefix ns0:	<http://example.org/stuff/1.0/> .
+_:b1	ns0:p	"w" .
+@prefix ns1:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b1	ns1:first	1 ;
+	ns1:rest	_:b2 .
+_:b2	ns1:first	2 ;
+	ns1:rest	_:b3 .
+_:b3	ns1:first	3.000000e+01 ;
+	ns1:rest	ns1:nil .`,
+
+	`@prefix ns0:	<http://example.org/stuff/1.0/> .
+_:b0	ns0:p	"w" .
+@prefix ns1:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b0	ns1:first	1 ;
+	ns1:rest	_:b1 .
+_:b1	ns1:first	2 ;
+	ns1:rest	_:b2 .
+_:b2	ns1:first	3.000000e+01 ;
+	ns1:rest	ns1:nil .`,
+
+	`@prefix ns0:	<http://example.org/stuff/1.0/> .
+_:b1	ns0:p2	ns0:q2 .
+@prefix ns1:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b1	ns1:first	1 ;
+	ns1:rest	_:b2 .
+_:b2	ns1:first	_:b3 ;
+	ns1:rest	_:b4 .
+_:b3	ns0:p	ns0:q .
+_:b4	ns1:first	_:b5 ;
+	ns1:rest	ns1:nil .
+_:b5	ns1:first	2 ;
+	ns1:rest	ns1:nil .`,
+
+	`@prefix ns0:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b0	ns0:first	1 ;
+	ns0:rest	_:b1 .
+_:b1	ns0:first	_:b2 ;
+	ns0:rest	_:b3 .
+@prefix ns1:	<http://example.org/stuff/1.0/> .
+_:b2	ns1:p	ns1:q .
+_:b3	ns0:first	_:b4 ;
+	ns0:rest	ns0:nil .
+_:b4	ns0:first	2 ;
+	ns0:rest	ns0:nil .`,
+
+	`@prefix ns0:	<http://xmlns.com/foaf/0.1/> .
+@prefix ns1:	<http://www.w3.org/People/Eric/ericP-foaf.rdf#> .
+ns1:ericP	ns0:givenName	"Eric" .
+@prefix ns2:	<http://norman.walsh.name/knows/who/> .
+ns1:ericP	ns0:knows	ns2:dan\-brickley ,
+			_:b1 .
+@prefix ns3:	<http://getopenid.com/> .
+ns1:ericP	ns0:knows	ns3:amyvdh .
+_:b1	ns0:mbox	<mailto:timbl@w3.org> .`,
+
+	`@prefix ns0:	<http://books.example.com/product-types/> .
+@prefix ns1:	<http://purl.org/dc/terms/> .
+@prefix ns2:	<http://books.example.com/products/> .
+ns2:9780596007683\.BOOK	ns1:type	ns0:BOOK .
+@prefix ns3:	<http://purl.org/vocab/frbr/core#> .
+ns2:9780596007683\.BOOK	a	ns3:Expression .
+ns2:9780596802189\.EBOOK	ns1:type	ns0:EBOOK ;
+	a	ns3:Expression .
+@prefix ns4:	<http://books.example.com/works/> .
+ns4:45U8QJGZSQKDH8N	ns1:creator	"Wil Wheaton"@en ;
+	ns1:title	"Just a Geek"@en ;
+	ns3:realization	ns2:9780596802189\.EBOOK ,
+			ns2:9780596007683\.BOOK ;
+	a	ns3:Work .`,
+
+	`@prefix ns0:	<http://purl.org/vocab/frbr/core#> .
+@prefix ns1:	<http://books.example.com/works/> .
+ns1:45U8QJGZSQKDH8N	a	ns0:Work .`,
+}
+
 func BenchmarkDecodeTTL(b *testing.B) {
 	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer> ."
 	for n := 0; n < b.N; n++ {
@@ -298,6 +519,28 @@ func BenchmarkTTLEx27(b *testing.B) { benchmarkTTLEx(26, b) }
 func BenchmarkTTLEx28(b *testing.B) { benchmarkTTLEx(27, b) }
 func BenchmarkTTLEx29(b *testing.B) { benchmarkTTLEx(28, b) }
 
+func TestEncodingTTL(t *testing.T) {
+	for i, ex := range ttlBenchInputs {
+		dec := NewTripleDecoder(bytes.NewBufferString(ex), FormatTTL)
+		triples, err := dec.DecodeAll()
+		if err != nil {
+			t.Fatal(err)
+		}
+		var buf bytes.Buffer
+		enc := NewTripleEncoder(&buf, FormatTTL)
+		err = enc.EncodeAll(triples)
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = enc.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if buf.String() != ttlBenchOutputs[i] {
+			t.Fatalf("Decode/Encode roundtrip failed, re-encoding:\n%v\ngot:\n%v\nwant:\n%v", ex, buf.String(), ttlBenchOutputs[i])
+		}
+	}
+}
 func TestTTL(t *testing.T) {
 	for _, test := range ttlTestSuite {
 		dec := NewTripleDecoder(bytes.NewBufferString(test.input), FormatTTL)

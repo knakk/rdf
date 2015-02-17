@@ -291,7 +291,21 @@ func (l Literal) Serialize(f Format) string {
 		return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"@` + l.Lang
 	}
 	if l.DataType != xsdString {
-		return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"^^` + l.DataType.Serialize(f)
+		switch f {
+		case FormatNT, FormatNQ:
+			return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"^^` + l.DataType.Serialize(f)
+		case FormatTTL:
+			switch l.DataType {
+			case xsdInteger, xsdDecimal, xsdBoolean:
+				return fmt.Sprintf("%v", l.Val)
+			case xsdDouble:
+				return fmt.Sprintf("%e", l.Val)
+			default:
+				return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"^^` + l.DataType.Serialize(f)
+			}
+		default:
+			panic("TODO")
+		}
 	}
 	return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"`
 }
@@ -393,7 +407,7 @@ type Triple struct {
 // Serialize returns a string representation of a Triple in the specified format.
 //
 // However, it will only serialize the triple itself, and not include the prefix directives.
-// For a full serialization including directives, use the Serialize method on Triples.
+// For a full serialization including directives, use the TripleEncoder.
 func (t Triple) Serialize(f Format) string {
 	var s, o string
 	switch term := t.Subj.(type) {
@@ -422,4 +436,12 @@ func (t Triple) Serialize(f Format) string {
 type Quad struct {
 	Triple
 	Ctx Context
+}
+
+// TermsEqual returns true if two Terms are equal, or false if they are not.
+func TermsEqual(a, b Term) bool {
+	if a.Type() != b.Type() {
+		return false
+	}
+	return a.Value() == b.Value()
 }
