@@ -424,7 +424,11 @@ func parseObject(d *TripleDecoder) parseFn {
 				if err == nil {
 					l.Val = v
 					l.DataType = IRI{IRI: tok.text}
-				} // TODO else set to xsd:string?
+				} else {
+					d.errorf("failed to parse literal into Go datatype: %v", err)
+				}
+				// TODO else set to xsd:string?
+				// TODO consider add StrictMode Boolean
 			case tokenPrefixLabel:
 				ns, ok := d.ns[tok.text]
 				if !ok {
@@ -682,6 +686,8 @@ done:
 // parseLiteral
 func parseLiteral(val, datatype string) (interface{}, error) {
 	switch datatype {
+	case xsdString.IRI:
+		return val, nil
 	case xsdInteger.IRI:
 		i, err := strconv.Atoi(val)
 		if err != nil {
@@ -703,7 +709,13 @@ func parseLiteral(val, datatype string) (interface{}, error) {
 	case xsdDateTime.IRI:
 		t, err := time.Parse(DateFormat, val)
 		if err != nil {
-			return nil, err
+			// Unfortunately, xsd:dateTime allows dates without timezone information
+			// Try parse again unspecified timzeone (defaulting to UTC)
+			t, err = time.Parse("2006-01-02T15:04:05", val)
+			if err != nil {
+				return nil, err
+			}
+			return t, nil
 		}
 		return t, nil
 	case xsdByte.IRI:

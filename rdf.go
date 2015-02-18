@@ -293,13 +293,20 @@ func (l Literal) Serialize(f Format) string {
 	if l.DataType != xsdString {
 		switch f {
 		case FormatNT, FormatNQ:
-			return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"^^` + l.DataType.Serialize(f)
+			switch l.DataType {
+			case xsdDateTime:
+				return fmt.Sprintf("\"%s\"^^%s", l.Val.(time.Time).Format(DateFormat), l.DataType.Serialize(f))
+			default:
+				return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"^^` + l.DataType.Serialize(f)
+			}
 		case FormatTTL:
 			switch l.DataType {
 			case xsdInteger, xsdDecimal, xsdBoolean:
 				return fmt.Sprintf("%v", l.Val)
 			case xsdDouble:
 				return fmt.Sprintf("%e", l.Val)
+			case xsdDateTime:
+				return fmt.Sprintf("\"%s\"^^%s", l.Val.(time.Time).Format(DateFormat), l.DataType.Serialize(f))
 			default:
 				return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"^^` + l.DataType.Serialize(f)
 			}
