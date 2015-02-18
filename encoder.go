@@ -239,25 +239,7 @@ func (e *TripleEncoder) prefixify(t Term) string {
 			return t.Serialize(FormatTTL)
 		}
 
-		// escape rest according to PN_LOCAL
-		// http://www.w3.org/TR/turtle/#reserved
-		var b bytes.Buffer
-		for _, r := range rest {
-			if int(r) <= 126 && int(r) >= 37 {
-				// only bother to check if rune is in range
-				switch r {
-				case '_', '~', '.', '-', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=', '/', '?', '#', '@', '%':
-					b.WriteRune('\\')
-					b.WriteRune(r)
-				default:
-					b.WriteRune(r)
-				}
-			} else {
-				b.WriteRune(r)
-			}
-		}
-		// TODO should also ensure that last character is not '.'
-		rest = b.String()
+		rest = escapeLocal(rest)
 
 		prefix, ok := e.ns[first]
 		if !ok {
@@ -272,7 +254,55 @@ func (e *TripleEncoder) prefixify(t Term) string {
 		}
 		return fmt.Sprintf("%s:%s", prefix, rest)
 	}
+	if t.Type() == TermLiteral {
+		switch t.(Literal).DataType {
+		case xsdString, xsdInteger, xsdBoolean, xsdDouble, xsdDecimal:
+			// serialize normally in Literal.Serialize method
+			break
+		default:
+			first, rest := t.(Literal).DataType.split()
+			if first == "" {
+				return t.Serialize(FormatTTL)
+			}
+			rest = escapeLocal(rest)
+
+			prefix, ok := e.ns[first]
+			if !ok {
+				prefix = fmt.Sprintf("ns%d", e.nsCount)
+				e.ns[first] = prefix
+				if e.OpenStatement {
+					e.w.write([]byte(" .\n"))
+				}
+				e.w.write([]byte(fmt.Sprintf("@prefix %s:\t<%s> .\n", prefix, first)))
+				e.nsCount++
+				e.OpenStatement = false
+			}
+			return fmt.Sprintf("\"%s\"^^%s:%s", t.(Literal).Val, prefix, rest)
+		}
+	}
 	return t.Serialize(FormatTTL)
+}
+
+func escapeLocal(rest string) string {
+	// escape rest according to PN_LOCAL
+	// http://www.w3.org/TR/turtle/#reserved
+	var b bytes.Buffer
+	for _, r := range rest {
+		if int(r) <= 126 && int(r) >= 37 {
+			// only bother to check if rune is in range
+			switch r {
+			case '_', '~', '.', '-', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=', '/', '?', '#', '@', '%':
+				b.WriteRune('\\')
+				b.WriteRune(r)
+			default:
+				b.WriteRune(r)
+			}
+		} else {
+			b.WriteRune(r)
+		}
+	}
+	// TODO should also ensure that last character is not '.'
+	return b.String()
 }
 
 type triples []Triple
