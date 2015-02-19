@@ -383,7 +383,7 @@ func parsePredicate(d *TripleDecoder) parseFn {
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
 		d.current.Pred = IRI{IRI: ns + suf.text}
 	case tokenError:
-		d.errorf("syntax error: %v", tok.text)
+		d.errorf("%d:%d: syntax error: %v", tok.line, tok.col, tok.text)
 	default:
 		d.errorf("%d:%d: unexpected %v as predicate", tok.line, tok.col, tok.typ)
 	}
@@ -825,7 +825,7 @@ func (d *QuadDecoder) expectAs(context string, expected ...tokenType) token {
 		}
 	}
 	if t.typ == tokenError {
-		d.errorf("syntax error: %s", t.text)
+		d.errorf("%d:%d: syntax error: %v", t.line, t.col, t.text)
 	} else {
 		d.unexpected(t, context)
 	}
