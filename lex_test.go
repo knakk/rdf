@@ -245,6 +245,12 @@ two
 			{tokenLangMarker, "@"},
 			{tokenError, "bad literal: invalid language tag"}},
 		},
+		{`"Neishe"@zh-latn-pinyin-x-notone`, []testToken{
+			{tokenLiteral, "Neishe"},
+			{tokenLangMarker, "@"},
+			{tokenLang, "zh-latn-pinyin-x-notone"},
+			{tokenEOF, ""}},
+		},
 		{`"a"^^<s://mydatatype>`, []testToken{
 			{tokenLiteral, "a"},
 			{tokenDataTypeMarker, "^^"},

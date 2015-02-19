@@ -842,28 +842,29 @@ func lexBNode(l *lexer) stateFn {
 }
 
 func lexLang(l *lexer) stateFn {
-	// consume [A-Za-z]+
+	// NOTE this is only a rough check of the language tag's well-formedness.
+	// TODO: Full conformance with the spec is quite complex:
+	// http://tools.ietf.org/html/bcp47 [section 2.1]
 	c := 0
-	for r := l.next(); isAlpha(r); r = l.next() {
+	var r rune
+	for r = l.next(); isAlpha(r); r = l.next() {
 		c++
 	}
-	l.backup()
+
 	if c == 0 {
 		return l.errorf("bad literal: invalid language tag")
 	}
-
-	// consume ('-' [A-Za-z0-9])* if present
-	if l.peek() == '-' {
-		l.next() // consume '-'
-
+	if r == '-' {
 		c = 0
-		for r := l.next(); isAlphaOrDigit(r); r = l.next() {
+		for r := l.next(); isAlphaOrDigit(r) || r == '-'; r = l.next() {
 			c++
 		}
 		l.backup()
 		if c == 0 {
 			return l.errorf("bad literal: invalid language tag")
 		}
+	} else {
+		l.backup()
 	}
 
 	l.emit(tokenLang)
