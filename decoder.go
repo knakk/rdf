@@ -439,7 +439,9 @@ func parseObject(d *TripleDecoder) parseFn {
 				if err == nil {
 					l.Val = v
 					l.DataType = IRI{IRI: ns + tok2.text}
-				} // TODO else set to xsd:string?
+				} else {
+					d.errorf("failed to parse literal into Go datatype: %v", err)
+				}
 			}
 		}
 		d.current.Obj = l
@@ -722,7 +724,7 @@ func parseLiteral(val, datatype string) (interface{}, error) {
 		return []byte(val), nil
 		// TODO: other xsd dataypes that maps to Go data types
 	default:
-		return nil, fmt.Errorf("don't know how to represent %q with datatype %q as a Go type", val, datatype)
+		return val, nil
 	}
 }
 
