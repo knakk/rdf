@@ -990,7 +990,7 @@ outerLoop:
 		}
 	}
 	l.backup()
-	if l.input[min(len(l.input)-1, l.pos-1)] == '.' {
+	if l.input[min(len(l.input)-1, l.pos-1)] == '.' && l.input[min(len(l.input)-2, l.pos-2)] != '\\' {
 		// last rune cannot be dot, otherwise isPnLocalMid(r) is valid for last position as well
 		l.pos--
 	}

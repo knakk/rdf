@@ -321,6 +321,11 @@ two
 			{tokenDot, ""},
 			{tokenEOF, ""}},
 		},
+		{`p:D\.C\.`, []testToken{
+			{tokenPrefixLabel, "p"},
+			{tokenIRISuffix, "D.C."},
+			{tokenEOF, ""}},
+		},
 		{`p:s <http://a.example/p> <http://a.example/o>`, []testToken{
 			{tokenPrefixLabel, "p"},
 			{tokenIRISuffix, "s"},
