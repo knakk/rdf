@@ -288,7 +288,7 @@ func escapeLocal(rest string) string {
 	// http://www.w3.org/TR/turtle/#reserved
 	var b bytes.Buffer
 	for _, r := range rest {
-		if int(r) <= 126 && int(r) >= 37 {
+		if int(r) <= 126 && int(r) >= 33 {
 			// only bother to check if rune is in range
 			switch r {
 			case '_', '~', '.', '-', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=', '/', '?', '#', '@', '%':
