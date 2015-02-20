@@ -288,7 +288,7 @@ func (l Literal) Value() interface{} {
 // Serialize returns a string representation of a Literal.
 func (l Literal) Serialize(f Format) string {
 	if l.Lang != "" {
-		return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"@` + l.Lang
+		return fmt.Sprintf("\"%s\"@%s", escapeLiteral(l.Val.(string)), l.Lang)
 	}
 	if l.DataType != xsdString {
 		switch f {
@@ -308,13 +308,13 @@ func (l Literal) Serialize(f Format) string {
 			case xsdDateTime:
 				return fmt.Sprintf("\"%s\"^^%s", l.Val.(time.Time).Format(DateFormat), l.DataType.Serialize(f))
 			default:
-				return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"^^` + l.DataType.Serialize(f)
+				return fmt.Sprintf("\"%s\"^^%s", escapeLiteral(l.Val.(string)), l.DataType.Serialize(f))
 			}
 		default:
 			panic("TODO")
 		}
 	}
-	return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"`
+	return fmt.Sprintf("\"%s\"", escapeLiteral(l.Val.(string)))
 }
 
 // Type returns the TermType of a Literal.

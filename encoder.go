@@ -277,7 +277,7 @@ func (e *TripleEncoder) prefixify(t Term) string {
 				e.nsCount++
 				e.OpenStatement = false
 			}
-			return fmt.Sprintf("\"%s\"^^%s:%s", t.(Literal).Val, prefix, rest)
+			return fmt.Sprintf("\"%s\"^^%s:%s", escapeLiteral(t.(Literal).Val.(string)), prefix, rest)
 		}
 	}
 	return t.Serialize(FormatTTL)
