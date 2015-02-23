@@ -452,3 +452,13 @@ func TermsEqual(a, b Term) bool {
 	}
 	return a.Value() == b.Value()
 }
+
+// TriplesEqual tests if two Triples are identical.
+func TriplesEqual(a, b Triple) bool {
+	return TermsEqual(a.Subj, b.Subj) && TermsEqual(a.Pred, b.Pred) && TermsEqual(a.Obj, b.Obj)
+}
+
+// QuadsEqual tests if two Quads are identical.
+func QuadsEqual(a, b Quad) bool {
+	return TermsEqual(a.Ctx, b.Ctx) && TriplesEqual(a.Triple, b.Triple)
+}
