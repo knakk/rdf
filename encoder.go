@@ -233,7 +233,7 @@ func (e *TripleEncoder) prefixify(t Term) string {
 		if t.(IRI).IRI == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" {
 			return "a"
 		}
-		first, rest := t.(IRI).split()
+		first, rest := t.(IRI).Split()
 		if first == "" {
 			// cannot split into prefix and namespace
 			return t.Serialize(FormatTTL)
@@ -260,7 +260,7 @@ func (e *TripleEncoder) prefixify(t Term) string {
 			// serialize normally in Literal.Serialize method
 			break
 		default:
-			first, rest := t.(Literal).DataType.split()
+			first, rest := t.(Literal).DataType.Split()
 			if first == "" {
 				return t.Serialize(FormatTTL)
 			}

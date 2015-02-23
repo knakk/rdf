@@ -231,7 +231,9 @@ func (u IRI) Serialize(f Format) string {
 	return fmt.Sprintf("<%s>", u.IRI)
 }
 
-func (u IRI) split() (prefix, suffix string) {
+// Split returns the prefix and suffix of the IRI string, splitted at the first
+// '/' or '#' character, in reverse order of the string.
+func (u IRI) Split() (prefix, suffix string) {
 	i := len(u.IRI)
 	for i > 0 {
 		r, w := utf8.DecodeLastRuneInString(u.IRI[0:i])
