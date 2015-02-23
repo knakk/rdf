@@ -235,7 +235,7 @@ func (u IRI) split() (prefix, suffix string) {
 	i := len(u.IRI)
 	for i > 0 {
 		r, w := utf8.DecodeLastRuneInString(u.IRI[0:i])
-		if r == '#' || r == '/' {
+		if r == '/' || r == '#' {
 			prefix, suffix = u.IRI[0:i], u.IRI[i:len(u.IRI)]
 			break
 		}
