@@ -125,6 +125,8 @@ var (
 	xsdShort = IRI{IRI: "http://www.w3.org/2001/XMLSchema#short"} // int16
 	xsdInt   = IRI{IRI: "http://www.w3.org/2001/XMLSchema#int"}   // int32
 	xsdLong  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#long"}  // int64
+
+	rdfLangString = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"} // string
 )
 
 // Format represents a RDF serialization format.
@@ -289,7 +291,7 @@ func (l Literal) Value() interface{} {
 
 // Serialize returns a string representation of a Literal.
 func (l Literal) Serialize(f Format) string {
-	if l.Lang != "" {
+	if TermsEqual(l.DataType, rdfLangString) {
 		return fmt.Sprintf("\"%s\"@%s", escapeLiteral(l.Val.(string)), l.Lang)
 	}
 	if l.DataType != xsdString {
@@ -378,7 +380,7 @@ func NewLangLiteral(v, lang string) (Literal, error) {
 	if lang[len(lang)-1] == '-' {
 		return Literal{}, errors.New("invalid language tag: trailing '-' disallowed")
 	}
-	return Literal{Val: v, Lang: lang, DataType: xsdString}, nil
+	return Literal{Val: v, Lang: lang, DataType: rdfLangString}, nil
 }
 
 // Subject interface distiguishes which Terms are valid as a Subject of a Triple.

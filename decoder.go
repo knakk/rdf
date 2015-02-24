@@ -415,6 +415,7 @@ func parseObject(d *TripleDecoder) parseFn {
 			d.next() // consume peeked token
 			tok = d.expect1As("literal language", tokenLang)
 			l.Lang = tok.text
+			l.DataType = rdfLangString
 		case tokenDataTypeMarker:
 			d.next() // consume peeked token
 			tok = d.expectAs("literal datatype", tokenIRIAbs, tokenPrefixLabel)
@@ -626,6 +627,7 @@ again:
 			d.next() // consume peeked token
 			tok = d.expect1As("literal language", tokenLang)
 			l.Lang = tok.text
+			l.DataType = rdfLangString
 		case tokenDataTypeMarker:
 			d.next() // consume peeked token
 			tok = d.expect1As("literal datatype", tokenIRIAbs)
@@ -889,6 +891,7 @@ func (d *QuadDecoder) parseNQ() (q Quad, err error) {
 			d.next() // consume peeked token
 			tok = d.expect1As("literal language", tokenLang)
 			l.Lang = tok.text
+			l.DataType = rdfLangString
 		case tokenDataTypeMarker:
 			d.next() // consume peeked token
 			tok = d.expect1As("literal datatype", tokenIRIAbs)

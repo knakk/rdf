@@ -256,7 +256,7 @@ func (e *TripleEncoder) prefixify(t Term) string {
 	}
 	if t.Type() == TermLiteral {
 		switch t.(Literal).DataType {
-		case xsdString, xsdInteger, xsdBoolean, xsdDouble, xsdDecimal:
+		case xsdString, xsdInteger, xsdBoolean, xsdDouble, xsdDecimal, rdfLangString:
 			// serialize normally in Literal.Serialize method
 			break
 		default:

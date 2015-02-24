@@ -45,7 +45,7 @@ func TestNTSerialization(t *testing.T) {
 			Triple{
 				Subj: IRI{IRI: "http://example/s"},
 				Pred: IRI{IRI: "http://example/p"},
-				Obj:  Literal{Val: "bonjour", DataType: xsdString, Lang: "fr"},
+				Obj:  Literal{Val: "bonjour", DataType: rdfLangString, Lang: "fr"},
 			},
 			`<http://example/s> <http://example/p> "bonjour"@fr .
 `,
@@ -198,12 +198,12 @@ func TestNTSerialization(t *testing.T) {
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource30"},
 			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{Val: "chat", Lang: "fr", DataType: xsdString},
+			Obj:  Literal{Val: "chat", Lang: "fr", DataType: rdfLangString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource31"},
 			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{Val: "chat", Lang: "en", DataType: xsdString},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: rdfLangString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource32"},
@@ -409,7 +409,7 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://example/s"},
 			Pred: IRI{IRI: "http://example/p"},
-			Obj:  Literal{Val: "string", DataType: xsdString, Lang: "en"},
+			Obj:  Literal{Val: "string", DataType: rdfLangString, Lang: "en"},
 		},
 	}},
 
@@ -423,7 +423,7 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://example/s"},
 			Pred: IRI{IRI: "http://example/p"},
-			Obj:  Literal{Val: "string", DataType: xsdString, Lang: "en-uk"},
+			Obj:  Literal{Val: "string", DataType: rdfLangString, Lang: "en-uk"},
 		},
 	}},
 
@@ -1003,12 +1003,12 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource30"},
 			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{Val: "chat", Lang: "fr", DataType: xsdString},
+			Obj:  Literal{Val: "chat", Lang: "fr", DataType: rdfLangString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource31"},
 			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{Val: "chat", Lang: "en", DataType: xsdString},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: rdfLangString},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource32"},
@@ -1052,7 +1052,7 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://example/s"},
 			Pred: IRI{IRI: "http://example/p"},
-			Obj:  Literal{Val: "o", Lang: "en", DataType: xsdString},
+			Obj:  Literal{Val: "o", Lang: "en", DataType: rdfLangString},
 		},
 	}},
 
@@ -1337,7 +1337,7 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "chat", Lang: "en", DataType: xsdString},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: rdfLangString},
 		},
 	}},
 
@@ -1352,7 +1352,7 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#a"},
 			Pred: IRI{IRI: "http://example.org/ex#b"},
-			Obj:  Literal{Val: "Cheers", Lang: "en-UK", DataType: xsdString},
+			Obj:  Literal{Val: "Cheers", Lang: "en-UK", DataType: rdfLangString},
 		},
 	}},
 

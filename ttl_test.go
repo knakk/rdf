@@ -2173,7 +2173,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "chat", Lang: "en", DataType: xsdString},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: rdfLangString},
 		},
 	}},
 
@@ -2189,7 +2189,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "chat", Lang: "en", DataType: xsdString},
+			Obj:  Literal{Val: "chat", Lang: "en", DataType: rdfLangString},
 		},
 	}},
 
@@ -2205,7 +2205,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Literal{Val: "chat", Lang: "en-us", DataType: xsdString},
+			Obj:  Literal{Val: "chat", Lang: "en-us", DataType: rdfLangString},
 		},
 	}},
 
@@ -2593,7 +2593,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "string", DataType: xsdString, Lang: "en"},
+			Obj:  Literal{Val: "string", DataType: rdfLangString, Lang: "en"},
 		},
 	}},
 
@@ -2608,7 +2608,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "string", DataType: xsdString, Lang: "en-uk"},
+			Obj:  Literal{Val: "string", DataType: rdfLangString, Lang: "en-uk"},
 		},
 	}},
 
@@ -2638,7 +2638,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "string", DataType: xsdString, Lang: "en"},
+			Obj:  Literal{Val: "string", DataType: rdfLangString, Lang: "en"},
 		},
 	}},
 
@@ -2653,7 +2653,7 @@ x:_  x:p_1 x:o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "string", DataType: xsdString, Lang: "en-uk"},
+			Obj:  Literal{Val: "string", DataType: rdfLangString, Lang: "en-uk"},
 		},
 	}},
 
@@ -2716,7 +2716,7 @@ def"""@en .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "abc\ndef", DataType: xsdString, Lang: "en"},
+			Obj:  Literal{Val: "abc\ndef", DataType: rdfLangString, Lang: "en"},
 		},
 	}},
 
@@ -2732,7 +2732,7 @@ def'''@en .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Literal{Val: "abc\ndef", DataType: xsdString, Lang: "en"},
+			Obj:  Literal{Val: "abc\ndef", DataType: rdfLangString, Lang: "en"},
 		},
 	}},
 
@@ -5534,7 +5534,7 @@ foo:blah foo:blah foo:blah .
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ex#a"},
 			Pred: IRI{IRI: "http://example.org/ex#b"},
-			Obj:  Literal{Val: "Cheers", Lang: "en-UK", DataType: xsdString},
+			Obj:  Literal{Val: "Cheers", Lang: "en-UK", DataType: rdfLangString},
 		},
 	}},
 
