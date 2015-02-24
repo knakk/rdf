@@ -144,6 +144,9 @@ const (
 
 	FormatNQ // N-Quads
 	// TODO: Format TriG
+
+	// Internal formats
+	formatRAW
 )
 
 // Term represents an RDF term. There are 3 term types: Blank node, Literal and IRI.
@@ -296,6 +299,13 @@ func (l Literal) Serialize(f Format) string {
 	}
 	if l.DataType != xsdString {
 		switch f {
+		case formatRAW:
+			switch l.DataType {
+			case xsdDateTime:
+				return l.Val.(time.Time).Format(DateFormat)
+			default:
+				return fmt.Sprintf("%v", l.Val)
+			}
 		case FormatNT, FormatNQ:
 			switch l.DataType {
 			case xsdDateTime:
