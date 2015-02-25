@@ -406,7 +406,7 @@ func parseObject(d *TripleDecoder) parseFn {
 	case tokenLiteral, tokenLiteral3:
 		val := tok.text
 		l := Literal{
-			Val:      val,
+			str:      val,
 			DataType: xsdString,
 		}
 		p := d.peek()
@@ -414,64 +414,42 @@ func parseObject(d *TripleDecoder) parseFn {
 		case tokenLangMarker:
 			d.next() // consume peeked token
 			tok = d.expect1As("literal language", tokenLang)
-			l.Lang = tok.text
+			l.lang = tok.text
 			l.DataType = rdfLangString
 		case tokenDataTypeMarker:
 			d.next() // consume peeked token
 			tok = d.expectAs("literal datatype", tokenIRIAbs, tokenPrefixLabel)
 			switch tok.typ {
 			case tokenIRIAbs:
-				v, err := parseLiteral(val, tok.text)
-				if err == nil {
-					l.Val = v
-					l.DataType = IRI{IRI: tok.text}
-				} else {
-					d.errorf("failed to parse literal into Go datatype: %v", err)
-				}
-				// TODO else set to xsd:string?
-				// TODO consider add StrictMode Boolean
+				l.DataType = IRI{IRI: tok.text}
 			case tokenPrefixLabel:
 				ns, ok := d.ns[tok.text]
 				if !ok {
 					d.errorf("missing namespace for prefix: '%s'", tok.text)
 				}
 				tok2 := d.expect1As("IRI suffix", tokenIRISuffix)
-				v, err := parseLiteral(val, ns+tok2.text)
-				if err == nil {
-					l.Val = v
-					l.DataType = IRI{IRI: ns + tok2.text}
-				} else {
-					d.errorf("failed to parse literal into Go datatype: %v", err)
-				}
+				l.DataType = IRI{IRI: ns + tok2.text}
 			}
 		}
 		d.current.Obj = l
 	case tokenLiteralDouble:
-		// we can ignore the error, because we know it's an correctly lexed dobule value:
-		f, _ := strconv.ParseFloat(tok.text, 64)
 		d.current.Obj = Literal{
-			Val:      f,
+			str:      tok.text,
 			DataType: xsdDouble,
 		}
 	case tokenLiteralDecimal:
-		// we can ignore the error, because we know it's an correctly lexed decimal value:
-		f, _ := strconv.ParseFloat(tok.text, 64)
 		d.current.Obj = Literal{
-			Val:      f,
+			str:      tok.text,
 			DataType: xsdDecimal,
 		}
 	case tokenLiteralInteger:
-		// we can ignore the error, because we know it's an correctly lexed integer value:
-		i, _ := strconv.Atoi(tok.text)
 		d.current.Obj = Literal{
-			Val:      i,
+			str:      tok.text,
 			DataType: xsdInteger,
 		}
 	case tokenLiteralBoolean:
-		// we can ignore the error, because we know from the lexer it's either "true" or "false":
-		i, _ := strconv.ParseBool(tok.text)
 		d.current.Obj = Literal{
-			Val:      i,
+			str:      tok.text,
 			DataType: xsdBoolean,
 		}
 	case tokenPrefixLabel:
@@ -618,7 +596,7 @@ again:
 	case tokenLiteral:
 		val := tok.text
 		l := Literal{
-			Val:      val,
+			str:      val,
 			DataType: xsdString,
 		}
 		p := d.peek()
@@ -626,15 +604,11 @@ again:
 		case tokenLangMarker:
 			d.next() // consume peeked token
 			tok = d.expect1As("literal language", tokenLang)
-			l.Lang = tok.text
+			l.lang = tok.text
 			l.DataType = rdfLangString
 		case tokenDataTypeMarker:
 			d.next() // consume peeked token
 			tok = d.expect1As("literal datatype", tokenIRIAbs)
-			v, err := parseLiteral(val, tok.text)
-			if err == nil {
-				l.Val = v
-			}
 			l.DataType = IRI{IRI: tok.text}
 		}
 		t.Obj = l
@@ -882,7 +856,7 @@ func (d *QuadDecoder) parseNQ() (q Quad, err error) {
 	case tokenLiteral:
 		val := tok.text
 		l := Literal{
-			Val:      val,
+			str:      val,
 			DataType: xsdString,
 		}
 		p := d.peek()
@@ -890,15 +864,11 @@ func (d *QuadDecoder) parseNQ() (q Quad, err error) {
 		case tokenLangMarker:
 			d.next() // consume peeked token
 			tok = d.expect1As("literal language", tokenLang)
-			l.Lang = tok.text
+			l.lang = tok.text
 			l.DataType = rdfLangString
 		case tokenDataTypeMarker:
 			d.next() // consume peeked token
 			tok = d.expect1As("literal datatype", tokenIRIAbs)
-			v, err := parseLiteral(val, tok.text)
-			if err == nil {
-				l.Val = v
-			}
 			l.DataType = IRI{IRI: tok.text}
 		}
 		q.Obj = l

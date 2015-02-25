@@ -78,6 +78,7 @@ package rdf
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -259,15 +260,17 @@ func NewIRI(iri string) (IRI, error) {
 
 // Literal represents a RDF literal; a value with a datatype and
 // (optionally) an associated language tag for strings.
-//
-// Untyped literals are not supported.
 type Literal struct {
+	// The literal is always stored as a string, regardless of datatype.
+	str string
+
 	// Val represents the typed value of a RDF Literal, boxed in an empty interface.
 	// A type assertion is needed to get the value in the corresponding Go type.
-	Val interface{}
+	val interface{}
 
-	// Lang, if not empty, represents the language tag of a string.
-	Lang string
+	// lang, if not empty, represents the language tag of a string.
+	// A language tagged string has the datatype: rdf:langString.
+	lang string
 
 	// The datatype of the Literal.
 	DataType IRI
@@ -276,45 +279,73 @@ type Literal struct {
 // Serialize returns a string representation of a Literal.
 func (l Literal) Serialize(f Format) string {
 	if TermsEqual(l.DataType, rdfLangString) {
-		return fmt.Sprintf("\"%s\"@%s", escapeLiteral(l.Val.(string)), l.Lang)
+		return fmt.Sprintf("\"%s\"@%s", escapeLiteral(l.str), l.Lang())
 	}
 	if l.DataType != xsdString {
 		switch f {
 		case formatInternal:
-			switch l.DataType {
-			case xsdDateTime:
-				return l.Val.(time.Time).Format(DateFormat)
-			default:
-				return fmt.Sprintf("%v", l.Val)
-			}
+			return l.str
 		case FormatNT, FormatNQ:
-			switch l.DataType {
-			case xsdDateTime:
-				return fmt.Sprintf("\"%s\"^^%s", l.Val.(time.Time).Format(DateFormat), l.DataType.Serialize(f))
-			default:
-				return `"` + escapeLiteral(fmt.Sprintf("%v", l.Val)) + `"^^` + l.DataType.Serialize(f)
-			}
+			return fmt.Sprintf("\"%s\"^^%s", escapeLiteral(l.str), l.DataType.Serialize(f))
 		case FormatTTL:
 			switch l.DataType {
-			case xsdInteger, xsdDecimal, xsdBoolean:
-				return fmt.Sprintf("%v", l.Val)
-			case xsdDouble:
-				return fmt.Sprintf("%e", l.Val)
+			case xsdInteger, xsdDecimal, xsdBoolean, xsdDouble:
+				return l.str
 			case xsdDateTime:
-				return fmt.Sprintf("\"%s\"^^%s", l.Val.(time.Time).Format(DateFormat), l.DataType.Serialize(f))
+				return fmt.Sprintf("\"%s\"^^%s", l.str, l.DataType.Serialize(f))
 			default:
-				return fmt.Sprintf("\"%s\"^^%s", escapeLiteral(l.Val.(string)), l.DataType.Serialize(f))
+				return fmt.Sprintf("\"%s\"^^%s", escapeLiteral(l.str), l.DataType.Serialize(f))
 			}
 		default:
 			panic("TODO")
 		}
 	}
-	return fmt.Sprintf("\"%s\"", escapeLiteral(l.Val.(string)))
+	return fmt.Sprintf("\"%s\"", escapeLiteral(l.str))
 }
 
 // Type returns the TermType of a Literal.
 func (l Literal) Type() TermType {
 	return TermLiteral
+}
+
+// Lang returns the language of a language-tagged string.
+func (l Literal) Lang() string {
+	return l.lang
+}
+
+// Typed tries to parse the Literal's value into a Go type, acordig to the
+// the DataType.
+func (l Literal) Typed() (interface{}, error) {
+	if l.val == nil {
+		switch l.DataType.IRI {
+		case xsdInteger.IRI, xsdInt.IRI:
+			i, err := strconv.Atoi(l.str)
+			if err != nil {
+				return nil, err
+			}
+			l.val = i
+			return i, nil
+		case xsdDouble.IRI, xsdDecimal.IRI:
+			f, err := strconv.ParseFloat(l.str, 64)
+			if err != nil {
+				return nil, err
+			}
+			l.val = f
+			return f, nil
+		case xsdBoolean.IRI:
+			b, err := strconv.ParseBool(l.str)
+			if err != nil {
+				return nil, err
+			}
+			l.val = b
+			return b, nil
+		case xsdByte.IRI:
+			return []byte(l.str), nil
+		default:
+			return l.str, nil
+		}
+	}
+	return l.val, nil
 }
 
 // validAsObject denotes that a Literal is valid as a Triple's Object.
@@ -325,17 +356,17 @@ func (l Literal) validAsObject() {}
 func NewLiteral(v interface{}) (Literal, error) {
 	switch t := v.(type) {
 	case bool:
-		return Literal{Val: t, DataType: xsdBoolean}, nil
+		return Literal{val: t, str: fmt.Sprintf("%v", t), DataType: xsdBoolean}, nil
 	case int, int32, int64:
-		return Literal{Val: t, DataType: xsdInteger}, nil
+		return Literal{val: t, str: fmt.Sprintf("%v", t), DataType: xsdInteger}, nil
 	case string:
-		return Literal{Val: t, DataType: xsdString}, nil
+		return Literal{str: t, DataType: xsdString}, nil
 	case float32, float64:
-		return Literal{Val: t, DataType: xsdDouble}, nil
+		return Literal{val: t, str: fmt.Sprintf("%v", t), DataType: xsdDouble}, nil
 	case time.Time:
-		return Literal{Val: t, DataType: xsdDateTime}, nil
+		return Literal{val: t, str: t.Format(DateFormat), DataType: xsdDateTime}, nil
 	case []byte:
-		return Literal{Val: t, DataType: xsdByte}, nil
+		return Literal{val: t, str: string(t), DataType: xsdByte}, nil
 	default:
 		return Literal{}, fmt.Errorf("cannot infer XSD datatype from %#v", t)
 	}
@@ -371,7 +402,7 @@ func NewLangLiteral(v, lang string) (Literal, error) {
 	if lang[len(lang)-1] == '-' {
 		return Literal{}, errors.New("invalid language tag: trailing '-' disallowed")
 	}
-	return Literal{Val: v, Lang: lang, DataType: rdfLangString}, nil
+	return Literal{str: v, lang: lang, DataType: rdfLangString}, nil
 }
 
 // Subject interface distiguishes which Terms are valid as a Subject of a Triple.
