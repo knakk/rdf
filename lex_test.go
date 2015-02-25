@@ -279,7 +279,7 @@ two
 			{tokenError, `illegal token: "xyz"`}},
 		},
 		{`_:a_BlankLabel123.`, []testToken{
-			{tokenBNode, "a_BlankLabel123"},
+			{tokenBNode, "_:a_BlankLabel123"},
 			{tokenDot, ""},
 			{tokenEOF, ""}},
 		},
@@ -294,7 +294,7 @@ two
 			{tokenEOF, ""}},
 		},
 		{`_:a-b.c.`, []testToken{
-			{tokenBNode, "a-b.c"},
+			{tokenBNode, "_:a-b.c"},
 			{tokenDot, ""},
 			{tokenEOF, ""}},
 		},

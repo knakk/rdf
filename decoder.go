@@ -292,7 +292,7 @@ func parseEnd(d *TripleDecoder) parseFn {
 
 			d.bnodeN++
 			d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
-			d.current.Obj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+			d.current.Obj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 			d.emit()
 
 			d.current.Subj = d.current.Obj.(Subject)
@@ -325,10 +325,10 @@ func parseSubject(d *TripleDecoder) parseFn {
 	case tokenIRIRel:
 		d.current.Subj = IRI{IRI: d.Base.IRI + tok.text}
 	case tokenBNode:
-		d.current.Subj = Blank{ID: tok.text}
+		d.current.Subj = Blank{id: tok.text}
 	case tokenAnonBNode:
 		d.bnodeN++
-		d.current.Subj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.current.Subj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
 		if !ok {
@@ -339,7 +339,7 @@ func parseSubject(d *TripleDecoder) parseFn {
 	case tokenPropertyListStart:
 		// Blank node is subject of a new triple
 		d.bnodeN++
-		d.current.Subj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.current.Subj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 		d.pushContext() // Subj = bnode, top context
 		d.current.Ctx = ctxList
 	case tokenCollectionStart:
@@ -349,7 +349,7 @@ func parseSubject(d *TripleDecoder) parseFn {
 			break
 		}
 		d.bnodeN++
-		d.current.Subj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.current.Subj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 		d.pushContext()
 		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
 		d.current.Ctx = ctxCollection
@@ -399,10 +399,10 @@ func parseObject(d *TripleDecoder) parseFn {
 	case tokenIRIRel:
 		d.current.Obj = IRI{IRI: d.Base.IRI + tok.text}
 	case tokenBNode:
-		d.current.Obj = Blank{ID: tok.text}
+		d.current.Obj = Blank{id: tok.text}
 	case tokenAnonBNode:
 		d.bnodeN++
-		d.current.Obj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.current.Obj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 	case tokenLiteral, tokenLiteral3:
 		val := tok.text
 		l := Literal{
@@ -487,7 +487,7 @@ func parseObject(d *TripleDecoder) parseFn {
 		d.pushContext()
 
 		d.bnodeN++
-		d.current.Obj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.current.Obj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 		d.emit()
 
 		// Set blank node as subject of the next triple. Push to stack and return.
@@ -509,7 +509,7 @@ func parseObject(d *TripleDecoder) parseFn {
 		d.pushContext()
 
 		d.bnodeN++
-		d.current.Obj = Blank{ID: fmt.Sprintf("b%d", d.bnodeN)}
+		d.current.Obj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 		d.emit()
 		d.current.Subj = d.current.Obj.(Subject)
 		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
@@ -602,7 +602,7 @@ again:
 	if tok.typ == tokenIRIAbs {
 		t.Subj = IRI{IRI: tok.text}
 	} else {
-		t.Subj = Blank{ID: tok.text}
+		t.Subj = Blank{id: tok.text}
 	}
 
 	// parse triple predicate
@@ -614,7 +614,7 @@ again:
 
 	switch tok.typ {
 	case tokenBNode:
-		t.Obj = Blank{ID: tok.text}
+		t.Obj = Blank{id: tok.text}
 	case tokenLiteral:
 		val := tok.text
 		l := Literal{
@@ -750,7 +750,7 @@ func NewQuadDecoder(r io.Reader, f Format) *QuadDecoder {
 	return &QuadDecoder{
 		l:            newLineLexer(r),
 		format:       f,
-		DefaultGraph: Blank{ID: "defaultGraph"},
+		DefaultGraph: Blank{id: "_:defaultGraph"},
 	}
 }
 
@@ -866,7 +866,7 @@ func (d *QuadDecoder) parseNQ() (q Quad, err error) {
 	if tok.typ == tokenIRIAbs {
 		q.Subj = IRI{IRI: tok.text}
 	} else {
-		q.Subj = Blank{ID: tok.text}
+		q.Subj = Blank{id: tok.text}
 	}
 
 	// parse quad predicate
@@ -878,7 +878,7 @@ func (d *QuadDecoder) parseNQ() (q Quad, err error) {
 
 	switch tok.typ {
 	case tokenBNode:
-		q.Obj = Blank{ID: tok.text}
+		q.Obj = Blank{id: tok.text}
 	case tokenLiteral:
 		val := tok.text
 		l := Literal{
@@ -914,7 +914,7 @@ func (d *QuadDecoder) parseNQ() (q Quad, err error) {
 		q.Ctx = IRI{IRI: tok.text}
 	case tokenBNode:
 		tok = d.next() // consume peeked token
-		q.Ctx = Blank{ID: tok.text}
+		q.Ctx = Blank{id: tok.text}
 	case tokenDot:
 		break
 	default:

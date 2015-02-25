@@ -146,17 +146,13 @@ const (
 	// TODO: Format TriG
 
 	// Internal formats
-	formatRAW
+	formatInternal
 )
 
 // Term represents an RDF term. There are 3 term types: Blank node, Literal and IRI.
 type Term interface {
 	// Serialize returns a string representation of the Term in the specified serialization format.
 	Serialize(Format) string
-
-	// Value returns the typed value of a RDF term, boxed in an empty interface.
-	// For IRIs and Blank nodes this would return the iri and blank label as strings.
-	Value() interface{}
 
 	// Type returns the Term type.
 	Type() TermType
@@ -172,9 +168,9 @@ const (
 	TermLiteral
 )
 
-// Blank represents a RDF blank node; an unqualified IRI with an ID.
+// Blank represents a RDF blank node; an unqualified IRI with identified by a label.
 type Blank struct {
-	ID string
+	id string
 }
 
 // validAsSubject denotes that a Blank node is valid as a Triple's Subject.
@@ -183,14 +179,9 @@ func (b Blank) validAsSubject() {}
 // validAsObject denotes that a Blank node is valid as a Triple's Object.
 func (b Blank) validAsObject() {}
 
-// Value returns the string label of the blank node, without the '_:' prefix.
-func (b Blank) Value() interface{} {
-	return b.ID
-}
-
 // Serialize returns a string representation of a Blank node.
 func (b Blank) Serialize(f Format) string {
-	return "_:" + b.ID
+	return b.id
 }
 
 // Type returns the TermType of a blank node.
@@ -198,13 +189,13 @@ func (b Blank) Type() TermType {
 	return TermBlank
 }
 
-// NewBlank returns a new blank node with a given ID. It returns
-// an error only if the supplied ID is blank.
+// NewBlank returns a new blank node with a given label. It returns
+// an error only if the supplied label is blank.
 func NewBlank(id string) (Blank, error) {
 	if len(strings.TrimSpace(id)) == 0 {
 		return Blank{}, errors.New("blank id")
 	}
-	return Blank{ID: id}, nil
+	return Blank{id: "_:" + id}, nil
 }
 
 // IRI represents a RDF IRI resource.
@@ -220,11 +211,6 @@ func (u IRI) validAsPredicate() {}
 
 // validAsObject denotes that an IRI is valid as a Triple's Object.
 func (u IRI) validAsObject() {}
-
-// Value returns the IRI as a string, without the enclosing <>.
-func (u IRI) Value() interface{} {
-	return u.IRI
-}
 
 // Type returns the TermType of a IRI.
 func (u IRI) Type() TermType {
@@ -287,11 +273,6 @@ type Literal struct {
 	DataType IRI
 }
 
-// Value returns the string representation of an IRI.
-func (l Literal) Value() interface{} {
-	return l.Val
-}
-
 // Serialize returns a string representation of a Literal.
 func (l Literal) Serialize(f Format) string {
 	if TermsEqual(l.DataType, rdfLangString) {
@@ -299,7 +280,7 @@ func (l Literal) Serialize(f Format) string {
 	}
 	if l.DataType != xsdString {
 		switch f {
-		case formatRAW:
+		case formatInternal:
 			switch l.DataType {
 			case xsdDateTime:
 				return l.Val.(time.Time).Format(DateFormat)
@@ -464,7 +445,7 @@ func TermsEqual(a, b Term) bool {
 	if a.Type() != b.Type() {
 		return false
 	}
-	return a.Value() == b.Value()
+	return a.Serialize(formatInternal) == b.Serialize(formatInternal)
 }
 
 // TriplesEqual tests if two Triples are identical.

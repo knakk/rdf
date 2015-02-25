@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-var defaultGraph = Blank{ID: "defaultGraph"}
+var defaultGraph = Blank{id: "_:defaultGraph"}
 
 func BenchmarkDecodeNQ(b *testing.B) {
 	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer> <http://example/g>"
@@ -81,7 +81,7 @@ var nqTestSuite = []struct {
 	{`_:s <http://example/p> <http://example/o> <http://example/g> .`, "", []Quad{
 		Quad{
 			Triple{
-				Subj: Blank{ID: "s"},
+				Subj: Blank{id: "_:s"},
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  IRI{IRI: "http://example/o"},
 			},
@@ -101,7 +101,7 @@ var nqTestSuite = []struct {
 			Triple{
 				Subj: IRI{IRI: "http://example/s"},
 				Pred: IRI{IRI: "http://example/p"},
-				Obj:  Blank{ID: "o"},
+				Obj:  Blank{id: "_:o"},
 			},
 			IRI{IRI: "http://example/g"},
 		},
@@ -175,7 +175,7 @@ var nqTestSuite = []struct {
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  IRI{IRI: "http://example/o"},
 			},
-			Blank{ID: "g"},
+			Blank{id: "_:g"},
 		},
 	}},
 
@@ -189,11 +189,11 @@ var nqTestSuite = []struct {
 	{`_:s <http://example/p> <http://example/o> _:g .`, "", []Quad{
 		Quad{
 			Triple{
-				Subj: Blank{ID: "s"},
+				Subj: Blank{id: "_:s"},
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  IRI{IRI: "http://example/o"},
 			},
-			Blank{ID: "g"},
+			Blank{id: "_:g"},
 		},
 	}},
 
@@ -209,9 +209,9 @@ var nqTestSuite = []struct {
 			Triple{
 				Subj: IRI{IRI: "http://example/s"},
 				Pred: IRI{IRI: "http://example/p"},
-				Obj:  Blank{ID: "o"},
+				Obj:  Blank{id: "_:o"},
 			},
-			Blank{ID: "g"},
+			Blank{id: "_:g"},
 		},
 	}},
 
@@ -229,7 +229,7 @@ var nqTestSuite = []struct {
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  Literal{Val: "o", DataType: xsdString},
 			},
-			Blank{ID: "g"},
+			Blank{id: "_:g"},
 		},
 	}},
 
@@ -247,7 +247,7 @@ var nqTestSuite = []struct {
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  Literal{Val: "o", Lang: "en", DataType: rdfLangString},
 			},
-			Blank{ID: "g"},
+			Blank{id: "_:g"},
 		},
 	}},
 
@@ -265,7 +265,7 @@ var nqTestSuite = []struct {
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  Literal{Val: "o", DataType: xsdString},
 			},
-			Blank{ID: "g"},
+			Blank{id: "_:g"},
 		},
 	}},
 
@@ -542,7 +542,7 @@ var nqTestSuite = []struct {
 	{`_:a  <http://example/p> <http://example/o> .`, "", []Quad{
 		Quad{
 			Triple{
-				Subj: Blank{ID: "a"},
+				Subj: Blank{id: "_:a"},
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  IRI{IRI: "http://example/o"},
 			},
@@ -563,13 +563,13 @@ _:a  <http://example/p> <http://example/o> .`, "", []Quad{
 			Triple{
 				Subj: IRI{IRI: "http://example/s"},
 				Pred: IRI{IRI: "http://example/p"},
-				Obj:  Blank{ID: "a"},
+				Obj:  Blank{id: "_:a"},
 			},
 			defaultGraph,
 		},
 		Quad{
 			Triple{
-				Subj: Blank{ID: "a"},
+				Subj: Blank{id: "_:a"},
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  IRI{IRI: "http://example/o"},
 			},
@@ -590,13 +590,13 @@ _:1a  <http://example/p> <http://example/o> .`, "", []Quad{
 			Triple{
 				Subj: IRI{IRI: "http://example/s"},
 				Pred: IRI{IRI: "http://example/p"},
-				Obj:  Blank{ID: "1a"},
+				Obj:  Blank{id: "_:1a"},
 			},
 			defaultGraph,
 		},
 		Quad{
 			Triple{
-				Subj: Blank{ID: "1a"},
+				Subj: Blank{id: "_:1a"},
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  IRI{IRI: "http://example/o"},
 			},
@@ -994,7 +994,7 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 		},
 		Quad{
 			Triple{
-				Subj: Blank{ID: "anon"},
+				Subj: Blank{id: "_:anon"},
 				Pred: IRI{IRI: "http://example.org/property"},
 				Obj:  IRI{IRI: "http://example.org/resource2"},
 			},
@@ -1004,7 +1004,7 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 			Triple{
 				Subj: IRI{IRI: "http://example.org/resource2"},
 				Pred: IRI{IRI: "http://example.org/property"},
-				Obj:  Blank{ID: "anon"},
+				Obj:  Blank{id: "_:anon"},
 			},
 			defaultGraph,
 		},
@@ -1108,7 +1108,7 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 			Triple{
 				Subj: IRI{IRI: "http://example.org/resource15"},
 				Pred: IRI{IRI: "http://example.org/property"},
-				Obj:  Blank{ID: "anon"},
+				Obj:  Blank{id: "_:anon"},
 			},
 			defaultGraph,
 		},
@@ -1250,7 +1250,7 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 			Triple{
 				Subj: IRI{IRI: "http://example/s"},
 				Pred: IRI{IRI: "http://example/p"},
-				Obj:  Blank{ID: "o"},
+				Obj:  Blank{id: "_:o"},
 			},
 			defaultGraph,
 		},
@@ -1675,13 +1675,13 @@ _:s<http://example/p>_:bnode1.`, "", []Quad{
 			Triple{
 				Subj: IRI{IRI: "http://example/s"},
 				Pred: IRI{IRI: "http://example/p"},
-				Obj:  Blank{ID: "o"},
+				Obj:  Blank{id: "_:o"},
 			},
 			defaultGraph,
 		},
 		Quad{
 			Triple{
-				Subj: Blank{ID: "s"},
+				Subj: Blank{id: "_:s"},
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  IRI{IRI: "http://example/o"},
 			},
@@ -1689,7 +1689,7 @@ _:s<http://example/p>_:bnode1.`, "", []Quad{
 		},
 		Quad{
 			Triple{
-				Subj: Blank{ID: "s"},
+				Subj: Blank{id: "_:s"},
 				Pred: IRI{IRI: "http://example/p"},
 				Obj:  Literal{Val: "Alice", DataType: xsdString},
 			},
@@ -1697,9 +1697,9 @@ _:s<http://example/p>_:bnode1.`, "", []Quad{
 		},
 		Quad{
 			Triple{
-				Subj: Blank{ID: "s"},
+				Subj: Blank{id: "_:s"},
 				Pred: IRI{IRI: "http://example/p"},
-				Obj:  Blank{ID: "bnode1"},
+				Obj:  Blank{id: "_:bnode1"},
 			},
 			defaultGraph,
 		},

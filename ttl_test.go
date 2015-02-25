@@ -1037,7 +1037,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`_:s <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "s"},
+			Subj: Blank{id: "_:s"},
 			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  IRI{IRI: "http://a.example/o"},
 		},
@@ -1055,7 +1055,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: `http://a.example/s`},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "o"},
+			Obj:  Blank{id: "_:o"},
 		},
 	}},
 
@@ -1071,7 +1071,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: `http://a.example/s`},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽"},
+			Obj:  Blank{id: "_:AZazÀÖØöø˿ͰͽͿ῿‌‍⁰↏Ⰰ⿯、퟿豈﷏ﷰ�𐀀󯿽"},
 		},
 	}},
 
@@ -1087,7 +1087,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: `http://a.example/s`},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "_"},
+			Obj:  Blank{id: "_:_"},
 		},
 	}},
 
@@ -1103,7 +1103,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: `http://a.example/s`},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "0"},
+			Obj:  Blank{id: "_:0"},
 		},
 	}},
 
@@ -1119,7 +1119,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: `http://a.example/s`},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "a·̀ͯ‿.⁀"},
+			Obj:  Blank{id: "_:a·̀ͯ‿.⁀"},
 		},
 	}},
 
@@ -1133,7 +1133,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`[] <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  IRI{IRI: "http://a.example/o"},
 		},
@@ -1151,7 +1151,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 	}},
 
@@ -1165,7 +1165,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`[ <http://a.example/p> <http://a.example/o> ] .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  IRI{IRI: "http://a.example/o"},
 		},
@@ -1181,12 +1181,12 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`[ <http://a.example/p> <http://a.example/o> ] <http://a.example/p2> <http://a.example/o2> .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  IRI{IRI: "http://a.example/o"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p2"},
 			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
@@ -1204,10 +1204,10 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p2"},
 			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
@@ -1223,17 +1223,17 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`[ <http://a.example/p1> <http://a.example/o1> ; <http://a.example/p2> <http://a.example/o2> ] <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p1"},
 			Obj:  IRI{IRI: "http://a.example/o1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p2"},
 			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  IRI{IRI: "http://a.example/o"},
 		},
@@ -1249,17 +1249,17 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`[ <http://a.example/p1> [ <http://a.example/p2> <http://a.example/o2> ] ; <http://a.example/p> <http://a.example/o> ].`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p1"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://a.example/p2"},
 			Obj:  IRI{IRI: "http://a.example/o2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  IRI{IRI: "http://a.example/o"},
 		},
@@ -1275,17 +1275,17 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`[ <http://a.example/p1> (1) ] .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p1"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
@@ -1301,17 +1301,17 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 
 	{`(1) <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://a.example/p"},
 			Obj:  IRI{IRI: "http://a.example/o"},
 		},
@@ -1329,15 +1329,15 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
@@ -1371,25 +1371,25 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
@@ -1407,35 +1407,35 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  Blank{ID: "b3"},
+			Obj:  Blank{id: "_:b3"},
 		},
 		Triple{
-			Subj: Blank{ID: "b3"},
+			Subj: Blank{id: "_:b3"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b3"},
+			Subj: Blank{id: "_:b3"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
@@ -1453,35 +1453,35 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://a.example/s"},
 			Pred: IRI{IRI: "http://a.example/p"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Blank{ID: "b3"},
+			Obj:  Blank{id: "_:b3"},
 		},
 		Triple{
-			Subj: Blank{ID: "b3"},
+			Subj: Blank{id: "_:b3"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b3"},
+			Subj: Blank{id: "_:b3"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
@@ -2839,7 +2839,7 @@ def'''@en .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 [] :p :o .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
@@ -2857,7 +2857,7 @@ def'''@en .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 	}},
 
@@ -2873,10 +2873,10 @@ def'''@en .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/q"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
@@ -2894,15 +2894,15 @@ def'''@en .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/q1"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/q2"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
@@ -2918,17 +2918,17 @@ def'''@en .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 [ :q1 :o1 ; :q2 :o2 ] :p :o .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/q1"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/q2"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
@@ -2944,7 +2944,7 @@ def'''@en .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 _:a  :p :o .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "a"},
+			Subj: Blank{id: "_:a"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
@@ -2963,10 +2963,10 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Blank{ID: "a"},
+			Obj:  Blank{id: "_:a"},
 		},
 		Triple{
-			Subj: Blank{ID: "a"},
+			Subj: Blank{id: "_:a"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
@@ -2982,7 +2982,7 @@ _:a  :p :o .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 [ :p  :o ] .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
@@ -2999,12 +2999,12 @@ _:a  :p :o .`, "", []Triple{
 [ :p  :o1,:2 ] .
 :s :p :o  .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/2"},
 		},
@@ -3033,12 +3033,12 @@ _:a  :p :o .`, "", []Triple{
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p1"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p2"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o2"},
 		},
@@ -3438,35 +3438,35 @@ _:a  :p :o .`, "", []Triple{
 		Triple{
 			Subj: IRI{IRI: "http://www.w3.org/2013/TurtleTests/s"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: "2", DataType: xsdString},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  Blank{ID: "b3"},
+			Obj:  Blank{id: "_:b3"},
 		},
 		Triple{
-			Subj: Blank{ID: "b3"},
+			Subj: Blank{id: "_:b3"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 		Triple{
-			Subj: Blank{ID: "b3"},
+			Subj: Blank{id: "_:b3"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
@@ -3482,27 +3482,27 @@ _:a  :p :o .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 (1) :p (1) .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
@@ -3518,27 +3518,27 @@ _:a  :p :o .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 (()) :p (()) .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
@@ -3554,97 +3554,97 @@ _:a  :p :o .`, "", []Triple{
 	{`@prefix : <http://www.w3.org/2013/TurtleTests/> .
 (1 2 (1 2)) :p (( "a") "b" :o) .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  Blank{ID: "b3"},
+			Obj:  Blank{id: "_:b3"},
 		},
 		Triple{
-			Subj: Blank{ID: "b3"},
+			Subj: Blank{id: "_:b3"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Blank{ID: "b4"},
+			Obj:  Blank{id: "_:b4"},
 		},
 		Triple{
-			Subj: Blank{ID: "b4"},
+			Subj: Blank{id: "_:b4"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 1, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b4"},
+			Subj: Blank{id: "_:b4"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  Blank{ID: "b5"},
+			Obj:  Blank{id: "_:b5"},
 		},
 		Triple{
-			Subj: Blank{ID: "b5"},
+			Subj: Blank{id: "_:b5"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
 		Triple{
-			Subj: Blank{ID: "b5"},
+			Subj: Blank{id: "_:b5"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b3"},
+			Subj: Blank{id: "_:b3"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
-			Obj:  Blank{ID: "b6"},
+			Obj:  Blank{id: "_:b6"},
 		},
 		Triple{
-			Subj: Blank{ID: "b6"},
+			Subj: Blank{id: "_:b6"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
-			Obj:  Blank{ID: "b7"},
+			Obj:  Blank{id: "_:b7"},
 		},
 		Triple{
-			Subj: Blank{ID: "b7"},
+			Subj: Blank{id: "_:b7"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: "a", DataType: xsdString},
 		},
 		Triple{
-			Subj: Blank{ID: "b7"},
+			Subj: Blank{id: "_:b7"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
 		Triple{
-			Subj: Blank{ID: "b6"},
+			Subj: Blank{id: "_:b6"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  Blank{ID: "b8"},
+			Obj:  Blank{id: "_:b8"},
 		},
 		Triple{
-			Subj: Blank{ID: "b8"},
+			Subj: Blank{id: "_:b8"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: "b", DataType: xsdString},
 		},
 		Triple{
-			Subj: Blank{ID: "b8"},
+			Subj: Blank{id: "_:b8"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  Blank{ID: "b9"},
+			Obj:  Blank{id: "_:b9"},
 		},
 		Triple{
-			Subj: Blank{ID: "b9"},
+			Subj: Blank{id: "_:b9"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 		Triple{
-			Subj: Blank{ID: "b9"},
+			Subj: Blank{id: "_:b9"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
@@ -4440,7 +4440,7 @@ def`, "bad literal: no closing quote: '\"'", []Triple{}},
 	{`@prefix : <#> .
 [] :x :y .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "#x"},
 			Obj:  IRI{IRI: "#y"},
 		},
@@ -4551,14 +4551,14 @@ a:a a:b a:c .
 [] :a :b .
 :c :d [] .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://example.org/base#a"},
 			Obj:  IRI{IRI: "http://example.org/base#b"},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/base#c"},
 			Pred: IRI{IRI: "http://example.org/base#d"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 	}},
 
@@ -4575,22 +4575,22 @@ a:a a:b a:c .
 [ :a :b ] :c :d .
 :e :f [ :g :h ] .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://example.org/base#a"},
 			Obj:  IRI{IRI: "http://example.org/base#b"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://example.org/base#c"},
 			Obj:  IRI{IRI: "http://example.org/base#d"},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/base#e"},
 			Pred: IRI{IRI: "http://example.org/base#f"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://example.org/base#g"},
 			Obj:  IRI{IRI: "http://example.org/base#h"},
 		},
@@ -4628,25 +4628,25 @@ a:a a:b a:c .
 		Triple{
 			Subj: IRI{IRI: "http://example.org/stuff/1.0/a"},
 			Pred: IRI{IRI: "http://example.org/stuff/1.0/b"},
-			Obj:  Blank{ID: "b1"},
+			Obj:  Blank{id: "_:b1"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: "apple", DataType: xsdString},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"},
 			Obj:  Literal{Val: "banana", DataType: xsdString},
 		},
 		Triple{
-			Subj: Blank{ID: "b2"},
+			Subj: Blank{id: "_:b2"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"},
 			Obj:  IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"},
 		},
@@ -4689,22 +4689,22 @@ _:hasParent a owl:ObjectProperty .
   owl:onProperty _:hasParent ;
   owl:maxCardinality 2 .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "hasParent"},
+			Subj: Blank{id: "_:hasParent"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
 			Obj:  IRI{IRI: "http://www.w3.org/2002/07/owl#ObjectProperty"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
 			Obj:  IRI{IRI: "http://www.w3.org/2002/07/owl#Restriction"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2002/07/owl#onProperty"},
-			Obj:  Blank{ID: "hasParent"},
+			Obj:  Blank{id: "_:hasParent"},
 		},
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://www.w3.org/2002/07/owl#maxCardinality"},
 			Obj:  Literal{Val: 2, DataType: xsdInteger},
 		},
@@ -4845,9 +4845,9 @@ ex:foo :_345 "678" .`, "", []Triple{
 : : : .
 `, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "b1"},
+			Subj: Blank{id: "_:b1"},
 			Pred: IRI{IRI: "http://example.org/ron"},
-			Obj:  Blank{ID: "b2"},
+			Obj:  Blank{id: "_:b2"},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/ron"},
@@ -5730,17 +5730,17 @@ _:0b :p :o . # Starts with digit
 _:_b :p :o . # Starts with underscore
 _:b.0 :p :o . # Contains dot, ends with digit`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "0b"},
+			Subj: Blank{id: "_:0b"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 		Triple{
-			Subj: Blank{ID: "_b"},
+			Subj: Blank{id: "_:_b"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 		Triple{
-			Subj: Blank{ID: "b.0"},
+			Subj: Blank{id: "_:b.0"},
 			Pred: IRI{IRI: "http://www.w3.org/2013/TurtleTests/p"},
 			Obj:  IRI{IRI: "http://www.w3.org/2013/TurtleTests/o"},
 		},

@@ -374,7 +374,7 @@ func lexAny(l *lexer) stateFn {
 		}
 		// consume & ignore '_:'
 		l.next()
-		l.ignore()
+		//l.ignore()
 		return lexBNode
 	case '<':
 		l.ignore()
@@ -731,6 +731,7 @@ done:
 		return lexIRI*/
 		return lexAny
 	case ' ', '\t':
+		l.ignore()
 		return lexAny
 	default:
 		l.backup()

@@ -28,7 +28,7 @@ func TestNTSerialization(t *testing.T) {
 `,
 		},
 		{
-			Triple{Subj: Blank{ID: "he"}, Pred: IRI{IRI: "http://xmlns.com/foaf/0.1/knows"}, Obj: Blank{ID: "she"}},
+			Triple{Subj: Blank{id: "_:he"}, Pred: IRI{IRI: "http://xmlns.com/foaf/0.1/knows"}, Obj: Blank{id: "_:she"}},
 			`_:he <http://xmlns.com/foaf/0.1/knows> _:she .
 `,
 		},
@@ -66,14 +66,14 @@ func TestNTSerialization(t *testing.T) {
 			Obj:  IRI{IRI: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: Blank{ID: "anon"},
+			Subj: Blank{id: "_:anon"},
 			Pred: IRI{IRI: "http://example.org/property"},
 			Obj:  IRI{IRI: "http://example.org/resource2"},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource2"},
 			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Blank{ID: "anon"},
+			Obj:  Blank{id: "_:anon"},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource3"},
@@ -138,7 +138,7 @@ func TestNTSerialization(t *testing.T) {
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource15"},
 			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Blank{ID: "anon"},
+			Obj:  Blank{id: "_:anon"},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource16"},
@@ -477,7 +477,7 @@ var ntTestSuite = []struct {
 
 	{`_:a  <http://example/p> <http://example/o> .`, "", []Triple{
 		Triple{
-			Subj: Blank{ID: "a"},
+			Subj: Blank{id: "_:a"},
 			Pred: IRI{IRI: "http://example/p"},
 			Obj:  IRI{IRI: "http://example/o"},
 		},
@@ -494,10 +494,10 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://example/s"},
 			Pred: IRI{IRI: "http://example/p"},
-			Obj:  Blank{ID: "a"},
+			Obj:  Blank{id: "_:a"},
 		},
 		Triple{
-			Subj: Blank{ID: "a"},
+			Subj: Blank{id: "_:a"},
 			Pred: IRI{IRI: "http://example/p"},
 			Obj:  IRI{IRI: "http://example/o"},
 		},
@@ -514,10 +514,10 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://example/s"},
 			Pred: IRI{IRI: "http://example/p"},
-			Obj:  Blank{ID: "1a"},
+			Obj:  Blank{id: "_:1a"},
 		},
 		Triple{
-			Subj: Blank{ID: "1a"},
+			Subj: Blank{id: "_:1a"},
 			Pred: IRI{IRI: "http://example/p"},
 			Obj:  IRI{IRI: "http://example/o"},
 		},
@@ -871,14 +871,14 @@ var ntTestSuite = []struct {
 			Obj:  IRI{IRI: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: Blank{ID: "anon"},
+			Subj: Blank{id: "_:anon"},
 			Pred: IRI{IRI: "http://example.org/property"},
 			Obj:  IRI{IRI: "http://example.org/resource2"},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource2"},
 			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Blank{ID: "anon"},
+			Obj:  Blank{id: "_:anon"},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource3"},
@@ -943,7 +943,7 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource15"},
 			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Blank{ID: "anon"},
+			Obj:  Blank{id: "_:anon"},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example.org/resource16"},
@@ -1037,7 +1037,7 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://example/s"},
 			Pred: IRI{IRI: "http://example/p"},
-			Obj:  Blank{ID: "o"},
+			Obj:  Blank{id: "_:o"},
 		},
 		Triple{
 			Subj: IRI{IRI: "http://example/s"},
@@ -1382,22 +1382,22 @@ var ntTestSuite = []struct {
 		Triple{
 			Subj: IRI{IRI: "http://example/s"},
 			Pred: IRI{IRI: "http://example/p"},
-			Obj:  Blank{ID: "o"},
+			Obj:  Blank{id: "_:o"},
 		},
 		Triple{
-			Subj: Blank{ID: "s"},
+			Subj: Blank{id: "_:s"},
 			Pred: IRI{IRI: "http://example/p"},
 			Obj:  IRI{IRI: "http://example/o"},
 		},
 		Triple{
-			Subj: Blank{ID: "s"},
+			Subj: Blank{id: "_:s"},
 			Pred: IRI{IRI: "http://example/p"},
 			Obj:  Literal{Val: "Alice", DataType: xsdString},
 		},
 		Triple{
-			Subj: Blank{ID: "s"},
+			Subj: Blank{id: "_:s"},
 			Pred: IRI{IRI: "http://example/p"},
-			Obj:  Blank{ID: "bnode1"},
+			Obj:  Blank{id: "_:bnode1"},
 		},
 	}},
 }
