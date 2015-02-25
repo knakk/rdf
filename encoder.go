@@ -230,7 +230,7 @@ func (e *TripleEncoder) Close() error {
 
 func (e *TripleEncoder) prefixify(t Term) string {
 	if t.Type() == TermIRI {
-		if t.(IRI).IRI == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" {
+		if t.(IRI).str == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" {
 			return "a"
 		}
 		first, rest := t.(IRI).Split()

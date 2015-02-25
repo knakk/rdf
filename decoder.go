@@ -81,7 +81,7 @@ func NewTripleDecoder(r io.Reader, f Format) *TripleDecoder {
 		ns:       make(map[string]string),
 		ctxStack: make([]ctxTriple, 0, 8),
 		triples:  make([]Triple, 0, 4),
-		Base:     IRI{IRI: ""},
+		Base:     IRI{str: ""},
 	}
 	return &d
 }
@@ -193,7 +193,7 @@ func parseStart(d *TripleDecoder) parseFn {
 		tok := d.expectAs("prefix IRI", tokenIRIAbs, tokenIRIRel)
 		if tok.typ == tokenIRIRel {
 			// Resolve against document base IRI
-			d.ns[label.text] = d.Base.IRI + tok.text
+			d.ns[label.text] = d.Base.str + tok.text
 		} else {
 			d.ns[label.text] = tok.text
 		}
@@ -206,14 +206,14 @@ func parseStart(d *TripleDecoder) parseFn {
 		tok := d.expectAs("base IRI", tokenIRIAbs, tokenIRIRel)
 		if tok.typ == tokenIRIRel {
 			// Resolve against document base IRI
-			d.Base.IRI = d.Base.IRI + tok.text
+			d.Base.str = d.Base.str + tok.text
 		} else {
-			d.Base.IRI = tok.text
+			d.Base.str = tok.text
 		}
 		d.expect1As("directive trailing dot", tokenDot)
 	case tokenSparqlBase:
 		uri := d.expect1As("base IRI", tokenIRIAbs)
-		d.Base.IRI = uri.text
+		d.Base.str = uri.text
 	case tokenEOF:
 		return nil
 	default:
@@ -265,8 +265,8 @@ func parseEnd(d *TripleDecoder) parseFn {
 		return parseEnd
 	case tokenCollectionEnd:
 		// Emit collection closing triple { bnode rdf:rest rdf:nil }
-		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
-		d.current.Obj = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+		d.current.Pred = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
+		d.current.Obj = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
 		d.emit()
 
 		// Restore parent triple
@@ -291,13 +291,13 @@ func parseEnd(d *TripleDecoder) parseFn {
 			d.backup() // unread collection item, to be parsed on next iteration
 
 			d.bnodeN++
-			d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
+			d.current.Pred = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"}
 			d.current.Obj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 			d.emit()
 
 			d.current.Subj = d.current.Obj.(Subject)
 			d.current.Obj = nil
-			d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
+			d.current.Pred = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
 			d.pushContext()
 			return nil
 		}
@@ -321,9 +321,9 @@ func parseSubject(d *TripleDecoder) parseFn {
 	tok := d.next()
 	switch tok.typ {
 	case tokenIRIAbs:
-		d.current.Subj = IRI{IRI: tok.text}
+		d.current.Subj = IRI{str: tok.text}
 	case tokenIRIRel:
-		d.current.Subj = IRI{IRI: d.Base.IRI + tok.text}
+		d.current.Subj = IRI{str: d.Base.str + tok.text}
 	case tokenBNode:
 		d.current.Subj = Blank{id: tok.text}
 	case tokenAnonBNode:
@@ -335,7 +335,7 @@ func parseSubject(d *TripleDecoder) parseFn {
 			d.errorf("missing namespace for prefix: '%s'", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
-		d.current.Subj = IRI{IRI: ns + suf.text}
+		d.current.Subj = IRI{str: ns + suf.text}
 	case tokenPropertyListStart:
 		// Blank node is subject of a new triple
 		d.bnodeN++
@@ -345,13 +345,13 @@ func parseSubject(d *TripleDecoder) parseFn {
 	case tokenCollectionStart:
 		if d.peek().typ == tokenCollectionEnd {
 			// An empty collection
-			d.current.Subj = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+			d.current.Subj = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
 			break
 		}
 		d.bnodeN++
 		d.current.Subj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 		d.pushContext()
-		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
+		d.current.Pred = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
 		d.current.Ctx = ctxCollection
 		return parseObject
 	case tokenError:
@@ -370,18 +370,18 @@ func parsePredicate(d *TripleDecoder) parseFn {
 	tok := d.next()
 	switch tok.typ {
 	case tokenIRIAbs:
-		d.current.Pred = IRI{IRI: tok.text}
+		d.current.Pred = IRI{str: tok.text}
 	case tokenIRIRel:
-		d.current.Pred = IRI{IRI: d.Base.IRI + tok.text}
+		d.current.Pred = IRI{str: d.Base.str + tok.text}
 	case tokenRDFType:
-		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
+		d.current.Pred = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"}
 	case tokenPrefixLabel:
 		ns, ok := d.ns[tok.text]
 		if !ok {
 			d.errorf("missing namespace for prefix: '%s'", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
-		d.current.Pred = IRI{IRI: ns + suf.text}
+		d.current.Pred = IRI{str: ns + suf.text}
 	case tokenError:
 		d.errorf("%d:%d: syntax error: %v", tok.line, tok.col, tok.text)
 	default:
@@ -395,9 +395,9 @@ func parseObject(d *TripleDecoder) parseFn {
 	tok := d.next()
 	switch tok.typ {
 	case tokenIRIAbs:
-		d.current.Obj = IRI{IRI: tok.text}
+		d.current.Obj = IRI{str: tok.text}
 	case tokenIRIRel:
-		d.current.Obj = IRI{IRI: d.Base.IRI + tok.text}
+		d.current.Obj = IRI{str: d.Base.str + tok.text}
 	case tokenBNode:
 		d.current.Obj = Blank{id: tok.text}
 	case tokenAnonBNode:
@@ -421,14 +421,14 @@ func parseObject(d *TripleDecoder) parseFn {
 			tok = d.expectAs("literal datatype", tokenIRIAbs, tokenPrefixLabel)
 			switch tok.typ {
 			case tokenIRIAbs:
-				l.DataType = IRI{IRI: tok.text}
+				l.DataType = IRI{str: tok.text}
 			case tokenPrefixLabel:
 				ns, ok := d.ns[tok.text]
 				if !ok {
 					d.errorf("missing namespace for prefix: '%s'", tok.text)
 				}
 				tok2 := d.expect1As("IRI suffix", tokenIRISuffix)
-				l.DataType = IRI{IRI: ns + tok2.text}
+				l.DataType = IRI{str: ns + tok2.text}
 			}
 		}
 		d.current.Obj = l
@@ -458,7 +458,7 @@ func parseObject(d *TripleDecoder) parseFn {
 			d.errorf("missing namespace for prefix: '%s'", tok.text)
 		}
 		suf := d.expect1As("IRI suffix", tokenIRISuffix)
-		d.current.Obj = IRI{IRI: ns + suf.text}
+		d.current.Obj = IRI{str: ns + suf.text}
 	case tokenPropertyListStart:
 		// Blank node is object of current triple
 		// Save current context, to be restored after the list ends
@@ -479,7 +479,7 @@ func parseObject(d *TripleDecoder) parseFn {
 		if d.peek().typ == tokenCollectionEnd {
 			// an empty collection
 			d.next() // consume ')'
-			d.current.Obj = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
+			d.current.Obj = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"}
 			break
 		}
 		// Blank node is object of current triple
@@ -490,7 +490,7 @@ func parseObject(d *TripleDecoder) parseFn {
 		d.current.Obj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 		d.emit()
 		d.current.Subj = d.current.Obj.(Subject)
-		d.current.Pred = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
+		d.current.Pred = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
 		d.current.Obj = nil
 		d.current.Ctx = ctxCollection
 		d.pushContext()
@@ -578,14 +578,14 @@ again:
 	// parse triple subject
 	tok := d.expectAs("subject", tokenIRIAbs, tokenBNode)
 	if tok.typ == tokenIRIAbs {
-		t.Subj = IRI{IRI: tok.text}
+		t.Subj = IRI{str: tok.text}
 	} else {
 		t.Subj = Blank{id: tok.text}
 	}
 
 	// parse triple predicate
 	tok = d.expect1As("predicate", tokenIRIAbs)
-	t.Pred = IRI{IRI: tok.text}
+	t.Pred = IRI{str: tok.text}
 
 	// parse triple object
 	tok = d.expectAs("object", tokenIRIAbs, tokenBNode, tokenLiteral)
@@ -609,11 +609,11 @@ again:
 		case tokenDataTypeMarker:
 			d.next() // consume peeked token
 			tok = d.expect1As("literal datatype", tokenIRIAbs)
-			l.DataType = IRI{IRI: tok.text}
+			l.DataType = IRI{str: tok.text}
 		}
 		t.Obj = l
 	case tokenIRIAbs:
-		t.Obj = IRI{IRI: tok.text}
+		t.Obj = IRI{str: tok.text}
 	}
 
 	// parse final dot
@@ -664,27 +664,27 @@ done:
 // parseLiteral
 func parseLiteral(val, datatype string) (interface{}, error) {
 	switch datatype {
-	case xsdString.IRI:
+	case xsdString.str:
 		return val, nil
-	case xsdInteger.IRI:
+	case xsdInteger.str:
 		i, err := strconv.Atoi(val)
 		if err != nil {
 			return nil, err
 		}
 		return i, nil
-	case xsdFloat.IRI, xsdDouble.IRI, xsdDecimal.IRI:
+	case xsdFloat.str, xsdDouble.str, xsdDecimal.str:
 		f, err := strconv.ParseFloat(val, 64)
 		if err != nil {
 			return nil, err
 		}
 		return f, nil
-	case xsdBoolean.IRI:
+	case xsdBoolean.str:
 		bo, err := strconv.ParseBool(val)
 		if err != nil {
 			return nil, err
 		}
 		return bo, nil
-	case xsdDateTime.IRI:
+	case xsdDateTime.str:
 		t, err := time.Parse(DateFormat, val)
 		if err != nil {
 			// Unfortunately, xsd:dateTime allows dates without timezone information
@@ -696,7 +696,7 @@ func parseLiteral(val, datatype string) (interface{}, error) {
 			return t, nil
 		}
 		return t, nil
-	case xsdByte.IRI:
+	case xsdByte.str:
 		return []byte(val), nil
 		// TODO: other xsd dataypes that maps to Go data types
 	default:
@@ -838,14 +838,14 @@ func (d *QuadDecoder) parseNQ() (q Quad, err error) {
 	// parse quad subject
 	tok := d.expectAs("subject", tokenIRIAbs, tokenBNode)
 	if tok.typ == tokenIRIAbs {
-		q.Subj = IRI{IRI: tok.text}
+		q.Subj = IRI{str: tok.text}
 	} else {
 		q.Subj = Blank{id: tok.text}
 	}
 
 	// parse quad predicate
 	tok = d.expect1As("predicate", tokenIRIAbs)
-	q.Pred = IRI{IRI: tok.text}
+	q.Pred = IRI{str: tok.text}
 
 	// parse quad object
 	tok = d.expectAs("object", tokenIRIAbs, tokenBNode, tokenLiteral)
@@ -869,11 +869,11 @@ func (d *QuadDecoder) parseNQ() (q Quad, err error) {
 		case tokenDataTypeMarker:
 			d.next() // consume peeked token
 			tok = d.expect1As("literal datatype", tokenIRIAbs)
-			l.DataType = IRI{IRI: tok.text}
+			l.DataType = IRI{str: tok.text}
 		}
 		q.Obj = l
 	case tokenIRIAbs:
-		q.Obj = IRI{IRI: tok.text}
+		q.Obj = IRI{str: tok.text}
 	}
 
 	// parse optional graph
@@ -881,7 +881,7 @@ func (d *QuadDecoder) parseNQ() (q Quad, err error) {
 	switch p.typ {
 	case tokenIRIAbs:
 		tok = d.next() // consume peeked token
-		q.Ctx = IRI{IRI: tok.text}
+		q.Ctx = IRI{str: tok.text}
 	case tokenBNode:
 		tok = d.next() // consume peeked token
 		q.Ctx = Blank{id: tok.text}

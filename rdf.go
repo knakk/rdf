@@ -93,41 +93,41 @@ var DateFormat = time.RFC3339
 var (
 	// Core types:                                                    // Corresponding Go datatype:
 
-	xsdString  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#string"}  // string
-	xsdBoolean = IRI{IRI: "http://www.w3.org/2001/XMLSchema#boolean"} // bool
-	xsdDecimal = IRI{IRI: "http://www.w3.org/2001/XMLSchema#decimal"} // float64
-	xsdInteger = IRI{IRI: "http://www.w3.org/2001/XMLSchema#integer"} // int
+	xsdString  = IRI{str: "http://www.w3.org/2001/XMLSchema#string"}  // string
+	xsdBoolean = IRI{str: "http://www.w3.org/2001/XMLSchema#boolean"} // bool
+	xsdDecimal = IRI{str: "http://www.w3.org/2001/XMLSchema#decimal"} // float64
+	xsdInteger = IRI{str: "http://www.w3.org/2001/XMLSchema#integer"} // int
 
 	// IEEE floating-point numbers:
 
-	xsdDouble = IRI{IRI: "http://www.w3.org/2001/XMLSchema#double"} // float64
-	xsdFloat  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#float"}  // float64
+	xsdDouble = IRI{str: "http://www.w3.org/2001/XMLSchema#double"} // float64
+	xsdFloat  = IRI{str: "http://www.w3.org/2001/XMLSchema#float"}  // float64
 
 	// Time and date:
 
-	xsdDate          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#date"}
-	xsdTime          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#time"}
-	xsdDateTime      = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTime"} // time.Time
-	xsdDateTimeStamp = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
+	xsdDate          = IRI{str: "http://www.w3.org/2001/XMLSchema#date"}
+	xsdTime          = IRI{str: "http://www.w3.org/2001/XMLSchema#time"}
+	xsdDateTime      = IRI{str: "http://www.w3.org/2001/XMLSchema#dateTime"} // time.Time
+	xsdDateTimeStamp = IRI{str: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
 
 	// Recurring and partial dates:
 
-	xsdYear              = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gYear"}
-	xsdMonth             = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gMonth"}
-	xsdDay               = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gDay"}
-	xsdYearMonth         = IRI{IRI: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
-	xsdDuration          = IRI{IRI: "http://www.w3.org/2001/XMLSchema#Duration"}
-	xsdYearMonthDuration = IRI{IRI: "http://www.w3.org/2001/XMLSchema#yearMonthDuration"}
-	xsdDayTimeDuration   = IRI{IRI: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
+	xsdYear              = IRI{str: "http://www.w3.org/2001/XMLSchema#gYear"}
+	xsdMonth             = IRI{str: "http://www.w3.org/2001/XMLSchema#gMonth"}
+	xsdDay               = IRI{str: "http://www.w3.org/2001/XMLSchema#gDay"}
+	xsdYearMonth         = IRI{str: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
+	xsdDuration          = IRI{str: "http://www.w3.org/2001/XMLSchema#Duration"}
+	xsdYearMonthDuration = IRI{str: "http://www.w3.org/2001/XMLSchema#yearMonthDuration"}
+	xsdDayTimeDuration   = IRI{str: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
 
 	// Limited-range integer numbers
 
-	xsdByte  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#byte"}  // []byte
-	xsdShort = IRI{IRI: "http://www.w3.org/2001/XMLSchema#short"} // int16
-	xsdInt   = IRI{IRI: "http://www.w3.org/2001/XMLSchema#int"}   // int32
-	xsdLong  = IRI{IRI: "http://www.w3.org/2001/XMLSchema#long"}  // int64
+	xsdByte  = IRI{str: "http://www.w3.org/2001/XMLSchema#byte"}  // []byte
+	xsdShort = IRI{str: "http://www.w3.org/2001/XMLSchema#short"} // int16
+	xsdInt   = IRI{str: "http://www.w3.org/2001/XMLSchema#int"}   // int32
+	xsdLong  = IRI{str: "http://www.w3.org/2001/XMLSchema#long"}  // int64
 
-	rdfLangString = IRI{IRI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"} // string
+	rdfLangString = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"} // string
 )
 
 // Format represents a RDF serialization format.
@@ -201,7 +201,7 @@ func NewBlank(id string) (Blank, error) {
 
 // IRI represents a RDF IRI resource.
 type IRI struct {
-	IRI string
+	str string
 }
 
 // validAsSubject denotes that an IRI is valid as a Triple's Subject.
@@ -220,17 +220,17 @@ func (u IRI) Type() TermType {
 
 // Serialize returns a string representation of an IRI.
 func (u IRI) Serialize(f Format) string {
-	return fmt.Sprintf("<%s>", u.IRI)
+	return fmt.Sprintf("<%s>", u.str)
 }
 
 // Split returns the prefix and suffix of the IRI string, splitted at the first
 // '/' or '#' character, in reverse order of the string.
 func (u IRI) Split() (prefix, suffix string) {
-	i := len(u.IRI)
+	i := len(u.str)
 	for i > 0 {
-		r, w := utf8.DecodeLastRuneInString(u.IRI[0:i])
+		r, w := utf8.DecodeLastRuneInString(u.str[0:i])
 		if r == '/' || r == '#' {
-			prefix, suffix = u.IRI[0:i], u.IRI[i:len(u.IRI)]
+			prefix, suffix = u.str[0:i], u.str[i:len(u.str)]
 			break
 		}
 		i -= w
@@ -255,7 +255,7 @@ func NewIRI(iri string) (IRI, error) {
 			return IRI{}, fmt.Errorf("disallowed character: %q", r)
 		}
 	}
-	return IRI{IRI: iri}, nil
+	return IRI{str: iri}, nil
 }
 
 // Literal represents a RDF literal; a value with a datatype and
@@ -317,29 +317,29 @@ func (l Literal) Lang() string {
 // the DataType.
 func (l Literal) Typed() (interface{}, error) {
 	if l.val == nil {
-		switch l.DataType.IRI {
-		case xsdInteger.IRI, xsdInt.IRI:
+		switch l.DataType.str {
+		case xsdInteger.str, xsdInt.str:
 			i, err := strconv.Atoi(l.str)
 			if err != nil {
 				return nil, err
 			}
 			l.val = i
 			return i, nil
-		case xsdDouble.IRI, xsdDecimal.IRI:
+		case xsdDouble.str, xsdDecimal.str:
 			f, err := strconv.ParseFloat(l.str, 64)
 			if err != nil {
 				return nil, err
 			}
 			l.val = f
 			return f, nil
-		case xsdBoolean.IRI:
+		case xsdBoolean.str:
 			b, err := strconv.ParseBool(l.str)
 			if err != nil {
 				return nil, err
 			}
 			l.val = b
 			return b, nil
-		case xsdByte.IRI:
+		case xsdByte.str:
 			return []byte(l.str), nil
 		default:
 			return l.str, nil

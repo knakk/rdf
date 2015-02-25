@@ -14,28 +14,28 @@ func TestNTSerialization(t *testing.T) {
 		out string
 	}{
 		{
-			Triple{Subj: IRI{IRI: "http://example/s"}, Pred: IRI{IRI: "http://example/p"}, Obj: IRI{IRI: "http://example/o"}},
+			Triple{Subj: IRI{str: "http://example/s"}, Pred: IRI{str: "http://example/p"}, Obj: IRI{str: "http://example/o"}},
 			`<http://example/s> <http://example/p> <http://example/o> .
 `,
 		},
 		{
 			Triple{
-				Subj: IRI{IRI: "http://example/æøå"},
-				Pred: IRI{IRI: "http://example/禅"},
+				Subj: IRI{str: "http://example/æøå"},
+				Pred: IRI{str: "http://example/禅"},
 				Obj:  Literal{str: "\"\\\r\n Здра́вствуйте\t☺", DataType: xsdString},
 			},
 			`<http://example/æøå> <http://example/禅> "\"\\\r\n Здра́вствуйте	☺" .
 `,
 		},
 		{
-			Triple{Subj: Blank{id: "_:he"}, Pred: IRI{IRI: "http://xmlns.com/foaf/0.1/knows"}, Obj: Blank{id: "_:she"}},
+			Triple{Subj: Blank{id: "_:he"}, Pred: IRI{str: "http://xmlns.com/foaf/0.1/knows"}, Obj: Blank{id: "_:she"}},
 			`_:he <http://xmlns.com/foaf/0.1/knows> _:she .
 `,
 		},
 		{
 			Triple{
-				Subj: IRI{IRI: "http://example/s"},
-				Pred: IRI{IRI: "http://example/p"},
+				Subj: IRI{str: "http://example/s"},
+				Pred: IRI{str: "http://example/p"},
 				Obj:  Literal{str: "1", DataType: xsdInteger},
 			},
 			`<http://example/s> <http://example/p> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
@@ -43,8 +43,8 @@ func TestNTSerialization(t *testing.T) {
 		},
 		{
 			Triple{
-				Subj: IRI{IRI: "http://example/s"},
-				Pred: IRI{IRI: "http://example/p"},
+				Subj: IRI{str: "http://example/s"},
+				Pred: IRI{str: "http://example/p"},
 				Obj:  Literal{str: "bonjour", DataType: rdfLangString, lang: "fr"},
 			},
 			`<http://example/s> <http://example/p> "bonjour"@fr .
@@ -61,154 +61,154 @@ func TestNTSerialization(t *testing.T) {
 
 	triples := []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource1"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource1"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
 			Subj: Blank{id: "_:anon"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource2"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource2"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Blank{id: "_:anon"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource3"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource3"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource4"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource4"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource5"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource5"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource6"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource6"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource7"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource7"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "simple literal", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource8"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource8"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: `backslash:\`, DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource9"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource9"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: `dquote:"`, DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource10"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource10"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "newline:\n", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource11"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource11"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "return\r", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource12"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource12"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "tab:\t", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource13"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource13"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource14"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource14"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "x", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource15"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource15"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Blank{id: "_:anon"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource16"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource16"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "é", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource17"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource17"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "€", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource21"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource21"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource22"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: " ", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource22"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: " ", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource23"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "x", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource23"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "x", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource23"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: `"`, DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource23"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: `"`, DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource24"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "<a></a>", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource24"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "<a></a>", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource25"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "a <b></b>", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource25"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "a <b></b>", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource26"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "a <b></b> c", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource26"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "a <b></b> c", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource26"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "a\n<b></b>\nc", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource26"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "a\n<b></b>\nc", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource27"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "chat", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource27"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "chat", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource30"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource30"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "chat", lang: "fr", DataType: rdfLangString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource31"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource31"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "chat", lang: "en", DataType: rdfLangString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource32"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "abc", DataType: IRI{IRI: "http://example.org/datatype1"}},
+			Subj: IRI{str: "http://example.org/resource32"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "abc", DataType: IRI{str: "http://example.org/datatype1"}},
 		},
 	}
 	var buf bytes.Buffer
@@ -332,9 +332,9 @@ var ntTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> <http://example/o> .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  IRI{IRI: "http://example/o"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  IRI{str: "http://example/o"},
 		},
 	},
 	},
@@ -348,9 +348,9 @@ var ntTestSuite = []struct {
 	{`# x53 is capital S
 	<http://example/\u0053> <http://example/p> <http://example/o> .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/S"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  IRI{IRI: "http://example/o"},
+			Subj: IRI{str: "http://example/S"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  IRI{str: "http://example/o"},
 		},
 	},
 	},
@@ -364,9 +364,9 @@ var ntTestSuite = []struct {
 	{`# x53 is capital S
 	<http://example/\U00000053> <http://example/p> <http://example/o> .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/S"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  IRI{IRI: "http://example/o"},
+			Subj: IRI{str: "http://example/S"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  IRI{str: "http://example/o"},
 		},
 	}},
 
@@ -379,9 +379,9 @@ var ntTestSuite = []struct {
 	{`# IRI with all chars in it.
 	<http://example/s> <http://example/p> <scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#> .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  IRI{IRI: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  IRI{str: "scheme:!$%25&'()*+,-./0123456789:/@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~?#"},
 		},
 	}},
 
@@ -393,8 +393,8 @@ var ntTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "string" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "string", DataType: xsdString},
 		},
 	}},
@@ -407,8 +407,8 @@ var ntTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "string"@en .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "string", DataType: rdfLangString, lang: "en"},
 		},
 	}},
@@ -421,8 +421,8 @@ var ntTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "string"@en-uk .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "string", DataType: rdfLangString, lang: "en-uk"},
 		},
 	}},
@@ -435,8 +435,8 @@ var ntTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "a\n" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "a\n", DataType: xsdString},
 		},
 	}},
@@ -449,8 +449,8 @@ var ntTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "a\u0020b" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "a b", DataType: xsdString},
 		},
 	}},
@@ -463,8 +463,8 @@ var ntTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "a\U00000020b" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "a b", DataType: xsdString},
 		},
 	}},
@@ -478,8 +478,8 @@ var ntTestSuite = []struct {
 	{`_:a  <http://example/p> <http://example/o> .`, "", []Triple{
 		Triple{
 			Subj: Blank{id: "_:a"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  IRI{IRI: "http://example/o"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  IRI{str: "http://example/o"},
 		},
 	}},
 
@@ -492,14 +492,14 @@ var ntTestSuite = []struct {
 	{`<http://example/s> <http://example/p> _:a .
 	_:a  <http://example/p> <http://example/o> .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Blank{id: "_:a"},
 		},
 		Triple{
 			Subj: Blank{id: "_:a"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  IRI{IRI: "http://example/o"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  IRI{str: "http://example/o"},
 		},
 	}},
 
@@ -512,14 +512,14 @@ var ntTestSuite = []struct {
 	{`<http://example/s> <http://example/p> _:1a .
 	_:1a  <http://example/p> <http://example/o> .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Blank{id: "_:1a"},
 		},
 		Triple{
 			Subj: Blank{id: "_:1a"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  IRI{IRI: "http://example/o"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  IRI{str: "http://example/o"},
 		},
 	}},
 
@@ -531,9 +531,9 @@ var ntTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#byte> .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  Literal{str: "123", DataType: IRI{IRI: "http://www.w3.org/2001/XMLSchema#byte"}},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  Literal{str: "123", DataType: IRI{str: "http://www.w3.org/2001/XMLSchema#byte"}},
 		},
 	}},
 
@@ -545,8 +545,8 @@ var ntTestSuite = []struct {
 
 	{`<http://example/s> <http://example/p> "123"^^<http://www.w3.org/2001/XMLSchema#string> .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "123", DataType: xsdString},
 		},
 	}},
@@ -866,154 +866,154 @@ var ntTestSuite = []struct {
 	<http://example.org/resource32> <http://example.org/property> "abc"^^<http://example.org/datatype1> .
 	# resource33 test removed 2003-08-03`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource1"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource1"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
 			Subj: Blank{id: "_:anon"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource2"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource2"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Blank{id: "_:anon"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource3"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource3"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource4"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource4"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource5"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource5"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource6"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource6"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource7"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource7"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "simple literal", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource8"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource8"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: `backslash:\`, DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource9"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource9"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: `dquote:"`, DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource10"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource10"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "newline:\n", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource11"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource11"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "return\r", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource12"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource12"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "tab:\t", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource13"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  IRI{IRI: "http://example.org/resource2"},
+			Subj: IRI{str: "http://example.org/resource13"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  IRI{str: "http://example.org/resource2"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource14"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource14"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "x", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource15"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource15"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Blank{id: "_:anon"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource16"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource16"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "é", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource17"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource17"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "€", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource21"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource21"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource22"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: " ", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource22"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: " ", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource23"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "x", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource23"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "x", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource23"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: `"`, DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource23"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: `"`, DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource24"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "<a></a>", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource24"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "<a></a>", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource25"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "a <b></b>", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource25"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "a <b></b>", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource26"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "a <b></b> c", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource26"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "a <b></b> c", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource26"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "a\n<b></b>\nc", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource26"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "a\n<b></b>\nc", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource27"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "chat", DataType: IRI{IRI: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
+			Subj: IRI{str: "http://example.org/resource27"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "chat", DataType: IRI{str: "http://www.w3.org/2000/01/rdf-schema#XMLLiteral"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource30"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource30"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "chat", lang: "fr", DataType: rdfLangString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource31"},
-			Pred: IRI{IRI: "http://example.org/property"},
+			Subj: IRI{str: "http://example.org/resource31"},
+			Pred: IRI{str: "http://example.org/property"},
 			Obj:  Literal{str: "chat", lang: "en", DataType: rdfLangString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example.org/resource32"},
-			Pred: IRI{IRI: "http://example.org/property"},
-			Obj:  Literal{str: "abc", DataType: IRI{IRI: "http://example.org/datatype1"}},
+			Subj: IRI{str: "http://example.org/resource32"},
+			Pred: IRI{str: "http://example.org/property"},
+			Obj:  Literal{str: "abc", DataType: IRI{str: "http://example.org/datatype1"}},
 		},
 	}},
 
@@ -1030,28 +1030,28 @@ var ntTestSuite = []struct {
 	<http://example/s> <http://example/p> "o"^^<http://example/dt> . # comment
 	<http://example/s> <http://example/p> "o"@en . # comment`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  IRI{IRI: "http://example/o"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  IRI{str: "http://example/o"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Blank{id: "_:o"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "o", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  Literal{str: "o", DataType: IRI{IRI: "http://example/dt"}},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  Literal{str: "o", DataType: IRI{str: "http://example/dt"}},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "o", lang: "en", DataType: rdfLangString},
 		},
 	}},
@@ -1065,8 +1065,8 @@ var ntTestSuite = []struct {
 
 	{"<http://a.example/s> <http://a.example/p> \"\x00	&([]\" .", "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj: Literal{str: "\x00	&([]", DataType: xsdString},
 		},
 	}},
@@ -1080,8 +1080,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "߿ࠀ࿿က쿿퀀퟿�𐀀𿿽񀀀󿿽􀀀􏿽", DataType: xsdString},
 		},
 	}},
@@ -1095,8 +1095,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C\u001D\u001E\u001F" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "\x00\x01\x02\x03\x04\x05\x06\a\b\t\v\f\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f", DataType: xsdString},
 		},
 	}},
@@ -1110,8 +1110,8 @@ var ntTestSuite = []struct {
 
 	{"<http://a.example/s> <http://a.example/p> \" !\\\"#$%&():;<=>?@[]^_`{|}~\".", "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: " !\"#$%&():;<=>?@[]^_`{|}~", DataType: xsdString},
 		},
 	}},
@@ -1125,8 +1125,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "x'y" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "x'y", DataType: xsdString},
 		},
 	}},
@@ -1140,8 +1140,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "x''y" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "x''y", DataType: xsdString},
 		},
 	}},
@@ -1155,8 +1155,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "x" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "x", DataType: xsdString},
 		},
 	}},
@@ -1170,8 +1170,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "x\"y" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: `x"y`, DataType: xsdString},
 		},
 	}},
@@ -1185,8 +1185,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "x\"\"y" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: `x""y`, DataType: xsdString},
 		},
 	}},
@@ -1200,8 +1200,8 @@ var ntTestSuite = []struct {
 
 	{`<http://example.org/ns#s> <http://example.org/ns#p1> "test-\\" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example.org/ns#s"},
-			Pred: IRI{IRI: "http://example.org/ns#p1"},
+			Subj: IRI{str: "http://example.org/ns#s"},
+			Pred: IRI{str: "http://example.org/ns#p1"},
 			Obj:  Literal{str: `test-\`, DataType: xsdString},
 		},
 	}},
@@ -1215,8 +1215,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "\t" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "\t", DataType: xsdString},
 		},
 	}},
@@ -1230,8 +1230,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "\b" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "\b", DataType: xsdString},
 		},
 	}},
@@ -1245,8 +1245,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "\n" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "\n", DataType: xsdString},
 		},
 	}},
@@ -1260,8 +1260,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "\r" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "\r", DataType: xsdString},
 		},
 	}},
@@ -1275,8 +1275,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "\f" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "\f", DataType: xsdString},
 		},
 	}},
@@ -1290,8 +1290,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "\\" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "\\", DataType: xsdString},
 		},
 	}},
@@ -1305,8 +1305,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "\u006F" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "o", DataType: xsdString},
 		},
 	}},
@@ -1320,8 +1320,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "\U0000006F" .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "o", DataType: xsdString},
 		},
 	}},
@@ -1335,8 +1335,8 @@ var ntTestSuite = []struct {
 
 	{`<http://a.example/s> <http://a.example/p> "chat"@en .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://a.example/s"},
-			Pred: IRI{IRI: "http://a.example/p"},
+			Subj: IRI{str: "http://a.example/s"},
+			Pred: IRI{str: "http://a.example/p"},
 			Obj:  Literal{str: "chat", lang: "en", DataType: rdfLangString},
 		},
 	}},
@@ -1350,8 +1350,8 @@ var ntTestSuite = []struct {
 
 	{`<http://example.org/ex#a> <http://example.org/ex#b> "Cheers"@en-UK .`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example.org/ex#a"},
-			Pred: IRI{IRI: "http://example.org/ex#b"},
+			Subj: IRI{str: "http://example.org/ex#a"},
+			Pred: IRI{str: "http://example.org/ex#b"},
 			Obj:  Literal{str: "Cheers", lang: "en-UK", DataType: rdfLangString},
 		},
 	}},
@@ -1370,33 +1370,33 @@ var ntTestSuite = []struct {
 	_:s<http://example/p>"Alice".
 	_:s<http://example/p>_:bnode1.`, "", []Triple{
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  IRI{IRI: "http://example/o"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  IRI{str: "http://example/o"},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "Alice", DataType: xsdString},
 		},
 		Triple{
-			Subj: IRI{IRI: "http://example/s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Subj: IRI{str: "http://example/s"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Blank{id: "_:o"},
 		},
 		Triple{
 			Subj: Blank{id: "_:s"},
-			Pred: IRI{IRI: "http://example/p"},
-			Obj:  IRI{IRI: "http://example/o"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  IRI{str: "http://example/o"},
 		},
 		Triple{
 			Subj: Blank{id: "_:s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Literal{str: "Alice", DataType: xsdString},
 		},
 		Triple{
 			Subj: Blank{id: "_:s"},
-			Pred: IRI{IRI: "http://example/p"},
+			Pred: IRI{str: "http://example/p"},
 			Obj:  Blank{id: "_:bnode1"},
 		},
 	}},
