@@ -137,9 +137,10 @@ type Format int
 const (
 	// Triple serialization:
 
-	FormatNT  Format = iota // N-Triples
-	FormatTTL               // Turtle
-	// TODO: FormatRDFXML, JSON-LD
+	FormatNT     Format = iota // N-Triples
+	FormatTTL                  // Turtle
+	FormatRDFXML               // RDF/XML
+	// TODO: JSON-LD
 
 	// Quad serialization:
 

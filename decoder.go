@@ -1,6 +1,8 @@
 package rdf
 
 import (
+	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"runtime"
@@ -46,6 +48,7 @@ func (ctx context) String() string {
 // at a time. Or, if you want to read the whole source in one go, DecodeAll().
 type TripleDecoder struct {
 	l      *lexer
+	xmlDec *xml.Decoder
 	format Format
 
 	state     parseFn           // state of parser
@@ -69,14 +72,18 @@ type TripleDecoder struct {
 // from the given io.Reader in the given serialization format.
 func NewTripleDecoder(r io.Reader, f Format) *TripleDecoder {
 	var l *lexer
+	var x *xml.Decoder
 	switch f {
 	case FormatNT:
 		l = newLineLexer(r)
+	case FormatRDFXML:
+		x = xml.NewDecoder(r)
 	default:
 		l = newLexer(r)
 	}
 	d := TripleDecoder{
 		l:        l,
+		xmlDec:   x,
 		format:   f,
 		ns:       make(map[string]string),
 		ctxStack: make([]ctxTriple, 0, 8),
@@ -93,6 +100,8 @@ func (d *TripleDecoder) Decode() (Triple, error) {
 		return d.parseNT()
 	case FormatTTL:
 		return d.parseTTL()
+	case FormatRDFXML:
+		return d.parseRDFXML()
 	}
 
 	return Triple{}, fmt.Errorf("can't decode triples in format %v", d.format)
@@ -702,6 +711,11 @@ func parseLiteral(val, datatype string) (interface{}, error) {
 	default:
 		return val, nil
 	}
+}
+
+// parseRDFXML parses a RDF/XML document, and returns the first available triple.
+func (d *TripleDecoder) parseRDFXML() (t Triple, err error) {
+	return Triple{}, errors.New("TODO")
 }
 
 // QuadDecoder parses RDF quads in one of the following formats:
