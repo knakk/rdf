@@ -341,6 +341,7 @@ func (l Literal) Typed() (interface{}, error) {
 			return b, nil
 		case xsdByte.str:
 			return []byte(l.str), nil
+			// TODO xsdDateTime etc
 		default:
 			return l.str, nil
 		}
@@ -403,6 +404,11 @@ func NewLangLiteral(v, lang string) (Literal, error) {
 		return Literal{}, errors.New("invalid language tag: trailing '-' disallowed")
 	}
 	return Literal{str: v, lang: lang, DataType: rdfLangString}, nil
+}
+
+// NewTypedLiteral returns a literal with the given datatype.
+func NewTypedLiteral(v string, dt IRI) Literal {
+	return Literal{str: v, DataType: dt}
 }
 
 // Subject interface distiguishes which Terms are valid as a Subject of a Triple.
