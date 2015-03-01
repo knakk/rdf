@@ -9,6 +9,7 @@ import (
 func TestRDFXML(t *testing.T) {
 	for i, test := range rdfxmlTestSuite {
 		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
+		dec.Base = IRI{str: "http://www.w3.org/2013/RDFXMLTests/somedir/somefile.rdf"}
 		ts, err := dec.DecodeAll()
 		if test.err != "" && err == nil {
 			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => <no error>, want %q", i, test.rdfxml, test.err)
@@ -17,21 +18,22 @@ func TestRDFXML(t *testing.T) {
 
 		if test.err != "" && err != nil {
 			if !strings.HasSuffix(err.Error(), test.err) {
-				t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %s, want %q", i, test.rdfxml, err.Error(), test.err)
+				t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %s, want %q", i, test.rdfxml, err, test.err)
 			}
 			continue
 		}
 
 		if test.err == "" && err != nil {
-			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err.Error(), test.nt)
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err, test.nt)
 			continue
 		}
 
 		var b bytes.Buffer
-		enc := NewTripleEncoder(&b, FormatRDFXML)
+		enc := NewTripleEncoder(&b, FormatNT)
 		err = enc.EncodeAll(ts)
+		enc.Close()
 		if err != nil {
-			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err.Error(), test.nt)
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err, test.nt)
 		}
 		if b.String() != test.nt {
 			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %v", i, test.rdfxml, b.String(), test.nt)
@@ -44,9 +46,8 @@ var rdfxmlTestSuite = []struct {
 	nt     string
 	err    string
 }{
-
 	{
-		// [7] #amp-in-url-test001
+		// [0] #amp-in-url-test001
 		//
 		// Description: the purpose of this test case is to show how one
 		// of XML's Predefined Entities - in this case the ampersand - is
@@ -62,7 +63,7 @@ var rdfxmlTestSuite = []struct {
 		// In this case, the browser may provide an alternate way to view
 		// the file (such as viewing the file's source or saving to a
 		// file).
-		//
+
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 
   <rdf:Description rdf:about="http://example/q?abc=1&#38;def=2">
@@ -75,10 +76,10 @@ var rdfxmlTestSuite = []struct {
 		"",
 	},
 	{
-		// [13] #datatypes-test001
+		// [1] #datatypes-test001
 		//
 		// A simple datatype production; a language+datatype production.
-		//
+
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -94,11 +95,10 @@ var rdfxmlTestSuite = []struct {
 		"",
 	},
 	{
-		// [19] #datatypes-test002
+		// [2] #datatypes-test002
 		//
 		// A parser is not required to know about well-formed datatyped
 		// literals.
-		//
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -112,11 +112,10 @@ var rdfxmlTestSuite = []struct {
 		"",
 	},
 	{
-		// [25] #rdf-charmod-literals-test001
+		// [3] #rdf-charmod-literals-test001
 		//
 		// Does the treatment of literals conform to charmod ? Test for
 		// success of legal Normal Form C literal
-		//
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
    <!-- Dürst registers himself as a creator of the Charmod WD. -->
@@ -129,17 +128,14 @@ var rdfxmlTestSuite = []struct {
 
    </rdf:Description>
 </rdf:RDF>`,
-		`_:a <http://example.org/named> "D\u00FCrst" .
-<http://www.w3.org/TR/2002/WD-charmod-20020220> <http://example.org/Creator> _:a .
-`,
+		"<http://www.w3.org/TR/2002/WD-charmod-20020220> <http://example.org/Creator> _:b0 .\n_:b0 <http://example.org/named> \"D\u00FCrst\" .\n",
 		"",
 	},
 	{
-		// [31] #rdf-charmod-uris-test001
+		// [4] #rdf-charmod-uris-test001
 		//
 		// A uriref is allowed to match non-US ASCII forms conforming to
 		// Unicode Normal Form C. No escaping algorithm is applied.
-		//
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/#">
 
@@ -151,16 +147,15 @@ var rdfxmlTestSuite = []struct {
       <eg:owes>2000</eg:owes>
    </rdf:Description>
 </rdf:RDF>`,
-		`<http://example.org/#Andr\u00E9> <http://example.org/#owes> "2000" .
+		`<http://example.org/#André> <http://example.org/#owes> "2000" .
 `,
 		"",
 	},
 	{
-		// [37] #rdf-charmod-uris-test002
+		// [5] #rdf-charmod-uris-test002
 		//
 		// A uriref which already has % escaping is permitted. No
 		// unescaping algorithm is applied.
-		//
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/#">
  
@@ -176,80 +171,38 @@ var rdfxmlTestSuite = []struct {
 		"",
 	},
 	{
-		// [42] #rdf-containers-syntax-vs-schema-error001
+		// [6] #rdf-containers-syntax-vs-schema-error001
 		//
 		// rdf:li is not allowed as as an attribute
-		//
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: error001.rdf,v 1.6 2001/09/06 21:23:35 barstow Exp $
--->
-
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:bar rdf:li="1"/>
 </rdf:RDF>`,
 		"",
 
-		"parse error string",
+		"disallowed as attribute: rdf:li",
 	},
 	{
-		// [47] #rdf-containers-syntax-vs-schema-error002
+		// [7] #rdf-containers-syntax-vs-schema-error002
 		//
 		// rdf:li elements as typed nodes - a bizarre case As specified
 		// in
 		// http://lists.w3.org/Archives/Public/w3c-rdfcore-wg/2001Nov/0651.html
-		// is not an error.
-		//
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: error002.rdf,v 1.4 2001/12/20 22:10:28 bmcbride Exp $
--->
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		// is now an error.
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
   <rdf:li/>
 </rdf:RDF>`,
 		"",
 
-		"parse error string",
+		"disallowed as top node element: rdf:li",
 	},
 	{
-		// [53] #rdf-containers-syntax-vs-schema-test001
+		// [8] #rdf-containers-syntax-vs-schema-test001
 		//
 		// Simple container
-		//
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: test001.rdf,v 1.8 2001/09/06 21:23:35 barstow Exp $
--->
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 
   <rdf:Bag> 
     <rdf:li>1</rdf:li>
@@ -263,7 +216,7 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		"",
 	},
 	{
-		// [59] #rdf-containers-syntax-vs-schema-test002
+		// [9] #rdf-containers-syntax-vs-schema-test002
 		//
 		// rdf:li is unaffected by other rdf:_nnn properties. This test
 		// case is concerned only with defining the triples that this
@@ -271,21 +224,7 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		// with whether that collection of triples violates any other
 		// constraints, e.g. restrictions on the number of rdf:_1
 		// properties that may be defined for a resource.
-		//
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: test002.rdf,v 1.6 2001/09/06 21:23:35 barstow Exp $
--->
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:Bar>
@@ -304,25 +243,10 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		"",
 	},
 	{
-		// [65] #rdf-containers-syntax-vs-schema-test003
+		// [10] #rdf-containers-syntax-vs-schema-test003
 		//
 		// rdf:li elements can exist in any description element
-		//
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: test003.rdf,v 1.4 2001/09/06 21:23:35 barstow Exp $
--->
-
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:Bar>
@@ -330,31 +254,17 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
     <rdf:li>2</rdf:li>
   </foo:Bar>
 </rdf:RDF>`,
-		`_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://foo/Bar> .
-_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> "1" .
-_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
+		`_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://foo/Bar> .
+_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> "1" .
+_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 `,
 		"",
 	},
 	{
-		// [71] #rdf-containers-syntax-vs-schema-test004
+		// [11] #rdf-containers-syntax-vs-schema-test004
 		//
 		// rdf:li elements match any of the property element productions
-		//
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: test004.rdf,v 1.4 2001/09/06 21:23:35 barstow Exp $
--->
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:Bar>

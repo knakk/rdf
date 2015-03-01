@@ -2,13 +2,17 @@ package rdf
 
 import (
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"io"
 	"runtime"
 	"strconv"
 	"time"
 )
+
+// TODO make TripleDecoder & QuadDecoder interfaces ?
+// so we don't have to mix xml- & turtle-decoding state in one struct.
+
+const rdfNS = `http://www.w3.org/1999/02/22-rdf-syntax-ns#`
 
 type format int
 
@@ -24,6 +28,7 @@ const (
 	ctxTop context = iota
 	ctxCollection
 	ctxList
+	ctxBag
 )
 
 // TODO remove when done
@@ -48,7 +53,6 @@ func (ctx context) String() string {
 // at a time. Or, if you want to read the whole source in one go, DecodeAll().
 type TripleDecoder struct {
 	l      *lexer
-	xmlDec *xml.Decoder
 	format Format
 
 	state     parseFn           // state of parser
@@ -59,12 +63,19 @@ type TripleDecoder struct {
 	peekCount int               // number of tokens peeked at (position in tokens lookahead array)
 	current   ctxTriple         // the current triple beeing parsed
 
+	// xml decoder state
+	xmlDec     *xml.Decoder
+	xmlTok     xml.Token
+	xmlTopElem string
+	xmlListN   int
+	xmlReifyID string
+
 	// ctxStack keeps track of current and parent triple contexts,
 	// needed for parsing recursive structures (list/collections).
 	ctxStack []ctxTriple
 
 	// triples contains complete triples ready to be emitted. Usually it will have just one triple,
-	// but can have more when parsing nested list/collections. DecodeTriple() will always return the first item.
+	// but can have more when parsing nested list/collections. Decode() will always return the first item.
 	triples []Triple
 }
 
@@ -711,11 +722,6 @@ func parseLiteral(val, datatype string) (interface{}, error) {
 	default:
 		return val, nil
 	}
-}
-
-// parseRDFXML parses a RDF/XML document, and returns the first available triple.
-func (d *TripleDecoder) parseRDFXML() (t Triple, err error) {
-	return Triple{}, errors.New("TODO")
 }
 
 // QuadDecoder parses RDF quads in one of the following formats:

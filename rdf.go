@@ -127,7 +127,10 @@ var (
 	xsdInt   = IRI{str: "http://www.w3.org/2001/XMLSchema#int"}   // int32
 	xsdLong  = IRI{str: "http://www.w3.org/2001/XMLSchema#long"}  // int64
 
+	// Various
+
 	rdfLangString = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"} // string
+	xmlLiteral    = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"} // string
 )
 
 // Format represents a RDF serialization format.
