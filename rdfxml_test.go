@@ -7,7 +7,7 @@ import (
 )
 
 func TestRDFXML(t *testing.T) {
-	for i, test := range rdfxmlTestSuite[:0] {
+	for i, test := range rdfxmlTestSuite {
 		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
 		dec.SetBase(IRI{str: "http://www.w3.org/2013/RDFXMLTests/" + test.file})
 		ts, err := dec.DecodeAll()
@@ -136,8 +136,8 @@ var rdfxmlTestSuite = []struct {
 
    </rdf:Description>
 </rdf:RDF>`,
-		`_:a <http://example.org/named> "D\u00FCrst" .
-<http://www.w3.org/TR/2002/WD-charmod-20020220> <http://example.org/Creator> _:a .
+		`<http://www.w3.org/TR/2002/WD-charmod-20020220> <http://example.org/Creator> _:b0 .
+_:b0 <http://example.org/named> "Dürst" .
 `,
 		"",
 	},
@@ -159,7 +159,7 @@ var rdfxmlTestSuite = []struct {
       <eg:owes>2000</eg:owes>
    </rdf:Description>
 </rdf:RDF>`,
-		`<http://example.org/#Andr\u00E9> <http://example.org/#owes> "2000" .
+		`<http://example.org/#André> <http://example.org/#owes> "2000" .
 `,
 		"",
 	},
@@ -190,28 +190,14 @@ var rdfxmlTestSuite = []struct {
 		// rdf:li is not allowed as as an attribute
 		//
 		"rdf-containers-syntax-vs-schema/error001.rdf",
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: error001.rdf,v 1.6 2001/09/06 21:23:35 barstow Exp $
--->
-
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:bar rdf:li="1"/>
 </rdf:RDF>`,
 		"",
 
-		"parse error string",
+		"disallowed as attribute: rdf:li",
 	},
 	{
 		// [7] #rdf-containers-syntax-vs-schema-error002
@@ -222,26 +208,13 @@ var rdfxmlTestSuite = []struct {
 		// is not an error.
 		//
 		"rdf-containers-syntax-vs-schema/error002.rdf",
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: error002.rdf,v 1.4 2001/12/20 22:10:28 bmcbride Exp $
--->
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
   <rdf:li/>
 </rdf:RDF>`,
 		"",
 
-		"parse error string",
+		"disallowed as top node element: rdf:li",
 	},
 	{
 		// [8] #rdf-containers-syntax-vs-schema-test001
@@ -249,19 +222,7 @@ var rdfxmlTestSuite = []struct {
 		// Simple container
 		//
 		"rdf-containers-syntax-vs-schema/test001.rdf",
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: test001.rdf,v 1.8 2001/09/06 21:23:35 barstow Exp $
--->
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 
   <rdf:Bag> 
     <rdf:li>1</rdf:li>
@@ -285,20 +246,7 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		// properties that may be defined for a resource.
 		//
 		"rdf-containers-syntax-vs-schema/test002.rdf",
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: test002.rdf,v 1.6 2001/09/06 21:23:35 barstow Exp $
--->
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:Bar>
@@ -322,21 +270,7 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		// rdf:li elements can exist in any description element
 		//
 		"rdf-containers-syntax-vs-schema/test003.rdf",
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: test003.rdf,v 1.4 2001/09/06 21:23:35 barstow Exp $
--->
-
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:Bar>
@@ -344,9 +278,9 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
     <rdf:li>2</rdf:li>
   </foo:Bar>
 </rdf:RDF>`,
-		`_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://foo/Bar> .
-_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> "1" .
-_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
+		`_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://foo/Bar> .
+_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> "1" .
+_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 `,
 		"",
 	},
@@ -356,20 +290,7 @@ _:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		// rdf:li elements match any of the property element productions
 		//
 		"rdf-containers-syntax-vs-schema/test004.rdf",
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
-
-  $Id: test004.rdf,v 1.4 2001/09/06 21:23:35 barstow Exp $
--->
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:Bar>
