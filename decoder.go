@@ -6,8 +6,6 @@ import (
 	"runtime"
 )
 
-type format int // TODO is this used somewhere?
-
 // TripleDecoder parses RDF triples in one of the following formats:
 // N-Triples, Turtle, RDF/XML.
 //
