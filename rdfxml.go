@@ -102,7 +102,7 @@ func parseXMLRootElem(d *rdfXMLDecoder) parseXMLFn {
 	switch elem := d.xmlTok.(type) {
 	case xml.StartElement:
 		d.xmlTopElem = resolve(elem.Name.Space, elem.Name.Local)
-	case xml.Comment:
+	case xml.Comment, xml.CharData:
 		return parseXMLRootElem
 	default:
 		panic(errors.New("parseXMLRootElem not xml.StartElement"))
