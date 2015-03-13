@@ -13,17 +13,13 @@ import (
 const rdfNS = `http://www.w3.org/1999/02/22-rdf-syntax-ns#`
 
 type rdfXMLDecoder struct {
-	format Format
-
-	state     parseXMLFn        // state of parser
-	base      IRI               // base (default IRI)
-	bnodeN    int               // anonymous blank node counter
-	ns        map[string]string // map[prefix]namespace
-	tokens    [3]token          // 3 token lookahead
-	peekCount int               // number of tokens peeked at (position in tokens lookahead array)
-	current   ctxTriple         // the current triple beeing parsed
+	base    IRI               // base (default IRI)
+	bnodeN  int               // anonymous blank node counter
+	ns      map[string]string // map[prefix]namespace
+	current ctxTriple         // the current triple beeing parsed
 
 	// xml decoder state
+	state      parseXMLFn // state of parser
 	xmlDec     *xml.Decoder
 	xmlTok     xml.Token
 	xmlTopElem string
