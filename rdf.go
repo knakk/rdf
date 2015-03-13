@@ -159,6 +159,9 @@ type Term interface {
 	// Serialize returns a string representation of the Term in the specified serialization format.
 	Serialize(Format) string
 
+	// String returns the term as it is stored, without any modifications.
+	String() string
+
 	// Type returns the Term type.
 	Type() TermType
 }
@@ -194,6 +197,11 @@ func (b Blank) Type() TermType {
 	return TermBlank
 }
 
+// String returns the Blank node label
+func (b Blank) String() string {
+	return b.id[2:]
+}
+
 // NewBlank returns a new blank node with a given label. It returns
 // an error only if the supplied label is blank.
 func NewBlank(id string) (Blank, error) {
@@ -220,6 +228,11 @@ func (u IRI) validAsObject() {}
 // Type returns the TermType of a IRI.
 func (u IRI) Type() TermType {
 	return TermIRI
+}
+
+// String returns the IRI string.
+func (u IRI) String() string {
+	return u.str
 }
 
 // Serialize returns a string representation of an IRI.
@@ -315,6 +328,11 @@ func (l Literal) Type() TermType {
 // Lang returns the language of a language-tagged string.
 func (l Literal) Lang() string {
 	return l.lang
+}
+
+// String returns the literal string.
+func (l Literal) String() string {
+	return l.str
 }
 
 // Typed tries to parse the Literal's value into a Go type, acordig to the
