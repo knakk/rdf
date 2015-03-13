@@ -9,7 +9,7 @@ import (
 func TestRDFXML(t *testing.T) {
 	for i, test := range rdfxmlTestSuite[:0] {
 		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
-		dec.SetBase(IRI{str: "http://www.w3.org/2013/RDFXMLTests/somedir/somefile.rdf"})
+		dec.SetBase(IRI{str: "http://www.w3.org/2013/RDFXMLTests/" + test.file})
 		ts, err := dec.DecodeAll()
 		if test.err != "" && err == nil {
 			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => <no error>, want %q", i, test.rdfxml, test.err)
@@ -42,10 +42,12 @@ func TestRDFXML(t *testing.T) {
 }
 
 var rdfxmlTestSuite = []struct {
+	file   string
 	rdfxml string
 	nt     string
 	err    string
 }{
+
 	{
 		// [0] #amp-in-url-test001
 		//
@@ -63,7 +65,8 @@ var rdfxmlTestSuite = []struct {
 		// In this case, the browser may provide an alternate way to view
 		// the file (such as viewing the file's source or saving to a
 		// file).
-
+		//
+		"amp-in-url/test001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 
   <rdf:Description rdf:about="http://example/q?abc=1&#38;def=2">
@@ -79,7 +82,8 @@ var rdfxmlTestSuite = []struct {
 		// [1] #datatypes-test001
 		//
 		// A simple datatype production; a language+datatype production.
-
+		//
+		"datatypes/test001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -99,6 +103,8 @@ var rdfxmlTestSuite = []struct {
 		//
 		// A parser is not required to know about well-formed datatyped
 		// literals.
+		//
+		"datatypes/test002.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -116,6 +122,8 @@ var rdfxmlTestSuite = []struct {
 		//
 		// Does the treatment of literals conform to charmod ? Test for
 		// success of legal Normal Form C literal
+		//
+		"rdf-charmod-literals/test001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
    <!-- Dürst registers himself as a creator of the Charmod WD. -->
@@ -128,7 +136,9 @@ var rdfxmlTestSuite = []struct {
 
    </rdf:Description>
 </rdf:RDF>`,
-		"<http://www.w3.org/TR/2002/WD-charmod-20020220> <http://example.org/Creator> _:b0 .\n_:b0 <http://example.org/named> \"D\u00FCrst\" .\n",
+		`_:a <http://example.org/named> "D\u00FCrst" .
+<http://www.w3.org/TR/2002/WD-charmod-20020220> <http://example.org/Creator> _:a .
+`,
 		"",
 	},
 	{
@@ -136,6 +146,8 @@ var rdfxmlTestSuite = []struct {
 		//
 		// A uriref is allowed to match non-US ASCII forms conforming to
 		// Unicode Normal Form C. No escaping algorithm is applied.
+		//
+		"rdf-charmod-uris/test001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/#">
 
@@ -147,7 +159,7 @@ var rdfxmlTestSuite = []struct {
       <eg:owes>2000</eg:owes>
    </rdf:Description>
 </rdf:RDF>`,
-		`<http://example.org/#André> <http://example.org/#owes> "2000" .
+		`<http://example.org/#Andr\u00E9> <http://example.org/#owes> "2000" .
 `,
 		"",
 	},
@@ -156,6 +168,8 @@ var rdfxmlTestSuite = []struct {
 		//
 		// A uriref which already has % escaping is permitted. No
 		// unescaping algorithm is applied.
+		//
+		"rdf-charmod-uris/test002.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/#">
  
@@ -174,14 +188,30 @@ var rdfxmlTestSuite = []struct {
 		// [6] #rdf-containers-syntax-vs-schema-error001
 		//
 		// rdf:li is not allowed as as an attribute
-		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		//
+		"rdf-containers-syntax-vs-schema/error001.rdf",
+		`<!--
+  Copyright World Wide Web Consortium, (Massachusetts Institute of
+  Technology, Institut National de Recherche en Informatique et en
+  Automatique, Keio University).
+ 
+  All Rights Reserved.
+ 
+  Please see the full Copyright clause at
+  <http://www.w3.org/Consortium/Legal/copyright-software.html>
+
+  $Id: error001.rdf,v 1.6 2001/09/06 21:23:35 barstow Exp $
+-->
+
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:bar rdf:li="1"/>
 </rdf:RDF>`,
 		"",
 
-		"disallowed as attribute: rdf:li",
+		"parse error string",
 	},
 	{
 		// [7] #rdf-containers-syntax-vs-schema-error002
@@ -189,20 +219,49 @@ var rdfxmlTestSuite = []struct {
 		// rdf:li elements as typed nodes - a bizarre case As specified
 		// in
 		// http://lists.w3.org/Archives/Public/w3c-rdfcore-wg/2001Nov/0651.html
-		// is now an error.
-		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		// is not an error.
+		//
+		"rdf-containers-syntax-vs-schema/error002.rdf",
+		`<!--
+  Copyright World Wide Web Consortium, (Massachusetts Institute of
+  Technology, Institut National de Recherche en Informatique et en
+  Automatique, Keio University).
+ 
+  All Rights Reserved.
+ 
+  Please see the full Copyright clause at
+  <http://www.w3.org/Consortium/Legal/copyright-software.html>
+
+  $Id: error002.rdf,v 1.4 2001/12/20 22:10:28 bmcbride Exp $
+-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
   <rdf:li/>
 </rdf:RDF>`,
 		"",
 
-		"disallowed as top node element: rdf:li",
+		"parse error string",
 	},
 	{
 		// [8] #rdf-containers-syntax-vs-schema-test001
 		//
 		// Simple container
-		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		//
+		"rdf-containers-syntax-vs-schema/test001.rdf",
+		`<!--
+  Copyright World Wide Web Consortium, (Massachusetts Institute of
+  Technology, Institut National de Recherche en Informatique et en
+  Automatique, Keio University).
+ 
+  All Rights Reserved.
+ 
+  Please see the full Copyright clause at
+  <http://www.w3.org/Consortium/Legal/copyright-software.html>
+
+  $Id: test001.rdf,v 1.8 2001/09/06 21:23:35 barstow Exp $
+-->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 
   <rdf:Bag> 
     <rdf:li>1</rdf:li>
@@ -224,7 +283,22 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		// with whether that collection of triples violates any other
 		// constraints, e.g. restrictions on the number of rdf:_1
 		// properties that may be defined for a resource.
-		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		//
+		"rdf-containers-syntax-vs-schema/test002.rdf",
+		`<!--
+  Copyright World Wide Web Consortium, (Massachusetts Institute of
+  Technology, Institut National de Recherche en Informatique et en
+  Automatique, Keio University).
+ 
+  All Rights Reserved.
+ 
+  Please see the full Copyright clause at
+  <http://www.w3.org/Consortium/Legal/copyright-software.html>
+
+  $Id: test002.rdf,v 1.6 2001/09/06 21:23:35 barstow Exp $
+-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:Bar>
@@ -246,7 +320,23 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		// [10] #rdf-containers-syntax-vs-schema-test003
 		//
 		// rdf:li elements can exist in any description element
-		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		//
+		"rdf-containers-syntax-vs-schema/test003.rdf",
+		`<!--
+  Copyright World Wide Web Consortium, (Massachusetts Institute of
+  Technology, Institut National de Recherche en Informatique et en
+  Automatique, Keio University).
+ 
+  All Rights Reserved.
+ 
+  Please see the full Copyright clause at
+  <http://www.w3.org/Consortium/Legal/copyright-software.html>
+
+  $Id: test003.rdf,v 1.4 2001/09/06 21:23:35 barstow Exp $
+-->
+
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:Bar>
@@ -254,9 +344,9 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
     <rdf:li>2</rdf:li>
   </foo:Bar>
 </rdf:RDF>`,
-		`_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://foo/Bar> .
-_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> "1" .
-_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
+		`_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://foo/Bar> .
+_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> "1" .
+_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 `,
 		"",
 	},
@@ -264,7 +354,22 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		// [11] #rdf-containers-syntax-vs-schema-test004
 		//
 		// rdf:li elements match any of the property element productions
-		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		//
+		"rdf-containers-syntax-vs-schema/test004.rdf",
+		`<!--
+  Copyright World Wide Web Consortium, (Massachusetts Institute of
+  Technology, Institut National de Recherche en Informatique et en
+  Automatique, Keio University).
+ 
+  All Rights Reserved.
+ 
+  Please see the full Copyright clause at
+  <http://www.w3.org/Consortium/Legal/copyright-software.html>
+
+  $Id: test004.rdf,v 1.4 2001/09/06 21:23:35 barstow Exp $
+-->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <foo:Bar>
@@ -295,10 +400,11 @@ _:res2 <http://foo/bar> "foobar" .
 		"",
 	},
 	{
-		// [77] #rdf-containers-syntax-vs-schema-test006
+		// [12] #rdf-containers-syntax-vs-schema-test006
 		//
 		// containers match the typed node production
 		//
+		"rdf-containers-syntax-vs-schema/test006.rdf",
 		`<!--
   Copyright World Wide Web Consortium, (Massachusetts Institute of
   Technology, Institut National de Recherche en Informatique et en
@@ -331,10 +437,11 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://www.w3.org/1999
 		"",
 	},
 	{
-		// [83] #rdf-containers-syntax-vs-schema-test007
+		// [13] #rdf-containers-syntax-vs-schema-test007
 		//
 		// rdf:li processing within each element is independent
 		//
+		"rdf-containers-syntax-vs-schema/test007.rdf",
 		`<!--
   Copyright World Wide Web Consortium, (Massachusetts Institute of
   Technology, Institut National de Recherche en Informatique et en
@@ -367,10 +474,11 @@ _:d1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		"",
 	},
 	{
-		// [89] #rdf-containers-syntax-vs-schema-test008
+		// [14] #rdf-containers-syntax-vs-schema-test008
 		//
 		// rdf:li processing is per element, not per resource.
 		//
+		"rdf-containers-syntax-vs-schema/test008.rdf",
 		`<!--
   Copyright World Wide Web Consortium, (Massachusetts Institute of
   Technology, Institut National de Recherche en Informatique et en
@@ -398,10 +506,11 @@ _:d1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
 		"",
 	},
 	{
-		// [95] #rdf-element-not-mandatory-test001
+		// [15] #rdf-element-not-mandatory-test001
 		//
 		// A surrounding rdf:RDF element is no longer mandatory.
 		//
+		"rdf-element-not-mandatory/test001.rdf",
 		`<Book xmlns="http://example.org/terms#">
   <title>Dogs in Hats</title>
 </Book>`,
@@ -411,11 +520,12 @@ _:a <http://example.org/terms#title> "Dogs in Hats" .
 		"",
 	},
 	{
-		// [101] #rdf-ns-prefix-confusion-test0001
+		// [16] #rdf-ns-prefix-confusion-test0001
 		//
 		// RDF attributes that are required to have an rdf: prefix about
 		// aboutEach ID bagID type resource parseType
 		//
+		"rdf-ns-prefix-confusion/test0001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -444,11 +554,12 @@ _:a <http://example.org/terms#title> "Dogs in Hats" .
 		"",
 	},
 	{
-		// [107] #rdf-ns-prefix-confusion-test0003
+		// [17] #rdf-ns-prefix-confusion-test0003
 		//
 		// RDF attributes that are required to have an rdf: prefix about
 		// aboutEach ID bagID type resource parseType
 		//
+		"rdf-ns-prefix-confusion/test0003.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
  <!-- 
@@ -477,11 +588,12 @@ _:a <http://example.org/terms#title> "Dogs in Hats" .
 		"",
 	},
 	{
-		// [113] #rdf-ns-prefix-confusion-test0004
+		// [18] #rdf-ns-prefix-confusion-test0004
 		//
 		// RDF attributes that are required to have an rdf: prefix about
 		// aboutEach ID bagID type resource parseType
 		//
+		"rdf-ns-prefix-confusion/test0004.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
  <!-- 
@@ -509,11 +621,12 @@ _:a <http://example.org/terms#title> "Dogs in Hats" .
 		"",
 	},
 	{
-		// [119] #rdf-ns-prefix-confusion-test0005
+		// [19] #rdf-ns-prefix-confusion-test0005
 		//
 		// RDF attributes that are required to have an rdf: prefix about
 		// aboutEach ID bagID type resource parseType
 		//
+		"rdf-ns-prefix-confusion/test0005.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
  <!-- 
@@ -548,11 +661,12 @@ _:genid <http://example.org/property2> "bar" .
 		"",
 	},
 	{
-		// [125] #rdf-ns-prefix-confusion-test0006
+		// [20] #rdf-ns-prefix-confusion-test0006
 		//
 		// RDF attributes that are required to have an rdf: prefix about
 		// aboutEach ID bagID type resource parseType
 		//
+		"rdf-ns-prefix-confusion/test0006.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
  <!-- 
   Test case for
@@ -578,11 +692,12 @@ _:genid <http://example.org/property2> "bar" .
 		"",
 	},
 	{
-		// [131] #rdf-ns-prefix-confusion-test0009
+		// [21] #rdf-ns-prefix-confusion-test0009
 		//
 		// Namespace qualification MUST be used for all property
 		// attributes.
 		//
+		"rdf-ns-prefix-confusion/test0009.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -608,12 +723,13 @@ _:genid <http://example.org/property2> "bar" .
 		"",
 	},
 	{
-		// [137] #rdf-ns-prefix-confusion-test0010
+		// [22] #rdf-ns-prefix-confusion-test0010
 		//
 		// Non-prefixed RDF elements (NOT attributes) are allowed when a
 		// default XML element namespace is defined with an
 		// xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" attribute.
 		//
+		"rdf-ns-prefix-confusion/test0010.rdf",
 		`<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:eg="http://example.org/">
@@ -645,12 +761,13 @@ _:genid <http://example.org/property2> "bar" .
 		"",
 	},
 	{
-		// [143] #rdf-ns-prefix-confusion-test0011
+		// [23] #rdf-ns-prefix-confusion-test0011
 		//
 		// Non-prefixed RDF elements (NOT attributes) are allowed when a
 		// default XML element namespace is defined with an
 		// xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" attribute.
 		//
+		"rdf-ns-prefix-confusion/test0011.rdf",
 		`<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:eg="http://example.org/">
@@ -685,12 +802,13 @@ _:genid <http://example.org/property2> "bar" .
 		"",
 	},
 	{
-		// [149] #rdf-ns-prefix-confusion-test0012
+		// [24] #rdf-ns-prefix-confusion-test0012
 		//
 		// Non-prefixed RDF elements (NOT attributes) are allowed when a
 		// default XML element namespace is defined with an
 		// xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" attribute.
 		//
+		"rdf-ns-prefix-confusion/test0012.rdf",
 		`<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:eg="http://example.org/">
@@ -725,12 +843,13 @@ _:genid <http://example.org/property2> "bar" .
 		"",
 	},
 	{
-		// [155] #rdf-ns-prefix-confusion-test0013
+		// [25] #rdf-ns-prefix-confusion-test0013
 		//
 		// Non-prefixed RDF elements (NOT attributes) are allowed when a
 		// default XML element namespace is defined with an
 		// xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" attribute.
 		//
+		"rdf-ns-prefix-confusion/test0013.rdf",
 		`<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:eg="http://example.org/">
@@ -765,12 +884,13 @@ _:genid <http://example.org/property2> "bar" .
 		"",
 	},
 	{
-		// [161] #rdf-ns-prefix-confusion-test0014
+		// [26] #rdf-ns-prefix-confusion-test0014
 		//
 		// Non-prefixed RDF elements (NOT attributes) are allowed when a
 		// default XML element namespace is defined with an
 		// xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" attribute.
 		//
+		"rdf-ns-prefix-confusion/test0014.rdf",
 		`<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:eg="http://example.org/">
@@ -807,11 +927,12 @@ _:genid <http://example.org/property2> "bar" .
 		"",
 	},
 	{
-		// [166] #rdfms-abouteach-error001
+		// [27] #rdfms-abouteach-error001
 		//
 		// aboutEach removed from the RDF specifications. See URI above
 		// for further details.
 		//
+		"rdfms-abouteach/error001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -829,11 +950,12 @@ _:genid <http://example.org/property2> "bar" .
 		"parse error string",
 	},
 	{
-		// [171] #rdfms-abouteach-error002
+		// [28] #rdfms-abouteach-error002
 		//
 		// aboutEach removed from the RDF specifications. See URI above
 		// for further details.
 		//
+		"rdfms-abouteach/error002.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -851,10 +973,11 @@ _:genid <http://example.org/property2> "bar" .
 		"parse error string",
 	},
 	{
-		// [176] #rdfms-difference-between-ID-and-about-error1
+		// [29] #rdfms-difference-between-ID-and-about-error1
 		//
 		// two elements cannot use the same ID
 		//
+		"rdfms-difference-between-ID-and-about/error1.rdf",
 		`<!-- 
 Base URI: http://www.w3.org/2013/RDFXMLTests/rdfms-difference-between-ID-and-about/error1.rdf
 
@@ -873,10 +996,11 @@ This is illegal RDF: two elements cannot use the same ID.
 		"parse error string",
 	},
 	{
-		// [182] #rdfms-difference-between-ID-and-about-test1
+		// [30] #rdfms-difference-between-ID-and-about-test1
 		//
 		// A statement with an rdf:ID creates a regular triple.
 		//
+		"rdfms-difference-between-ID-and-about/test1.rdf",
 		`<!--  
 Base URI: http://www.w3.org/2013/RDFXMLTests/rdfms-difference-between-ID-and-about/test1.rdf
 
@@ -892,11 +1016,12 @@ A statement with an rdf:ID creates a regular triple.
 		"",
 	},
 	{
-		// [188] #rdfms-difference-between-ID-and-about-test2
+		// [31] #rdfms-difference-between-ID-and-about-test2
 		//
 		// This test shows the treatment of non-ASCII characters in the
 		// value of rdf:ID attribute.
 		//
+		"rdfms-difference-between-ID-and-about/test2.rdf",
 		`<!--  
 Base URI: http://www.w3.org/2013/RDFXMLTests/rdfms-difference-between-ID-and-about/test2.rdf
 
@@ -912,11 +1037,12 @@ Non-ASCII characters in IDs are not converted.
 		"",
 	},
 	{
-		// [194] #rdfms-difference-between-ID-and-about-test3
+		// [32] #rdfms-difference-between-ID-and-about-test3
 		//
 		// This test shows the treatment of non-ASCII characters in the
 		// value of rdf:about attribute.
 		//
+		"rdfms-difference-between-ID-and-about/test3.rdf",
 		`<!--  
 Base URI: http://www.w3.org/2013/RDFXMLTests/rdfms-difference-between-ID-and-about/test3.rdf
 
@@ -932,13 +1058,14 @@ Non-ASCII characters in URIs are not converted.
 		"",
 	},
 	{
-		// [200] #rdfms-duplicate-member-props-test001
+		// [33] #rdfms-duplicate-member-props-test001
 		//
 		// The question posed to the RDF WG was: should an RDF document
 		// containing multiple rdf:_n properties (with the same n) on an
 		// element be rejected as illegal? The WG decided that a parser
 		// should accept that case as legal RDF.
 		//
+		"rdfms-duplicate-member-props/test001.rdf",
 		`<!--
   Copyright World Wide Web Consortium, (Massachusetts Institute of
   Technology, Institut National de Recherche en Informatique et en
@@ -965,12 +1092,13 @@ Non-ASCII characters in URIs are not converted.
 		"",
 	},
 	{
-		// [205] #rdfms-empty-property-elements-error001
+		// [34] #rdfms-empty-property-elements-error001
 		//
 		// This is not legal RDF; specifying an rdf:parseType of
 		// "Literal" and an rdf:resource attribute at the same time is an
 		// error.
 		//
+		"rdfms-empty-property-elements/error001.rdf",
 		`<!--
 
  Assumed base URI:
@@ -997,12 +1125,13 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/error001.nrdf
 		"parse error string",
 	},
 	{
-		// [210] #rdfms-empty-property-elements-error002
+		// [35] #rdfms-empty-property-elements-error002
 		//
 		// This is not legal RDF; specifying an rdf:parseType of
 		// "Literal" and an rdf:resource attribute at the same time is an
 		// error.
 		//
+		"rdfms-empty-property-elements/error002.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1029,11 +1158,12 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/error002.nrdf
 		"parse error string",
 	},
 	{
-		// [216] #rdfms-empty-property-elements-test001
+		// [36] #rdfms-empty-property-elements-test001
 		//
 		// The rdf:resource attribute means that the value of this
 		// property element is a resource.
 		//
+		"rdfms-empty-property-elements/test001.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1059,11 +1189,12 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/test001.rdf
 		"",
 	},
 	{
-		// [222] #rdfms-empty-property-elements-test002
+		// [37] #rdfms-empty-property-elements-test002
 		//
 		// The basic case. An empty property element just gives an empty
 		// literal.
 		//
+		"rdfms-empty-property-elements/test002.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1088,12 +1219,13 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/test002.rdf
 		"",
 	},
 	{
-		// [228] #rdfms-empty-property-elements-test004
+		// [38] #rdfms-empty-property-elements-test004
 		//
 		// If the parseType indicates the value is a resource, we must
 		// create one. With no additional information, the resource is
 		// anonymous.
 		//
+		"rdfms-empty-property-elements/test004.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1119,11 +1251,12 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/test004.rdf
 		"",
 	},
 	{
-		// [234] #rdfms-empty-property-elements-test005
+		// [39] #rdfms-empty-property-elements-test005
 		//
 		// An empty property element just gives an empty literal. We
 		// reify the statement at the same time.
 		//
+		"rdfms-empty-property-elements/test005.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1153,11 +1286,12 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/test005.rdf
 		"",
 	},
 	{
-		// [240] #rdfms-empty-property-elements-test006
+		// [40] #rdfms-empty-property-elements-test006
 		//
 		// Here the parseType indicates that we should create a resource.
 		// We also reify the generated statement.
 		//
+		"rdfms-empty-property-elements/test006.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1187,10 +1321,11 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/test006.rdf
 		"",
 	},
 	{
-		// [246] #rdfms-empty-property-elements-test007
+		// [41] #rdfms-empty-property-elements-test007
 		//
 		// As test001.rdf; this uses an explicit closing tag.
 		//
+		"rdfms-empty-property-elements/test007.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1215,10 +1350,11 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/test007.rdf
 		"",
 	},
 	{
-		// [252] #rdfms-empty-property-elements-test008
+		// [42] #rdfms-empty-property-elements-test008
 		//
 		// As test002.rdf; this uses an explicit closing tag.
 		//
+		"rdfms-empty-property-elements/test008.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1243,10 +1379,11 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/test008.rdf
 		"",
 	},
 	{
-		// [258] #rdfms-empty-property-elements-test010
+		// [43] #rdfms-empty-property-elements-test010
 		//
 		// As test004.rdf; this uses an explicit closing tag.
 		//
+		"rdfms-empty-property-elements/test010.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1271,10 +1408,11 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/test010.rdf
 		"",
 	},
 	{
-		// [264] #rdfms-empty-property-elements-test011
+		// [44] #rdfms-empty-property-elements-test011
 		//
 		// As test005.rdf; this uses an explicit closing tag.
 		//
+		"rdfms-empty-property-elements/test011.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1302,10 +1440,11 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/test011.rdf
 		"",
 	},
 	{
-		// [270] #rdfms-empty-property-elements-test012
+		// [45] #rdfms-empty-property-elements-test012
 		//
 		// As test006.rdf; this uses an explicit closing tag.
 		//
+		"rdfms-empty-property-elements/test012.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1333,12 +1472,13 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-empty-property-elements/test012.rdf
 		"",
 	},
 	{
-		// [276] #rdfms-empty-property-elements-test013
+		// [46] #rdfms-empty-property-elements-test013
 		//
 		// Test of the last alternative for production [6.12],
 		// interpreted according to RDFMS paragraphs 229-234:
 		// http://lists.w3.org/Archives/Public/www-archive/2001Jun/att-0021/00-part#229
 		//
+		"rdfms-empty-property-elements/test013.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1367,12 +1507,13 @@ http://lists.w3.org/Archives/Public/www-archive/2001Jun/att-0021/00-part#229
 		"",
 	},
 	{
-		// [282] #rdfms-empty-property-elements-test014
+		// [47] #rdfms-empty-property-elements-test014
 		//
 		// Test of the last alternative for production [6.12],
 		// interpreted according to RDFMS paragraphs 229-234:
 		// http://lists.w3.org/Archives/Public/www-archive/2001Jun/att-0021/00-part#229
 		//
+		"rdfms-empty-property-elements/test014.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1400,7 +1541,7 @@ _:a1 <http://random.ioctl.org/#prop2> "baz" .
 		"",
 	},
 	{
-		// [288] #rdfms-empty-property-elements-test015
+		// [48] #rdfms-empty-property-elements-test015
 		//
 		// Test of the last alternative for production [6.12],
 		// interpreted according to RDFMS paragraphs 229-234:
@@ -1409,6 +1550,7 @@ _:a1 <http://random.ioctl.org/#prop2> "baz" .
 		// of the productions in the original document, but is
 		// indistinguishable from test014 as far as XML is concerned.
 		//
+		"rdfms-empty-property-elements/test015.rdf",
 		`<!--
 
  Assumed base URI:
@@ -1439,12 +1581,13 @@ _:a1 <http://random.ioctl.org/#prop2> "baz" .
 		"",
 	},
 	{
-		// [294] #rdfms-empty-property-elements-test016
+		// [49] #rdfms-empty-property-elements-test016
 		//
 		// Like rdfms-empty-property-elements/test001.rdf but with a
 		// processing instruction as the only content of the otherwise
 		// empty element.
 		//
+		"rdfms-empty-property-elements/test016.rdf",
 		`<!--
 
  Description:
@@ -1468,11 +1611,12 @@ _:a1 <http://random.ioctl.org/#prop2> "baz" .
 		"",
 	},
 	{
-		// [300] #rdfms-empty-property-elements-test017
+		// [50] #rdfms-empty-property-elements-test017
 		//
 		// Like rdfms-empty-property-elements/test001.rdf but with a
 		// comment as the only content of the otherwise empty element.
 		//
+		"rdfms-empty-property-elements/test017.rdf",
 		`<!--
 
  Description:
@@ -1503,11 +1647,12 @@ _:a1 <http://random.ioctl.org/#prop2> "baz" .
 		"",
 	},
 	{
-		// [306] #rdfms-identity-anon-resources-test001
+		// [51] #rdfms-identity-anon-resources-test001
 		//
 		// a RDF Description with no ID or about attribute describes an
 		// un-named resource, aka a bNode.
 		//
+		"rdfms-identity-anon-resources/test001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -1521,11 +1666,12 @@ _:a1 <http://random.ioctl.org/#prop2> "baz" .
 		"",
 	},
 	{
-		// [312] #rdfms-identity-anon-resources-test002
+		// [52] #rdfms-identity-anon-resources-test002
 		//
 		// a RDF Description with no ID or about attribute describes an
 		// un-named resource, aka a bNode.
 		//
+		"rdfms-identity-anon-resources/test002.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -1540,11 +1686,12 @@ _:j0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/node>
 		"",
 	},
 	{
-		// [318] #rdfms-identity-anon-resources-test003
+		// [53] #rdfms-identity-anon-resources-test003
 		//
 		// a RDF container (in this case a Bag) without an ID attribute
 		// describes an un-named resource, aka a bNode.
 		//
+		"rdfms-identity-anon-resources/test003.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -1556,11 +1703,12 @@ _:j0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/node>
 		"",
 	},
 	{
-		// [324] #rdfms-identity-anon-resources-test004
+		// [54] #rdfms-identity-anon-resources-test004
 		//
 		// a RDF container (in this case an Alt) without an ID attribute
 		// describes an un-named resource, aka a bNode.
 		//
+		"rdfms-identity-anon-resources/test004.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -1575,11 +1723,12 @@ _:j0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/0
 		"",
 	},
 	{
-		// [330] #rdfms-identity-anon-resources-test005
+		// [55] #rdfms-identity-anon-resources-test005
 		//
 		// a RDF container (in this case an Seq) without an ID attribute
 		// describes an un-named resource, aka a bNode.
 		//
+		"rdfms-identity-anon-resources/test005.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -1591,10 +1740,11 @@ _:j0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/0
 		"",
 	},
 	{
-		// [336] #rdfms-not-id-and-resource-attr-test001
+		// [56] #rdfms-not-id-and-resource-attr-test001
 		//
 		// rdf:ID on an empty property element indicates reification.
 		//
+		"rdfms-not-id-and-resource-attr/test001.rdf",
 		`<!--
   Copyright World Wide Web Consortium, (Massachusetts Institute of
   Technology, Institut National de Recherche en Informatique et en
@@ -1625,11 +1775,12 @@ _:j88090 <http://example.org/prop1> _:j88091 .
 		"",
 	},
 	{
-		// [342] #rdfms-not-id-and-resource-attr-test002
+		// [57] #rdfms-not-id-and-resource-attr-test002
 		//
 		// rdf:reource on an empty property element indicates the URI of
 		// the object.
 		//
+		"rdfms-not-id-and-resource-attr/test002.rdf",
 		`<!--
   Copyright World Wide Web Consortium, (Massachusetts Institute of
   Technology, Institut National de Recherche en Informatique et en
@@ -1656,11 +1807,12 @@ _:j88093 <http://example.org/prop1> <http://example.org/object#uriRef> .
 		"",
 	},
 	{
-		// [348] #rdfms-not-id-and-resource-attr-test004
+		// [58] #rdfms-not-id-and-resource-attr-test004
 		//
 		// rdf:ID and rdf:resource are allowed together on empty property
 		// element.
 		//
+		"rdfms-not-id-and-resource-attr/test004.rdf",
 		`<!--
   Copyright World Wide Web Consortium, (Massachusetts Institute of
   Technology, Institut National de Recherche en Informatique et en
@@ -1690,11 +1842,12 @@ _:j88093 <http://example.org/prop1> <http://example.org/object#uriRef> .
 		"",
 	},
 	{
-		// [354] #rdfms-not-id-and-resource-attr-test005
+		// [59] #rdfms-not-id-and-resource-attr-test005
 		//
 		// rdf:ID and rdf:resource are allowed together on empty property
 		// element.
 		//
+		"rdfms-not-id-and-resource-attr/test005.rdf",
 		`<!--
   Copyright World Wide Web Consortium, (Massachusetts Institute of
   Technology, Institut National de Recherche en Informatique et en
@@ -1725,12 +1878,13 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [360] #rdfms-para196-test001
+		// [60] #rdfms-para196-test001
 		//
 		// test case showing that the 2nd URI in M Paragraph 196 is
 		// permitted as a namespace URI (and any namespace URI starting
 		// with that URI)
 		//
+		"rdfms-para196/test001.rdf",
 		`<!--
   Copyright World Wide Web Consortium, (Massachusetts Institute of
   Technology, Institut National de Recherche en Informatique et en
@@ -1761,11 +1915,12 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [365] #rdfms-rdf-id-error001
+		// [61] #rdfms-rdf-id-error001
 		//
 		// The value of rdf:ID must match the XML Name production, (as
 		// modified by XML Namespaces).
 		//
+		"rdfms-rdf-id/error001.rdf",
 		`<!--
 
   The value of rdf:ID must match the XML Name production,
@@ -1784,11 +1939,12 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [370] #rdfms-rdf-id-error002
+		// [62] #rdfms-rdf-id-error002
 		//
 		// The value of rdf:ID must match the XML Name production, (as
 		// modified by XML Namespaces).
 		//
+		"rdfms-rdf-id/error002.rdf",
 		`<!--
 
   The value of rdf:ID must match the XML Name production,
@@ -1807,11 +1963,12 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [375] #rdfms-rdf-id-error003
+		// [63] #rdfms-rdf-id-error003
 		//
 		// The value of rdf:ID must match the XML Name production, (as
 		// modified by XML Namespaces).
 		//
+		"rdfms-rdf-id/error003.rdf",
 		`<!--
 
   The value of rdf:ID must match the XML Name production,
@@ -1833,11 +1990,12 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [380] #rdfms-rdf-id-error004
+		// [64] #rdfms-rdf-id-error004
 		//
 		// The value of rdf:ID must match the XML Name production, (as
 		// modified by XML Namespaces).
 		//
+		"rdfms-rdf-id/error004.rdf",
 		`<!--
 
   The value of rdf:ID must match the XML Name production,
@@ -1857,11 +2015,12 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [385] #rdfms-rdf-id-error005
+		// [65] #rdfms-rdf-id-error005
 		//
 		// The value of rdf:ID must match the XML Name production, (as
 		// modified by XML Namespaces).
 		//
+		"rdfms-rdf-id/error005.rdf",
 		`<!--
 
   The value of rdf:ID must match the XML Name production,
@@ -1885,11 +2044,12 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [390] #rdfms-rdf-id-error006
+		// [66] #rdfms-rdf-id-error006
 		//
 		// The value of rdf:bagID must match the XML Name production, (as
 		// modified by XML Namespaces).
 		//
+		"rdfms-rdf-id/error006.rdf",
 		`<!--
 
   The value of rdf:bagID must match the XML Name production,
@@ -1908,11 +2068,12 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [395] #rdfms-rdf-id-error007
+		// [67] #rdfms-rdf-id-error007
 		//
 		// The value of rdf:bagID must match the XML Name production, (as
 		// modified by XML Namespaces).
 		//
+		"rdfms-rdf-id/error007.rdf",
 		`<!--
 
   The value of rdf:bagID must match the XML Name production,
@@ -1934,10 +2095,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [400] #rdfms-rdf-names-use-error-001
+		// [68] #rdfms-rdf-names-use-error-001
 		//
 		// RDF is forbidden as a node element name.
 		//
+		"rdfms-rdf-names-use/error-001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:RDF/>
 </rdf:RDF>`,
@@ -1946,10 +2108,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [405] #rdfms-rdf-names-use-error-002
+		// [69] #rdfms-rdf-names-use-error-002
 		//
 		// ID is forbidden as a node element name.
 		//
+		"rdfms-rdf-names-use/error-002.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:ID/>
 </rdf:RDF>`,
@@ -1958,10 +2121,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [410] #rdfms-rdf-names-use-error-003
+		// [70] #rdfms-rdf-names-use-error-003
 		//
 		// about is forbidden as a node element name.
 		//
+		"rdfms-rdf-names-use/error-003.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:about/>
 </rdf:RDF>`,
@@ -1970,10 +2134,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [415] #rdfms-rdf-names-use-error-004
+		// [71] #rdfms-rdf-names-use-error-004
 		//
 		// bagID is forbidden as a node element name.
 		//
+		"rdfms-rdf-names-use/error-004.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:bagID/>
 </rdf:RDF>`,
@@ -1982,10 +2147,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [420] #rdfms-rdf-names-use-error-005
+		// [72] #rdfms-rdf-names-use-error-005
 		//
 		// parseType is forbidden as a node element name.
 		//
+		"rdfms-rdf-names-use/error-005.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:parseType/>
 </rdf:RDF>`,
@@ -1994,10 +2160,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [425] #rdfms-rdf-names-use-error-006
+		// [73] #rdfms-rdf-names-use-error-006
 		//
 		// resource is forbidden as a node element name.
 		//
+		"rdfms-rdf-names-use/error-006.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:resource/>
 </rdf:RDF>`,
@@ -2006,10 +2173,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [430] #rdfms-rdf-names-use-error-007
+		// [74] #rdfms-rdf-names-use-error-007
 		//
 		// nodeID is forbidden as a node element name.
 		//
+		"rdfms-rdf-names-use/error-007.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:nodeID/>
 </rdf:RDF>`,
@@ -2018,10 +2186,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [435] #rdfms-rdf-names-use-error-008
+		// [75] #rdfms-rdf-names-use-error-008
 		//
 		// li is forbidden as a node element name.
 		//
+		"rdfms-rdf-names-use/error-008.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:li/>
 </rdf:RDF>`,
@@ -2030,10 +2199,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [440] #rdfms-rdf-names-use-error-009
+		// [76] #rdfms-rdf-names-use-error-009
 		//
 		// aboutEach is forbidden as a node element name.
 		//
+		"rdfms-rdf-names-use/error-009.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:aboutEach/>
 </rdf:RDF>`,
@@ -2042,10 +2212,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [445] #rdfms-rdf-names-use-error-010
+		// [77] #rdfms-rdf-names-use-error-010
 		//
 		// aboutEachPrefix is forbidden as a node element name.
 		//
+		"rdfms-rdf-names-use/error-010.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:aboutEachPrefix/>
 </rdf:RDF>`,
@@ -2054,10 +2225,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [450] #rdfms-rdf-names-use-error-011
+		// [78] #rdfms-rdf-names-use-error-011
 		//
 		// Description is forbidden as a property element name.
 		//
+		"rdfms-rdf-names-use/error-011.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:Description rdf:resource="http://example.org/node2"/>
@@ -2068,10 +2240,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [455] #rdfms-rdf-names-use-error-012
+		// [79] #rdfms-rdf-names-use-error-012
 		//
 		// RDF is forbidden as a property element name.
 		//
+		"rdfms-rdf-names-use/error-012.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:RDF rdf:resource="http://example.org/node2"/>
@@ -2082,10 +2255,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [460] #rdfms-rdf-names-use-error-013
+		// [80] #rdfms-rdf-names-use-error-013
 		//
 		// ID is forbidden as a property element name.
 		//
+		"rdfms-rdf-names-use/error-013.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:ID rdf:resource="http://example.org/node2"/>
@@ -2096,10 +2270,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [465] #rdfms-rdf-names-use-error-014
+		// [81] #rdfms-rdf-names-use-error-014
 		//
 		// about is forbidden as a property element name.
 		//
+		"rdfms-rdf-names-use/error-014.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:about rdf:resource="http://example.org/node2"/>
@@ -2110,10 +2285,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [470] #rdfms-rdf-names-use-error-015
+		// [82] #rdfms-rdf-names-use-error-015
 		//
 		// bagID is forbidden as a property element name.
 		//
+		"rdfms-rdf-names-use/error-015.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:bagID rdf:resource="http://example.org/node2"/>
@@ -2124,10 +2300,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [475] #rdfms-rdf-names-use-error-016
+		// [83] #rdfms-rdf-names-use-error-016
 		//
 		// parseType is forbidden as a property element name.
 		//
+		"rdfms-rdf-names-use/error-016.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:parseType rdf:resource="http://example.org/node2"/>
@@ -2138,10 +2315,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [480] #rdfms-rdf-names-use-error-017
+		// [84] #rdfms-rdf-names-use-error-017
 		//
 		// resource is forbidden as a property element name.
 		//
+		"rdfms-rdf-names-use/error-017.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:resource rdf:resource="http://example.org/node2"/>
@@ -2152,10 +2330,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [485] #rdfms-rdf-names-use-error-018
+		// [85] #rdfms-rdf-names-use-error-018
 		//
 		// nodeID is forbidden as a property element name.
 		//
+		"rdfms-rdf-names-use/error-018.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:nodeID rdf:resource="http://example.org/node2"/>
@@ -2166,10 +2345,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [490] #rdfms-rdf-names-use-error-019
+		// [86] #rdfms-rdf-names-use-error-019
 		//
 		// aboutEach is forbidden as a property element name.
 		//
+		"rdfms-rdf-names-use/error-019.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:aboutEach rdf:resource="http://example.org/node2"/>
@@ -2180,10 +2360,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [495] #rdfms-rdf-names-use-error-020
+		// [87] #rdfms-rdf-names-use-error-020
 		//
 		// aboutEachPrefix is forbidden as a property element name.
 		//
+		"rdfms-rdf-names-use/error-020.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:aboutEachPrefix rdf:resource="http://example.org/node2"/>
@@ -2194,10 +2375,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"parse error string",
 	},
 	{
-		// [501] #rdfms-rdf-names-use-test-001
+		// [88] #rdfms-rdf-names-use-test-001
 		//
 		// Description is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2205,10 +2387,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [507] #rdfms-rdf-names-use-test-002
+		// [89] #rdfms-rdf-names-use-test-002
 		//
 		// Seq is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-002.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Seq rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2217,10 +2400,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [513] #rdfms-rdf-names-use-test-003
+		// [90] #rdfms-rdf-names-use-test-003
 		//
 		// Bag is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-003.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Bag rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2229,10 +2413,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [519] #rdfms-rdf-names-use-test-004
+		// [91] #rdfms-rdf-names-use-test-004
 		//
 		// Alt is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-004.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Alt rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2241,10 +2426,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [525] #rdfms-rdf-names-use-test-005
+		// [92] #rdfms-rdf-names-use-test-005
 		//
 		// Statement is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-005.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Statement rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2253,10 +2439,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [531] #rdfms-rdf-names-use-test-006
+		// [93] #rdfms-rdf-names-use-test-006
 		//
 		// Property is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-006.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Property rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2265,10 +2452,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [537] #rdfms-rdf-names-use-test-007
+		// [94] #rdfms-rdf-names-use-test-007
 		//
 		// List is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-007.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:List rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2277,10 +2465,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [543] #rdfms-rdf-names-use-test-008
+		// [95] #rdfms-rdf-names-use-test-008
 		//
 		// subject is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-008.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:subject rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2289,10 +2478,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [549] #rdfms-rdf-names-use-test-009
+		// [96] #rdfms-rdf-names-use-test-009
 		//
 		// predicate is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-009.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:predicate rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2301,10 +2491,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [555] #rdfms-rdf-names-use-test-010
+		// [97] #rdfms-rdf-names-use-test-010
 		//
 		// object is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-010.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:object rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2313,10 +2504,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [561] #rdfms-rdf-names-use-test-011
+		// [98] #rdfms-rdf-names-use-test-011
 		//
 		// type is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-011.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:type rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2325,10 +2517,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [567] #rdfms-rdf-names-use-test-012
+		// [99] #rdfms-rdf-names-use-test-012
 		//
 		// value is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-012.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:value rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2337,10 +2530,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [573] #rdfms-rdf-names-use-test-013
+		// [100] #rdfms-rdf-names-use-test-013
 		//
 		// first is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-013.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:first rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2349,10 +2543,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [579] #rdfms-rdf-names-use-test-014
+		// [101] #rdfms-rdf-names-use-test-014
 		//
 		// rest is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-014.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:rest rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2361,10 +2556,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [585] #rdfms-rdf-names-use-test-015
+		// [102] #rdfms-rdf-names-use-test-015
 		//
 		// _1 is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-015.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:_1 rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2373,10 +2569,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [591] #rdfms-rdf-names-use-test-016
+		// [103] #rdfms-rdf-names-use-test-016
 		//
 		// nil is allowed as a node element name.
 		//
+		"rdfms-rdf-names-use/test-016.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:nil rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2385,10 +2582,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [597] #rdfms-rdf-names-use-test-017
+		// [104] #rdfms-rdf-names-use-test-017
 		//
 		// Seq is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-017.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:Seq rdf:resource="http://example.org/node2"/>
@@ -2399,10 +2597,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [603] #rdfms-rdf-names-use-test-018
+		// [105] #rdfms-rdf-names-use-test-018
 		//
 		// Bag is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-018.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:Bag rdf:resource="http://example.org/node2"/>
@@ -2413,10 +2612,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [609] #rdfms-rdf-names-use-test-019
+		// [106] #rdfms-rdf-names-use-test-019
 		//
 		// Alt is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-019.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:Alt rdf:resource="http://example.org/node2"/>
@@ -2427,10 +2627,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [615] #rdfms-rdf-names-use-test-020
+		// [107] #rdfms-rdf-names-use-test-020
 		//
 		// Statement is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-020.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:Statement rdf:resource="http://example.org/node2"/>
@@ -2441,10 +2642,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [621] #rdfms-rdf-names-use-test-021
+		// [108] #rdfms-rdf-names-use-test-021
 		//
 		// Property is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-021.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:Property rdf:resource="http://example.org/node2"/>
@@ -2455,10 +2657,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [627] #rdfms-rdf-names-use-test-022
+		// [109] #rdfms-rdf-names-use-test-022
 		//
 		// List is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-022.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:List rdf:resource="http://example.org/node2"/>
@@ -2469,10 +2672,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [633] #rdfms-rdf-names-use-test-023
+		// [110] #rdfms-rdf-names-use-test-023
 		//
 		// subject is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-023.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:subject rdf:resource="http://example.org/node2"/>
@@ -2483,10 +2687,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [639] #rdfms-rdf-names-use-test-024
+		// [111] #rdfms-rdf-names-use-test-024
 		//
 		// predicate is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-024.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:predicate rdf:resource="http://example.org/node2"/>
@@ -2497,10 +2702,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [645] #rdfms-rdf-names-use-test-025
+		// [112] #rdfms-rdf-names-use-test-025
 		//
 		// object is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-025.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:object rdf:resource="http://example.org/node2"/>
@@ -2511,10 +2717,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [651] #rdfms-rdf-names-use-test-026
+		// [113] #rdfms-rdf-names-use-test-026
 		//
 		// type is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-026.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:type rdf:resource="http://example.org/node2"/>
@@ -2525,10 +2732,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [657] #rdfms-rdf-names-use-test-027
+		// [114] #rdfms-rdf-names-use-test-027
 		//
 		// value is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-027.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:value rdf:resource="http://example.org/node2"/>
@@ -2539,10 +2747,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [663] #rdfms-rdf-names-use-test-028
+		// [115] #rdfms-rdf-names-use-test-028
 		//
 		// first is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-028.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:first rdf:resource="http://example.org/node2"/>
@@ -2553,10 +2762,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [669] #rdfms-rdf-names-use-test-029
+		// [116] #rdfms-rdf-names-use-test-029
 		//
 		// rest is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-029.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:rest rdf:resource="http://example.org/node2"/>
@@ -2567,10 +2777,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [675] #rdfms-rdf-names-use-test-030
+		// [117] #rdfms-rdf-names-use-test-030
 		//
 		// _1 is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-030.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:_1 rdf:resource="http://example.org/node2"/>
@@ -2581,10 +2792,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [681] #rdfms-rdf-names-use-test-031
+		// [118] #rdfms-rdf-names-use-test-031
 		//
 		// li is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-031.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:li rdf:resource="http://example.org/node2"/>
@@ -2595,10 +2807,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [687] #rdfms-rdf-names-use-test-032
+		// [119] #rdfms-rdf-names-use-test-032
 		//
 		// Seq is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-032.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1"
     rdf:Seq="string" />
@@ -2608,10 +2821,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [693] #rdfms-rdf-names-use-test-033
+		// [120] #rdfms-rdf-names-use-test-033
 		//
 		// Bag is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-033.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1"
     rdf:Bag="string" />
@@ -2621,10 +2835,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [699] #rdfms-rdf-names-use-test-034
+		// [121] #rdfms-rdf-names-use-test-034
 		//
 		// Alt is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-034.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1"
     rdf:Alt="string" />
@@ -2634,10 +2849,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [705] #rdfms-rdf-names-use-test-035
+		// [122] #rdfms-rdf-names-use-test-035
 		//
 		// Statement is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-035.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1"
     rdf:Statement="string" />
@@ -2647,10 +2863,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [711] #rdfms-rdf-names-use-test-036
+		// [123] #rdfms-rdf-names-use-test-036
 		//
 		// Property is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-036.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1"
     rdf:Property="string" />
@@ -2660,10 +2877,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [717] #rdfms-rdf-names-use-test-037
+		// [124] #rdfms-rdf-names-use-test-037
 		//
 		// List is allowed as a property element name.
 		//
+		"rdfms-rdf-names-use/test-037.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1"
     rdf:List="string" />
@@ -2673,10 +2891,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [723] #rdfms-rdf-names-use-warn-001
+		// [125] #rdfms-rdf-names-use-warn-001
 		//
 		// foo is allowed with warnings as a node element name.
 		//
+		"rdfms-rdf-names-use/warn-001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:foo rdf:about="http://example.org/node"/>
 </rdf:RDF>`,
@@ -2685,10 +2904,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [729] #rdfms-rdf-names-use-warn-002
+		// [126] #rdfms-rdf-names-use-warn-002
 		//
 		// foo is allowed with warnings as a property element name.
 		//
+		"rdfms-rdf-names-use/warn-002.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1">
     <rdf:foo rdf:resource="http://example.org/node2"/>
@@ -2699,10 +2919,11 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [735] #rdfms-rdf-names-use-warn-003
+		// [127] #rdfms-rdf-names-use-warn-003
 		//
 		// foo is allowed with warnings as a property attribute name.
 		//
+		"rdfms-rdf-names-use/warn-003.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about="http://example.org/node1"
     rdf:foo="string" />
@@ -2712,11 +2933,12 @@ _:j88106 <http://example.org/prop1> <http://example.org/object> .
 		"",
 	},
 	{
-		// [741] #rdfms-reification-required-test001
+		// [128] #rdfms-reification-required-test001
 		//
 		// A parser is not required to generate a bag of reified
 		// statements for all description elements.
 		//
+		"rdfms-reification-required/test001.rdf",
 		`<!--
 
  Assumed base URI:
@@ -2738,11 +2960,12 @@ http://www.w3.org/2013/RDFXMLTests/rdfms-reification-required/test001.rdf
 		"",
 	},
 	{
-		// [747] #rdfms-seq-representation-test001
+		// [129] #rdfms-seq-representation-test001
 		//
 		// rdf:parseType="Collection" is parsed like the nonstandard
 		// daml:collection.
 		//
+		"rdfms-seq-representation/test001.rdf",
 		`<rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -2767,10 +2990,11 @@ _:a2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/0
 		"",
 	},
 	{
-		// [753] #rdfms-syntax-incomplete-test001
+		// [130] #rdfms-syntax-incomplete-test001
 		//
 		// rdf:nodeID can be used to label a blank node.
 		//
+		"rdfms-syntax-incomplete/test001.rdf",
 		`<!--
 
   rdf:nodeID can be used to label a blank node.
@@ -2791,11 +3015,12 @@ _:a2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/0
 		"",
 	},
 	{
-		// [759] #rdfms-syntax-incomplete-test002
+		// [131] #rdfms-syntax-incomplete-test002
 		//
 		// rdf:nodeID can be used to label a blank node. These have file
 		// scope and are distinct from any unlabelled blank nodes.
 		//
+		"rdfms-syntax-incomplete/test002.rdf",
 		`<!--
 
   rdf:nodeID can be used to label a blank node.
@@ -2828,11 +3053,12 @@ _:j1B <http://example.org/property3> _:j0A .
 		"",
 	},
 	{
-		// [765] #rdfms-syntax-incomplete-test003
+		// [132] #rdfms-syntax-incomplete-test003
 		//
 		// On an rdf:Description or typed node rdf:nodeID behaves
 		// similarly to an rdf:about.
 		//
+		"rdfms-syntax-incomplete/test003.rdf",
 		`<!--
 
   On an rdf:Description or typed node rdf:nodeID behaves
@@ -2853,11 +3079,12 @@ _:j1B <http://example.org/property3> _:j0A .
 		"",
 	},
 	{
-		// [771] #rdfms-syntax-incomplete-test004
+		// [133] #rdfms-syntax-incomplete-test004
 		//
 		// On a property element rdf:nodeID behaves similarly to
 		// rdf:resource.
 		//
+		"rdfms-syntax-incomplete/test004.rdf",
 		`<!--
 
   On a property element rdf:nodeID behaves
@@ -2891,11 +3118,12 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [776] #rdfms-syntax-incomplete-error001
+		// [134] #rdfms-syntax-incomplete-error001
 		//
 		// The value of rdf:nodeID must match the XML Name production,
 		// (as modified by XML Namespaces).
 		//
+		"rdfms-syntax-incomplete/error001.rdf",
 		`<!--
 
   The value of rdf:nodeID must match the XML Name production,
@@ -2914,11 +3142,12 @@ _:j2 <http://example.org/property2> _:j1A .
 		"parse error string",
 	},
 	{
-		// [781] #rdfms-syntax-incomplete-error002
+		// [135] #rdfms-syntax-incomplete-error002
 		//
 		// The value of rdf:nodeID must match the XML Name production,
 		// (as modified by XML Namespaces).
 		//
+		"rdfms-syntax-incomplete/error002.rdf",
 		`<!--
 
   The value of rdf:nodeID must match the XML Name production,
@@ -2937,11 +3166,12 @@ _:j2 <http://example.org/property2> _:j1A .
 		"parse error string",
 	},
 	{
-		// [786] #rdfms-syntax-incomplete-error003
+		// [136] #rdfms-syntax-incomplete-error003
 		//
 		// The value of rdf:nodeID must match the XML Name production,
 		// (as modified by XML Namespaces).
 		//
+		"rdfms-syntax-incomplete/error003.rdf",
 		`<!--
 
   The value of rdf:nodeID must match the XML Name production,
@@ -2963,10 +3193,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"parse error string",
 	},
 	{
-		// [791] #rdfms-syntax-incomplete-error004
+		// [137] #rdfms-syntax-incomplete-error004
 		//
 		// Cannot have rdf:nodeID and rdf:ID.
 		//
+		"rdfms-syntax-incomplete/error004.rdf",
 		`<!--
 
   Cannot have rdf:nodeID and rdf:ID.
@@ -2984,10 +3215,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"parse error string",
 	},
 	{
-		// [796] #rdfms-syntax-incomplete-error005
+		// [138] #rdfms-syntax-incomplete-error005
 		//
 		// Cannot have rdf:nodeID and rdf:about.
 		//
+		"rdfms-syntax-incomplete/error005.rdf",
 		`<!--
 
   Cannot have rdf:nodeID and rdf:about
@@ -3005,10 +3237,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"parse error string",
 	},
 	{
-		// [801] #rdfms-syntax-incomplete-error006
+		// [139] #rdfms-syntax-incomplete-error006
 		//
 		// Cannot have rdf:nodeID and rdf:resource.
 		//
+		"rdfms-syntax-incomplete/error006.rdf",
 		`<!--
 
   Cannot have rdf:nodeID and rdf:resource.
@@ -3029,11 +3262,12 @@ _:j2 <http://example.org/property2> _:j1A .
 		"parse error string",
 	},
 	{
-		// [807] #rdfms-uri-substructure-test001
+		// [140] #rdfms-uri-substructure-test001
 		//
 		// Demonstrates the Recommended partitioning of a URI into a
 		// namespace part and a localname part
 		//
+		"rdfms-uri-substructure/test001.rdf",
 		`<!--
 
  Description:
@@ -3055,10 +3289,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [813] #rdfms-xmllang-test003
+		// [141] #rdfms-xmllang-test003
 		//
 		// In-scope xml:lang applies to element content literal values
 		//
+		"rdfms-xmllang/test003.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -3071,10 +3306,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [819] #rdfms-xmllang-test004
+		// [142] #rdfms-xmllang-test004
 		//
 		// In-scope xml:lang applies to element content literal values
 		//
+		"rdfms-xmllang/test004.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -3087,10 +3323,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [825] #rdfms-xmllang-test005
+		// [143] #rdfms-xmllang-test005
 		//
 		// In-scope xml:lang applies to element content literal values
 		//
+		"rdfms-xmllang/test005.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -3103,10 +3340,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [831] #rdfms-xmllang-test006
+		// [144] #rdfms-xmllang-test006
 		//
 		// In-scope xml:lang applies to element content literal values
 		//
+		"rdfms-xmllang/test006.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -3120,10 +3358,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [837] #rdfs-domain-and-range-test001
+		// [145] #rdfs-domain-and-range-test001
 		//
 		// a RDF Property may have more than one domain property
 		//
+		"rdfs-domain-and-range/test001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 
@@ -3140,10 +3379,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [843] #rdfs-domain-and-range-test002
+		// [146] #rdfs-domain-and-range-test002
 		//
 		// a RDF Property may have more than one domain property
 		//
+		"rdfs-domain-and-range/test002.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 
@@ -3160,11 +3400,12 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [849] #unrecognised-xml-attributes-test001
+		// [147] #unrecognised-xml-attributes-test001
 		//
 		// Unrecognized attributes in the xml namespace should be
 		// ignored.
 		//
+		"unrecognised-xml-attributes/test001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:ex="http://example.org/schema#">
   <rdf:Description rdf:about="http://example.org/thing">
@@ -3178,11 +3419,12 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [855] #unrecognised-xml-attributes-test002
+		// [148] #unrecognised-xml-attributes-test002
 		//
 		// Unrecognized attributes in the xml namespace should be
 		// ignored.
 		//
+		"unrecognised-xml-attributes/test002.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:ex="http://example.org/schema#">
   <rdf:Description rdf:about="http://example.org/thing">
@@ -3194,10 +3436,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [861] #xml-canon-test001
+		// [149] #xml-canon-test001
 		//
 		// Demonstrating the canonicalisation of XMLLiterals.
 		//
+		"xml-canon/test001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/">
 
@@ -3212,10 +3455,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [867] #xmlbase-test001
+		// [150] #xmlbase-test001
 		//
 		// xml:base applies to an rdf:ID on an rdf:Description element.
 		//
+		"xmlbase/test001.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org/dir/file">
@@ -3228,10 +3472,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [873] #xmlbase-test002
+		// [151] #xmlbase-test002
 		//
 		// xml:base applies to an rdf:resource attribute.
 		//
+		"xmlbase/test002.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org/dir/file">
@@ -3246,10 +3491,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [879] #xmlbase-test003
+		// [152] #xmlbase-test003
 		//
 		// xml:base applies to an rdf:about attribute.
 		//
+		"xmlbase/test003.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org/dir/file">
@@ -3262,10 +3508,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [885] #xmlbase-test004
+		// [153] #xmlbase-test004
 		//
 		// xml:base applies to an rdf:ID on a property element.
 		//
+		"xmlbase/test004.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org/dir/file">
@@ -3284,10 +3531,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [891] #xmlbase-test006
+		// [154] #xmlbase-test006
 		//
 		// xml:base scoping.
 		//
+		"xmlbase/test006.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org/dir/file">
@@ -3302,10 +3550,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [897] #xmlbase-test007
+		// [155] #xmlbase-test007
 		//
 		// example of relative URI resolution.
 		//
+		"xmlbase/test007.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org/dir/file">
@@ -3318,10 +3567,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [903] #xmlbase-test008
+		// [156] #xmlbase-test008
 		//
 		// example of empty same document ref resolution.
 		//
+		"xmlbase/test008.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org/dir/file">
@@ -3334,10 +3584,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [909] #xmlbase-test009
+		// [157] #xmlbase-test009
 		//
 		// Example of relative uri with absolute path resolution.
 		//
+		"xmlbase/test009.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org/dir/file">
@@ -3350,10 +3601,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [915] #xmlbase-test010
+		// [158] #xmlbase-test010
 		//
 		// Example of relative uri with net path resolution.
 		//
+		"xmlbase/test010.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org/dir/file">
@@ -3366,10 +3618,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [921] #xmlbase-test011
+		// [159] #xmlbase-test011
 		//
 		// Example of xml:base with no path component.
 		//
+		"xmlbase/test011.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org">
@@ -3382,10 +3635,11 @@ _:j2 <http://example.org/property2> _:j1A .
 		"",
 	},
 	{
-		// [927] #xmlbase-test013
+		// [160] #xmlbase-test013
 		//
 		// With an xml:base with fragment the fragment is ignored.
 		//
+		"xmlbase/test013.rdf",
 		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:eg="http://example.org/"
          xml:base="http://example.org/dir/file#frag">
