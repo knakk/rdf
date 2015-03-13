@@ -7,7 +7,7 @@ import (
 )
 
 func TestRDFXML(t *testing.T) {
-	for i, test := range rdfxmlTestSuite {
+	for i, test := range rdfxmlTestSuite[:0] {
 		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
 		dec.Base = IRI{str: "http://www.w3.org/2013/RDFXMLTests/somedir/somefile.rdf"}
 		ts, err := dec.DecodeAll()
