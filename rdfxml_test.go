@@ -8,8 +8,7 @@ import (
 
 func TestRDFXML(t *testing.T) {
 	for i, test := range rdfxmlTestSuite[:0] {
-		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
-		dec.Base = IRI{str: "http://www.w3.org/2013/RDFXMLTests/somedir/somefile.rdf"}
+		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML, IRI{str: "http://www.w3.org/2013/RDFXMLTests/somedir/somefile.rdf"})
 		ts, err := dec.DecodeAll()
 		if test.err != "" && err == nil {
 			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => <no error>, want %q", i, test.rdfxml, test.err)

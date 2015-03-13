@@ -6,8 +6,42 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"runtime"
 	"strings"
 )
+
+const rdfNS = `http://www.w3.org/1999/02/22-rdf-syntax-ns#`
+
+type rdfXMLDecoder struct {
+	format Format
+
+	state     parseXMLFn        // state of parser
+	base      IRI               // base (default IRI)
+	bnodeN    int               // anonymous blank node counter
+	ns        map[string]string // map[prefix]namespace
+	tokens    [3]token          // 3 token lookahead
+	peekCount int               // number of tokens peeked at (position in tokens lookahead array)
+	current   ctxTriple         // the current triple beeing parsed
+
+	// xml decoder state
+	xmlDec     *xml.Decoder
+	xmlTok     xml.Token
+	xmlTopElem string
+	xmlListN   int
+	xmlReifyID string
+
+	// ctxStack keeps track of current and parent triple contexts,
+	// needed for parsing recursive structures (list/collections).
+	ctxStack []ctxTriple
+
+	// triples contains complete triples ready to be emitted. Usually it will have just one triple,
+	// but can have more when parsing nested list/collections. Decode() will always return the first item.
+	triples []Triple
+}
+
+func newRDFXMLDecoder(r io.Reader, base IRI) *rdfXMLDecoder {
+	return &rdfXMLDecoder{xmlDec: xml.NewDecoder(r), base: base}
+}
 
 var rgxRDFN = regexp.MustCompile(`_[1-9]\d*$`)
 
@@ -17,8 +51,9 @@ type xmlLit struct {
 	XML string `xml:",innerxml"`
 }
 
-// parseRDFXML parses a RDF/XML document, and returns the first available triple.
-func (d *TripleDecoder) parseRDFXML() (t Triple, err error) {
+// Decode parses a RDF/XML document, and returns the next available triple,
+// or an error.
+func (d *rdfXMLDecoder) Decode() (t Triple, err error) {
 	defer d.recover(&err)
 
 	if len(d.triples) == 0 {
@@ -38,9 +73,22 @@ func (d *TripleDecoder) parseRDFXML() (t Triple, err error) {
 	return t, err
 }
 
+// DecodeAll parses a compete RDF/XML document and returns the valid triples,
+// or an error.
+func (d *rdfXMLDecoder) DecodeAll() ([]Triple, error) {
+	var ts []Triple
+	for t, err := d.Decode(); err != io.EOF; t, err = d.Decode() {
+		if err != nil {
+			return nil, err
+		}
+		ts = append(ts, t)
+	}
+	return ts, nil
+}
+
 // Parse functions:
 
-func parseXMLRootElem(d *TripleDecoder) parseFn {
+func parseXMLRootElem(d *rdfXMLDecoder) parseXMLFn {
 	if d.xmlTopElem != "" {
 		//
 		return parseXMLSubjectNode
@@ -57,7 +105,7 @@ func parseXMLRootElem(d *TripleDecoder) parseFn {
 	return parseXMLSubjectNode
 }
 
-func parseXMLSubjectNode(d *TripleDecoder) parseFn {
+func parseXMLSubjectNode(d *rdfXMLDecoder) parseXMLFn {
 	if d.current.Subj != nil {
 		return parseXMLPredicate
 	}
@@ -112,7 +160,7 @@ func parseXMLSubjectNode(d *TripleDecoder) parseFn {
 	return parseXMLPredicate
 }
 
-func parseXMLPredicate(d *TripleDecoder) parseFn {
+func parseXMLPredicate(d *rdfXMLDecoder) parseXMLFn {
 	d.nextXMLToken()
 	switch elem := d.xmlTok.(type) {
 	case xml.Comment, xml.CharData:
@@ -181,7 +229,7 @@ func parseXMLPredicate(d *TripleDecoder) parseFn {
 							DataType: xmlLiteral,
 						}
 						d.triples = append(d.triples, d.current.Triple)
-						return nil // TODO end parseFn
+						return nil // TODO end parseXMLFn
 					case "Resource":
 						// TODO work here
 						// d.pushContext()
@@ -217,7 +265,7 @@ func parseXMLPredicate(d *TripleDecoder) parseFn {
 	return parseXMLCloseStatement
 }
 
-func parseXMLObject(d *TripleDecoder) parseFn {
+func parseXMLObject(d *rdfXMLDecoder) parseXMLFn {
 	d.nextXMLToken()
 	switch elem := d.xmlTok.(type) {
 	case xml.Comment:
@@ -235,22 +283,22 @@ func parseXMLObject(d *TripleDecoder) parseFn {
 		// Now that we have a full triple, we can reify if needed
 		d.triples = append(d.triples,
 			Triple{
-				Subj: IRI{str: resolve(d.Base.str, d.xmlReifyID)},
+				Subj: IRI{str: resolve(d.base.str, d.xmlReifyID)},
 				Pred: IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
 				Obj:  IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement"},
 			},
 			Triple{
-				Subj: IRI{str: resolve(d.Base.str, d.xmlReifyID)},
+				Subj: IRI{str: resolve(d.base.str, d.xmlReifyID)},
 				Pred: IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"},
 				Obj:  d.current.Subj.(Object),
 			},
 			Triple{
-				Subj: IRI{str: resolve(d.Base.str, d.xmlReifyID)},
+				Subj: IRI{str: resolve(d.base.str, d.xmlReifyID)},
 				Pred: IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate"},
 				Obj:  d.current.Pred.(Object),
 			},
 			Triple{
-				Subj: IRI{str: resolve(d.Base.str, d.xmlReifyID)},
+				Subj: IRI{str: resolve(d.base.str, d.xmlReifyID)},
 				Pred: IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"},
 				Obj:  d.current.Obj.(Object),
 			})
@@ -259,7 +307,7 @@ func parseXMLObject(d *TripleDecoder) parseFn {
 	return parseXMLCloseStatement
 }
 
-func parseXMLCloseStatement(d *TripleDecoder) parseFn {
+func parseXMLCloseStatement(d *rdfXMLDecoder) parseXMLFn {
 	d.nextXMLToken()
 	switch elem := d.xmlTok.(type) {
 	case xml.Comment, xml.CharData:
@@ -272,9 +320,27 @@ func parseXMLCloseStatement(d *TripleDecoder) parseFn {
 	return nil
 }
 
+// parseXMLFn represents the state of the parser as a function that returns the next state.
+type parseXMLFn func(*rdfXMLDecoder) parseXMLFn
+
 // Helper functions:
 
-func (d *TripleDecoder) nextXMLToken() {
+// recover catches non-runtime panics and binds the panic error
+// to the given error pointer.
+func (d *rdfXMLDecoder) recover(errp *error) {
+	e := recover()
+	if e != nil {
+		if _, ok := e.(runtime.Error); ok {
+			// Don't recover from runtime errors.
+			panic(e)
+		}
+		//d.stop() something to clean up?
+		*errp = e.(error)
+	}
+	return
+}
+
+func (d *rdfXMLDecoder) nextXMLToken() {
 	var err error
 	d.xmlTok, err = d.xmlDec.Token()
 	if err != nil {

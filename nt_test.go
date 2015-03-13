@@ -257,7 +257,7 @@ _:anon <http://example.org/property> <http://example.org/resource2> .
 func BenchmarkDecodeNT(b *testing.B) {
 	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer>"
 	for n := 0; n < b.N; n++ {
-		dec := NewTripleDecoder(bytes.NewBufferString(input), FormatNT)
+		dec := NewTripleDecoder(bytes.NewBufferString(input), FormatNT, IRI{str: "dummy"})
 		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 		}
 	}
@@ -265,7 +265,7 @@ func BenchmarkDecodeNT(b *testing.B) {
 
 func TestNT(t *testing.T) {
 	for _, test := range ntTestSuite {
-		dec := NewTripleDecoder(bytes.NewBufferString(test.input), FormatNT)
+		dec := NewTripleDecoder(bytes.NewBufferString(test.input), FormatNT, IRI{str: "dummy"})
 		triples, err := dec.DecodeAll()
 		if test.errWant != "" && err == nil {
 			t.Errorf("parseNT(%s) => <no error>, want %q", test.input, test.errWant)
