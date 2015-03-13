@@ -267,7 +267,6 @@ func parseXMLPredicate(d *rdfXMLDecoder) parseXMLFn {
 	default:
 		panic(errors.New("parseXMLPredicate not xml.StartElement"))
 	}
-	return parseXMLCloseStatement
 }
 
 func parseXMLObject(d *rdfXMLDecoder) parseXMLFn {
@@ -322,7 +321,6 @@ func parseXMLCloseStatement(d *rdfXMLDecoder) parseXMLFn {
 	default:
 		panic(fmt.Errorf("parseXMLCloseStatement: TODO: %v", elem))
 	}
-	return nil
 }
 
 // parseXMLFn represents the state of the parser as a function that returns the next state.
