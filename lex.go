@@ -68,7 +68,7 @@ type stateFn func(*lexer) stateFn
 
 // lexer for trig/turtle (and their line-based subsets n-triples & n-quads).
 //
-// Tokens for whitespace are comments are not not emitted.
+// Tokens for whitespace and comments are not not emitted.
 //
 // The design of the lexer and indeed much of the implementation is lifted from
 // the template lexer in Go's standard library, and is governed by a BSD licence
