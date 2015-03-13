@@ -99,6 +99,9 @@ func (d *ntDecoder) DecodeAll() ([]Triple, error) {
 	return ts, nil
 }
 
+// SetBase does nothing, but is needed to implement the TripleDecoder interface.
+func (d *ntDecoder) SetBase(i IRI) {}
+
 // Parsing functions:
 
 // next returns the next token.

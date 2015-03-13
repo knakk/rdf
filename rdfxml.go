@@ -39,8 +39,13 @@ type rdfXMLDecoder struct {
 	triples []Triple
 }
 
-func newRDFXMLDecoder(r io.Reader, base IRI) *rdfXMLDecoder {
-	return &rdfXMLDecoder{xmlDec: xml.NewDecoder(r), base: base}
+func newRDFXMLDecoder(r io.Reader) *rdfXMLDecoder {
+	return &rdfXMLDecoder{xmlDec: xml.NewDecoder(r)}
+}
+
+// SetBase sets the base IRI of the decoder, to be used resolving relative IRIs.
+func (d *rdfXMLDecoder) SetBase(i IRI) {
+	d.base = i
 }
 
 var rgxRDFN = regexp.MustCompile(`_[1-9]\d*$`)

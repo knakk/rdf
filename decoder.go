@@ -6,11 +6,10 @@ import (
 	"runtime"
 )
 
-// TripleDecoder parses RDF triples in one of the following formats:
-// N-Triples, Turtle, RDF/XML.
+// TripleDecoder parses RDF documents (serializations of an RDF graph).
 //
 // For streaming parsing, use the Decode() method to decode a single Triple
-// at a time. Or, if you want to read the whole source in one go, DecodeAll().
+// at a time. Or, if you want to read the whole document in one go, use DecodeAll().
 type TripleDecoder interface {
 	// Decode should parse a RDF document and return the next valid triple.
 	// It should return io.EOF when the whole document is parsed.
@@ -19,18 +18,22 @@ type TripleDecoder interface {
 	// DecodeAll should parse the entire RDF document and return all valid
 	// triples, or an error.
 	DecodeAll() ([]Triple, error)
+
+	// SetBase sets the base IRI which will be used for resolving relative IRIs.
+	// For formats that doesn't allow relative IRIs (N-Triples), this is a no-op.
+	SetBase(IRI)
 }
 
 // NewTripleDecoder returns a new TripleDecoder capable of parsing triples
 // from the given io.Reader in the given serialization format.
-func NewTripleDecoder(r io.Reader, f Format, base IRI) TripleDecoder {
+func NewTripleDecoder(r io.Reader, f Format) TripleDecoder {
 	switch f {
 	case FormatNT:
 		return newNTDecoder(r)
 	case FormatRDFXML:
-		return newRDFXMLDecoder(r, base)
+		return newRDFXMLDecoder(r)
 	case FormatTTL:
-		return newTTLDecoder(r, base)
+		return newTTLDecoder(r)
 	default:
 		panic(fmt.Errorf("Decoder for serialization format %s not implemented", f))
 	}

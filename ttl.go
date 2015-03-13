@@ -28,14 +28,18 @@ type ttlDecoder struct {
 	triples []Triple
 }
 
-func newTTLDecoder(r io.Reader, base IRI) *ttlDecoder {
+func newTTLDecoder(r io.Reader) *ttlDecoder {
 	return &ttlDecoder{
 		l:        newLexer(r),
 		ns:       make(map[string]string),
 		ctxStack: make([]ctxTriple, 0, 8),
 		triples:  make([]Triple, 0, 4),
-		base:     base,
 	}
+}
+
+// SetBase sets the base IRI of the decoder, to be used resolving relative IRIs.
+func (d *ttlDecoder) SetBase(i IRI) {
+	d.base = i
 }
 
 // Decode parses a Turtle document, and returns the next valid triple, or an error.
