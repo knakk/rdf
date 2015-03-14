@@ -59,7 +59,7 @@ func (d *rdfXMLDecoder) Decode() (t Triple, err error) {
 
 	if len(d.triples) == 0 {
 		// Run the parser state machine.
-		for d.state = parseXMLRootElem; d.state != nil; {
+		for d.state = parseXMLTopElem; d.state != nil; {
 			d.state = d.state(d)
 		}
 
@@ -89,19 +89,24 @@ func (d *rdfXMLDecoder) DecodeAll() ([]Triple, error) {
 
 // Parse functions:
 
-func parseXMLRootElem(d *rdfXMLDecoder) parseXMLFn {
+// parseXMLTopElem parses the top-level XML document element.
+// This is usually rdf:RDF, but can be any node element when
+// there is only one top-level element.
+func parseXMLTopElem(d *rdfXMLDecoder) parseXMLFn {
 	if d.xmlTopElem != "" {
-		//
 		return parseXMLSubjectNode
 	}
+
 	d.nextXMLToken()
 	switch elem := d.xmlTok.(type) {
 	case xml.StartElement:
+		// Store the top-level element, so we know we are done
+		// parsing when we reach the closing tag. TODO is it necessary?
 		d.xmlTopElem = resolve(elem.Name.Space, elem.Name.Local)
-	case xml.Comment, xml.CharData:
-		return parseXMLRootElem
 	default:
-		panic(errors.New("parseXMLRootElem not xml.StartElement"))
+		// case xml.Comment, xml.CharData, xml.Directive, xml.ProcInst, xml.EndElement:
+		// We only care about the top-level element at this point.
+		return parseXMLTopElem
 	}
 	return parseXMLSubjectNode
 }
