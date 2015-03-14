@@ -12,42 +12,45 @@ import (
 
 const rdfNS = `http://www.w3.org/1999/02/22-rdf-syntax-ns#`
 
+// evalCtx represents the evaluation context for an xml node.
+type evalCtx struct {
+	Base IRI
+	Subj Subject
+	Lang IRI
+	LiN  int
+	Ctx  context
+}
+
 type rdfXMLDecoder struct {
-	base    IRI               // base (default IRI)
-	bnodeN  int               // anonymous blank node counter
-	ns      map[string]string // map[prefix]namespace
-	current ctxTriple         // the current triple beeing parsed
+	dec *xml.Decoder
 
-	// xml decoder state
-	state      parseXMLFn // state of parser
-	xmlDec     *xml.Decoder
-	xmlTok     xml.Token
-	xmlTopElem string
-	xmlListN   int
-	xmlReifyID string
-
-	// ctxStack keeps track of current and parent triple contexts,
-	// needed for parsing recursive structures (list/collections).
-	ctxStack []ctxTriple
-
-	// triples contains complete triples ready to be emitted. Usually it will have just one triple,
-	// but can have more when parsing nested list/collections. Decode() will always return the first item.
-	triples []Triple
+	// xml parser state
+	state    parseXMLFn // statefunction - TODO store it between calls to Decode()?
+	bnodeN   int        // anonymous blank node counter
+	tok      xml.Token  // current XML token
+	topElem  string     // top level element (namespace+localname)
+	reifyID  string     // if not "", id to be resolved against the current in-scope Base IRI
+	current  Triple     // the current triple beeing parsed
+	ctx      evalCtx    // current node evaluation context
+	ctxStack []evalCtx  // stack of parent evaluation contexts
+	triples  []Triple   // complete, valid triples to be emitted
 }
 
 func newRDFXMLDecoder(r io.Reader) *rdfXMLDecoder {
-	return &rdfXMLDecoder{xmlDec: xml.NewDecoder(r)}
+	return &rdfXMLDecoder{dec: xml.NewDecoder(r)}
 }
 
 // SetBase sets the base IRI of the decoder, to be used resolving relative IRIs.
 func (d *rdfXMLDecoder) SetBase(i IRI) {
-	d.base = i
+	d.ctx.Base = i
 }
 
 var rgxRDFN = regexp.MustCompile(`_[1-9]\d*$`)
 
 // xmlLit is a struct used to decode the object node of a predicate
 // (when parseType="Literal") as a XML literal.
+// TODO if possible find a way to parse this by accessing the []byte directly,
+// without going via a struct..
 type xmlLit struct {
 	XML string `xml:",innerxml"`
 }
@@ -93,22 +96,24 @@ func (d *rdfXMLDecoder) DecodeAll() ([]Triple, error) {
 // This is usually rdf:RDF, but can be any node element when
 // there is only one top-level element.
 func parseXMLTopElem(d *rdfXMLDecoder) parseXMLFn {
-	if d.xmlTopElem != "" {
+	if d.topElem != "" {
 		return parseXMLSubjectNode
 	}
 
 	d.nextXMLToken()
-	switch elem := d.xmlTok.(type) {
+
+	switch elem := d.tok.(type) {
 	case xml.StartElement:
 		// Store the top-level element, so we know we are done
 		// parsing when we reach the closing tag. TODO is it necessary?
-		d.xmlTopElem = resolve(elem.Name.Space, elem.Name.Local)
+		d.topElem = resolve(elem.Name.Space, elem.Name.Local)
+
+		return parseXMLSubjectNode
 	default:
 		// case xml.Comment, xml.CharData, xml.Directive, xml.ProcInst, xml.EndElement:
 		// We only care about the top-level element at this point.
 		return parseXMLTopElem
 	}
-	return parseXMLSubjectNode
 }
 
 func parseXMLSubjectNode(d *rdfXMLDecoder) parseXMLFn {
@@ -116,7 +121,7 @@ func parseXMLSubjectNode(d *rdfXMLDecoder) parseXMLFn {
 		return parseXMLPredicate
 	}
 	d.nextXMLToken()
-	switch elem := d.xmlTok.(type) {
+	switch elem := d.tok.(type) {
 	case xml.Comment, xml.CharData:
 		return parseXMLSubjectNode
 	case xml.StartElement:
@@ -130,9 +135,9 @@ func parseXMLSubjectNode(d *rdfXMLDecoder) parseXMLFn {
 					}
 				}
 			case "Bag":
-				d.xmlListN = 1
+				d.ctx.LiN = 1
 				d.current.Subj = Blank{id: "_:bag"}
-				d.current.Ctx = ctxBag
+				d.ctx.Ctx = ctxBag
 				d.triples = append(d.triples,
 					Triple{
 						Subj: d.current.Subj.(Blank),
@@ -168,7 +173,7 @@ func parseXMLSubjectNode(d *rdfXMLDecoder) parseXMLFn {
 
 func parseXMLPredicate(d *rdfXMLDecoder) parseXMLFn {
 	d.nextXMLToken()
-	switch elem := d.xmlTok.(type) {
+	switch elem := d.tok.(type) {
 	case xml.Comment, xml.CharData:
 		return parseXMLPredicate
 	case xml.StartElement:
@@ -176,9 +181,9 @@ func parseXMLPredicate(d *rdfXMLDecoder) parseXMLFn {
 			switch elem.Name.Local {
 			case "li":
 				// We're in a rdf:Bag
-				if d.current.Ctx != ctxBag {
-					d.current.Ctx = ctxBag
-					d.xmlListN = 1
+				if d.ctx.Ctx != ctxBag {
+					d.ctx.Ctx = ctxBag
+					d.ctx.LiN = 1
 					d.triples = append(d.triples,
 						Triple{
 							Subj: Blank{id: "_:bag"},
@@ -188,14 +193,14 @@ func parseXMLPredicate(d *rdfXMLDecoder) parseXMLFn {
 					// Parent node is not subject
 					d.current.Subj = Blank{id: "_:bag"}
 				}
-				d.current.Pred = IRI{str: fmt.Sprintf("http://www.w3.org/1999/02/22-rdf-syntax-ns#_%d", d.xmlListN)}
-				d.xmlListN++
+				d.current.Pred = IRI{str: fmt.Sprintf("http://www.w3.org/1999/02/22-rdf-syntax-ns#_%d", d.ctx.LiN)}
+				d.ctx.LiN++
 			default:
 				if ln := rgxRDFN.FindString(elem.Name.Local); ln != "" {
 					// We're in a rdf:Bag
-					if d.current.Ctx != ctxBag {
-						d.current.Ctx = ctxBag
-						d.xmlListN = 1
+					if d.ctx.Ctx != ctxBag {
+						d.ctx.Ctx = ctxBag
+						d.ctx.LiN = 1
 						d.triples = append(d.triples,
 							Triple{
 								Subj: Blank{id: "_:bag"},
@@ -221,12 +226,12 @@ func parseXMLPredicate(d *rdfXMLDecoder) parseXMLFn {
 					dt = IRI{str: a.Value}
 					goto parseCharData
 				case "ID":
-					d.xmlReifyID = a.Value
+					d.reifyID = a.Value
 				case "parseType":
 					switch a.Value {
 					case "Literal":
 						o := xmlLit{}
-						err := d.xmlDec.DecodeElement(&o, &elem)
+						err := d.dec.DecodeElement(&o, &elem)
 						if err != nil {
 							panic(err)
 						}
@@ -234,7 +239,7 @@ func parseXMLPredicate(d *rdfXMLDecoder) parseXMLFn {
 							str:      strings.TrimLeft(o.XML, "\n\t "),
 							DataType: xmlLiteral,
 						}
-						d.triples = append(d.triples, d.current.Triple)
+						d.triples = append(d.triples, d.current)
 						return nil // TODO end parseXMLFn
 					case "Resource":
 						// TODO work here
@@ -249,7 +254,7 @@ func parseXMLPredicate(d *rdfXMLDecoder) parseXMLFn {
 				// object is a blank node
 				d.current.Obj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 				d.bnodeN++
-				d.triples = append(d.triples, d.current.Triple)
+				d.triples = append(d.triples, d.current)
 				d.triples = append(d.triples,
 					Triple{
 						Subj: d.current.Obj.(Blank),
@@ -272,49 +277,49 @@ func parseXMLPredicate(d *rdfXMLDecoder) parseXMLFn {
 
 func parseXMLObject(d *rdfXMLDecoder) parseXMLFn {
 	d.nextXMLToken()
-	switch elem := d.xmlTok.(type) {
+	switch elem := d.tok.(type) {
 	case xml.Comment:
 		return parseXMLObject
 	case xml.CharData:
 		l := d.current.Obj.(Literal)
 		l.str = string(elem)
 		d.current.Obj = l
-		d.triples = append(d.triples, d.current.Triple)
+		d.triples = append(d.triples, d.current)
 		//fmt.Printf(d.current.Triple.Serialize(FormatNT))
 	default:
 		panic(errors.New("parseXMLObject not xml.CharData"))
 	}
-	if d.xmlReifyID != "" {
+	if d.reifyID != "" {
 		// Now that we have a full triple, we can reify if needed
 		d.triples = append(d.triples,
 			Triple{
-				Subj: IRI{str: resolve(d.base.str, d.xmlReifyID)},
+				Subj: IRI{str: resolve(d.ctx.Base.str, d.reifyID)},
 				Pred: IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
 				Obj:  IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement"},
 			},
 			Triple{
-				Subj: IRI{str: resolve(d.base.str, d.xmlReifyID)},
+				Subj: IRI{str: resolve(d.ctx.Base.str, d.reifyID)},
 				Pred: IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"},
 				Obj:  d.current.Subj.(Object),
 			},
 			Triple{
-				Subj: IRI{str: resolve(d.base.str, d.xmlReifyID)},
+				Subj: IRI{str: resolve(d.ctx.Base.str, d.reifyID)},
 				Pred: IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate"},
 				Obj:  d.current.Pred.(Object),
 			},
 			Triple{
-				Subj: IRI{str: resolve(d.base.str, d.xmlReifyID)},
+				Subj: IRI{str: resolve(d.ctx.Base.str, d.reifyID)},
 				Pred: IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"},
 				Obj:  d.current.Obj.(Object),
 			})
-		d.xmlReifyID = ""
+		d.reifyID = ""
 	}
 	return parseXMLCloseStatement
 }
 
 func parseXMLCloseStatement(d *rdfXMLDecoder) parseXMLFn {
 	d.nextXMLToken()
-	switch elem := d.xmlTok.(type) {
+	switch elem := d.tok.(type) {
 	case xml.Comment, xml.CharData:
 		return parseXMLCloseStatement
 	case xml.EndElement:
@@ -346,16 +351,16 @@ func (d *rdfXMLDecoder) recover(errp *error) {
 
 func (d *rdfXMLDecoder) nextXMLToken() {
 	var err error
-	d.xmlTok, err = d.xmlDec.Token()
+	d.tok, err = d.dec.Token()
 	if err != nil {
 		panic(err)
 	}
 }
 
 func resolve(iri string, s string) string {
+	// TODO implement as described in:
+	// http://www.w3.org/TR/xmlbase/#resolution
 	if len(iri) == 0 {
-		// A valid IRI cannot be empty, but given some corrupt input,
-		// the decoder might generate one.
 		return s
 	}
 	switch iri[len(iri)-1] {
