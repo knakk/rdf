@@ -197,7 +197,7 @@ _:b0 <http://example.org/named> "Dürst" .
 </rdf:RDF>`,
 		"",
 
-		"disallowed as attribute: rdf:li",
+		"unexpected as attribute: rdf:li",
 	},
 	{
 		// [7] #rdf-containers-syntax-vs-schema-error002
@@ -302,21 +302,21 @@ _:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2" .
     <rdf:li rdf:ID="e4" foo:bar="foobar"/>
   </foo:Bar>
 </rdf:RDF>`,
-		`_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>  <http://foo/Bar> .
-_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> "1" .
+		`_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://foo/Bar> .
+_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> "1" .
 <http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement> .
-<http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> _:bar .
+<http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> _:bag .
 <http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> .
 <http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#object> "1" .
-_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral> .
-_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_3> _:res .
-_:res <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://foo/Bar> .
-_:bar <http://www.w3.org/1999/02/22-rdf-syntax-ns#_4> _:res2 .
+_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> "2"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral> .
+_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_3> _:b0 .
+_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://foo/Bar> .
+_:bag <http://www.w3.org/1999/02/22-rdf-syntax-ns#_4> _:b1 .
+_:b1 <http://foo/bar> "foobar" .
 <http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement> .
-<http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> _:bar .
+<http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> _:bag .
 <http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_4> .
-<http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#object> _:res2 . 
-_:res2 <http://foo/bar> "foobar" .
+<http://www.w3.org/2013/RDFXMLTests/rdf-containers-syntax-vs-schema/test004.rdf#e4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#object> _:b1 .
 `,
 		"",
 	},
@@ -326,18 +326,7 @@ _:res2 <http://foo/bar> "foobar" .
 		// containers match the typed node production
 		//
 		"rdf-containers-syntax-vs-schema/test006.rdf",
-		`<!--
-  Copyright World Wide Web Consortium, (Massachusetts Institute of
-  Technology, Institut National de Recherche en Informatique et en
-  Automatique, Keio University).
- 
-  All Rights Reserved.
- 
-  Please see the full Copyright clause at
-  <http://www.w3.org/Consortium/Legal/copyright-software.html>
--->
-
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:foo="http://foo/">
 
   <rdf:Seq rdf:ID="e1" rdf:_3="3" rdf:value="foobar"/>
