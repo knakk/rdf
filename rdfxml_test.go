@@ -6,6 +6,29 @@ import (
 	"testing"
 )
 
+func TestRDFXMLExamples(t *testing.T) {
+	for i, test := range rdfxmlExamples {
+		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
+		dec.SetBase(IRI{str: "http://www.w3.org/2013/RDFXMLTests/" + test.file})
+		ts, err := dec.DecodeAll()
+		if err != nil {
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err, test.nt)
+			continue
+		}
+
+		var b bytes.Buffer
+		enc := NewTripleEncoder(&b, FormatNT)
+		err = enc.EncodeAll(ts)
+		enc.Close()
+		if err != nil {
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err, test.nt)
+		}
+		if b.String() != test.nt {
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %v", i, test.rdfxml, b.String(), test.nt)
+		}
+	}
+}
+
 func TestRDFXML(t *testing.T) {
 	for i, test := range rdfxmlTestSuite {
 		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
@@ -39,6 +62,271 @@ func TestRDFXML(t *testing.T) {
 			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %v", i, test.rdfxml, b.String(), test.nt)
 		}
 	}
+}
+
+var rdfxmlExamples = []struct {
+	file   string
+	rdfxml string
+	nt     string
+}{
+	{
+		// [0]
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example07.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:ex="http://example.org/stuff/1.0/">
+  <rdf:Description rdf:about="http://www.w3.org/TR/rdf-syntax-grammar"
+		   dc:title="RDF/XML Syntax Specification (Revised)">
+    <ex:editor>
+      <rdf:Description ex:fullName="Dave Beckett">
+	<ex:homePage rdf:resource="http://purl.org/net/dajobe/" />
+      </rdf:Description>
+    </ex:editor>
+  </rdf:Description>
+</rdf:RDF>
+`,
+		`<http://www.w3.org/TR/rdf-syntax-grammar> <http://purl.org/dc/elements/1.1/title> "RDF/XML Syntax Specification (Revised)" .
+_:genid1 <http://example.org/stuff/1.0/fullName> "Dave Beckett" .
+_:genid1 <http://example.org/stuff/1.0/homePage> <http://purl.org/net/dajobe/> .
+<http://www.w3.org/TR/rdf-syntax-grammar> <http://example.org/stuff/1.0/editor> _:genid1 .
+`,
+	},
+	{
+		// [1]
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example08.rdf",
+		`<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <rdf:Description rdf:about="http://www.w3.org/TR/rdf-syntax-grammar">
+    <dc:title>RDF/XML Syntax Specification (Revised)</dc:title>
+    <dc:title xml:lang="en">RDF/XML Syntax Specification (Revised)</dc:title>
+    <dc:title xml:lang="en-US">RDF/XML Syntax Specification (Revised)</dc:title>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="http://example.org/buecher/baum" xml:lang="de">
+    <dc:title>Der Baum</dc:title>
+    <dc:description>Das Buch ist außergewöhnlich</dc:description>
+    <dc:title xml:lang="en">The Tree</dc:title>
+  </rdf:Description>
+</rdf:RDF>
+`,
+		`<http://www.w3.org/TR/rdf-syntax-grammar> <http://purl.org/dc/elements/1.1/title> "RDF/XML Syntax Specification (Revised)" .
+<http://www.w3.org/TR/rdf-syntax-grammar> <http://purl.org/dc/elements/1.1/title> "RDF/XML Syntax Specification (Revised)"@en .
+<http://www.w3.org/TR/rdf-syntax-grammar> <http://purl.org/dc/elements/1.1/title> "RDF/XML Syntax Specification (Revised)"@en-us .
+<http://example.org/buecher/baum> <http://purl.org/dc/elements/1.1/title> "Der Baum"@de .
+<http://example.org/buecher/baum> <http://purl.org/dc/elements/1.1/description> "Das Buch ist au\u00DFergew\u00F6hnlich"@de .
+<http://example.org/buecher/baum> <http://purl.org/dc/elements/1.1/title> "The Tree"@en .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example09.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:ex="http://example.org/stuff/1.0/">
+  <rdf:Description rdf:about="http://example.org/item01">
+    <ex:prop rdf:parseType="Literal"
+             xmlns:a="http://example.org/a#"><a:Box required="true">
+         <a:widget size="10" />
+         <a:grommit id="23" /></a:Box>
+    </ex:prop>
+  </rdf:Description>
+</rdf:RDF>
+`,
+		`<http://example.org/item01> <http://example.org/stuff/1.0/prop> "<a:Box xmlns:a=\"http://example.org/a#\" required=\"true\">\n         <a:widget size=\"10\"></a:widget>\n         <a:grommit id=\"23\"></a:grommit></a:Box>\n    "^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral> .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example10.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:ex="http://example.org/stuff/1.0/">
+  <rdf:Description rdf:about="http://example.org/item01">
+    <ex:size rdf:datatype="http://www.w3.org/2001/XMLSchema#int">123</ex:size>
+  </rdf:Description>
+</rdf:RDF>
+`,
+		`<http://example.org/item01> <http://example.org/stuff/1.0/size> "123"^^<http://www.w3.org/2001/XMLSchema#int> .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example11.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:ex="http://example.org/stuff/1.0/">
+  <rdf:Description rdf:about="http://www.w3.org/TR/rdf-syntax-grammar"
+		   dc:title="RDF/XML Syntax Specification (Revised)">
+    <ex:editor rdf:nodeID="abc"/>
+  </rdf:Description>
+
+  <rdf:Description rdf:nodeID="abc"
+                   ex:fullName="Dave Beckett">
+    <ex:homePage rdf:resource="http://purl.org/net/dajobe/"/>
+  </rdf:Description>
+</rdf:RDF>
+`,
+		`<http://www.w3.org/TR/rdf-syntax-grammar> <http://purl.org/dc/elements/1.1/title> "RDF/XML Syntax Specification (Revised)" .
+<http://www.w3.org/TR/rdf-syntax-grammar> <http://example.org/stuff/1.0/editor> _:abc .
+_:abc <http://example.org/stuff/1.0/fullName> "Dave Beckett" .
+_:abc <http://example.org/stuff/1.0/homePage> <http://purl.org/net/dajobe/> .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example12.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:ex="http://example.org/stuff/1.0/">
+  <rdf:Description rdf:about="http://www.w3.org/TR/rdf-syntax-grammar"
+		   dc:title="RDF/XML Syntax Specification (Revised)">
+    <ex:editor rdf:parseType="Resource">
+      <ex:fullName>Dave Beckett</ex:fullName>
+      <ex:homePage rdf:resource="http://purl.org/net/dajobe/"/>
+    </ex:editor>
+  </rdf:Description>
+</rdf:RDF>
+`,
+		`<http://www.w3.org/TR/rdf-syntax-grammar> <http://purl.org/dc/elements/1.1/title> "RDF/XML Syntax Specification (Revised)" .
+_:genid1 <http://example.org/stuff/1.0/fullName> "Dave Beckett" .
+_:genid1 <http://example.org/stuff/1.0/homePage> <http://purl.org/net/dajobe/> .
+<http://www.w3.org/TR/rdf-syntax-grammar> <http://example.org/stuff/1.0/editor> _:genid1 .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example13.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:ex="http://example.org/stuff/1.0/">
+  <rdf:Description rdf:about="http://www.w3.org/TR/rdf-syntax-grammar"
+		   dc:title="RDF/XML Syntax Specification (Revised)">
+    <ex:editor ex:fullName="Dave Beckett" />
+    <!-- Note the ex:homePage property has been ignored for this example -->
+  </rdf:Description>
+</rdf:RDF>
+`,
+		`<http://www.w3.org/TR/rdf-syntax-grammar> <http://purl.org/dc/elements/1.1/title> "RDF/XML Syntax Specification (Revised)" .
+_:genid1 <http://example.org/stuff/1.0/fullName> "Dave Beckett" .
+<http://www.w3.org/TR/rdf-syntax-grammar> <http://example.org/stuff/1.0/editor> _:genid1 .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example14.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:ex="http://example.org/stuff/1.0/">
+  <rdf:Description rdf:about="http://example.org/thing">
+    <rdf:type rdf:resource="http://example.org/stuff/1.0/Document"/>
+    <dc:title>A marvelous thing</dc:title>
+  </rdf:Description>
+</rdf:RDF>
+`,
+		`<http://example.org/thing> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/stuff/1.0/Document> .
+<http://example.org/thing> <http://purl.org/dc/elements/1.1/title> "A marvelous thing" .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example15.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:ex="http://example.org/stuff/1.0/">
+  <ex:Document rdf:about="http://example.org/thing">
+    <dc:title>A marvelous thing</dc:title>
+  </ex:Document>
+</rdf:RDF>
+`,
+		`<http://example.org/thing> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/stuff/1.0/Document> .
+<http://example.org/thing> <http://purl.org/dc/elements/1.1/title> "A marvelous thing" .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example16.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:ex="http://example.org/stuff/1.0/"
+         xml:base="http://example.org/here/">
+  <rdf:Description rdf:ID="snack">
+    <ex:prop rdf:resource="fruit/apple"/>
+  </rdf:Description>
+</rdf:RDF>`,
+		`<http://example.org/here/#snack> <http://example.org/stuff/1.0/prop> <http://example.org/here/fruit/apple> .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example17.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Seq rdf:about="http://example.org/favourite-fruit">
+    <rdf:_1 rdf:resource="http://example.org/banana"/>
+    <rdf:_2 rdf:resource="http://example.org/apple"/>
+    <rdf:_3 rdf:resource="http://example.org/pear"/>
+  </rdf:Seq>
+</rdf:RDF>`,
+		`<http://example.org/favourite-fruit> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq> .
+<http://example.org/favourite-fruit> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <http://example.org/banana> .
+<http://example.org/favourite-fruit> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> <http://example.org/apple> .
+<http://example.org/favourite-fruit> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_3> <http://example.org/pear> .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example18.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Seq rdf:about="http://example.org/favourite-fruit">
+    <rdf:li rdf:resource="http://example.org/banana"/>
+    <rdf:li rdf:resource="http://example.org/apple"/>
+    <rdf:li rdf:resource="http://example.org/pear"/>
+  </rdf:Seq>
+</rdf:RDF>`,
+		`<http://example.org/favourite-fruit> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq> .
+<http://example.org/favourite-fruit> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_1> <http://example.org/banana> .
+<http://example.org/favourite-fruit> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_2> <http://example.org/apple> .
+<http://example.org/favourite-fruit> <http://www.w3.org/1999/02/22-rdf-syntax-ns#_3> <http://example.org/pear> .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example19.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:ex="http://example.org/stuff/1.0/">
+  <rdf:Description rdf:about="http://example.org/basket">
+    <ex:hasFruit rdf:parseType="Collection">
+      <rdf:Description rdf:about="http://example.org/banana"/>
+      <rdf:Description rdf:about="http://example.org/apple"/>
+      <rdf:Description rdf:about="http://example.org/pear"/>
+    </ex:hasFruit>
+  </rdf:Description>
+</rdf:RDF>`,
+		`_:genid1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://example.org/banana> .
+_:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://example.org/apple> .
+_:genid1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid2 .
+_:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://example.org/pear> .
+_:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid3 .
+_:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+<http://example.org/basket> <http://example.org/stuff/1.0/hasFruit> _:genid1 .
+`,
+	},
+	{
+		"http://www.w3.org/TR/2004/REC-rdf-syntax-grammar-20040210/example20.rdf",
+		`<?xml version="1.0"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:ex="http://example.org/stuff/1.0/"
+         xml:base="http://example.org/triples/">
+  <rdf:Description rdf:about="http://example.org/">
+    <ex:prop rdf:ID="triple1">blah</ex:prop>
+  </rdf:Description>
+</rdf:RDF>
+`,
+		`<http://example.org/> <http://example.org/stuff/1.0/prop> "blah" .
+<http://example.org/triples/#triple1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement> .
+<http://example.org/triples/#triple1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> <http://example.org/> .
+<http://example.org/triples/#triple1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate> <http://example.org/stuff/1.0/prop> .
+<http://example.org/triples/#triple1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#object> "blah" .
+`,
+	},
 }
 
 var rdfxmlTestSuite = []struct {
