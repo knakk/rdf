@@ -484,7 +484,7 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 			// string literal values with the same in-scope xml:lang value
 			// and each of these property elements appears at most once and
 			// there is at most one rdf:type property element with a IRI object node,
-			// these can be abbreviated by moving them to be property attributez
+			// these can be abbreviated by moving them to be property attributes
 			// on the containing property element which is made an empty element.
 			// http://www.w3.org/TR/rdf-syntax-grammar/#section-Syntax-property-attributes-on-property-element
 			d.current.Obj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
@@ -666,16 +666,13 @@ func (d *rdfXMLDecoder) popContext() {
 	case 0:
 		d.ctx = evalCtx{}
 		d.current.Subj = nil
-		//d.current.Pred = nil
 	case 1:
 		d.ctx = d.ctxStack[0]
 		d.current.Subj = d.ctxStack[0].Subj
-		//d.current.Pred = nil
 		d.ctxStack = d.ctxStack[:0]
 	default:
 		d.ctx = d.ctxStack[len(d.ctxStack)-1]
 		d.current.Subj = d.ctx.Subj
-		//d.current.Pred = nil
 		d.ctxStack = d.ctxStack[:len(d.ctxStack)-1]
 	}
 }
@@ -729,12 +726,12 @@ func resolve(iri string, s string) string {
 }
 
 func isRelative(iri string) bool {
-	// TODD implement properly detecting any shceme, see TTL-parser
+	// TODO implement properly detecting any shceme, see TTL-parser
 	return !strings.HasPrefix(iri, "http://")
 }
 
 // isLn checks if string matches ^_[1-9]\d*$, and returns the
-// digits part on match, otherwise empty string.
+// digits part of tje match, otherwise empty string.
 func isLn(s string) string {
 	if s[0] != '_' {
 		return ""
