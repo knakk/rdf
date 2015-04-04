@@ -36,7 +36,7 @@ func NewTripleDecoder(r io.Reader, f Format) TripleDecoder {
 	case FormatTTL:
 		return newTTLDecoder(r)
 	default:
-		panic(fmt.Errorf("Decoder for serialization format %s not implemented", f))
+		panic(fmt.Errorf("Decoder for serialization format %v not implemented", f))
 	}
 }
 
