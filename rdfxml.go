@@ -917,6 +917,8 @@ func (d *rdfXMLDecoder) nextXMLToken() {
 }
 
 func resolve(iri string, s string) string {
+	// TODO resolve should also check if s is a prefix:suffix, so it
+	// must have knowledge of namespace prefixes.
 	if !isRelative(s) {
 		return s
 	}
