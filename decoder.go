@@ -21,6 +21,7 @@ type TripleDecoder interface {
 
 	// SetBase sets the base IRI which will be used for resolving relative IRIs.
 	// For formats that doesn't allow relative IRIs (N-Triples), this is a no-op.
+	// TODO strip #fragment in implementations? - check w3.org spec.
 	SetBase(IRI)
 }
 

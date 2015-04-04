@@ -183,7 +183,7 @@ func parseEnd(d *ttlDecoder) parseFn {
 		// Collection was object, need to check for more closing collection.
 		return parseEnd
 	case tokenDot:
-		if d.current.Ctx == ctxCollection {
+		if d.current.Ctx == ctxColl {
 			return parseEnd
 		}
 		return nil
@@ -191,7 +191,7 @@ func parseEnd(d *ttlDecoder) parseFn {
 		d.errorf("%d:%d: syntax error: %v", tok.line, tok.col, tok.text)
 		return nil
 	default:
-		if d.current.Ctx == ctxCollection {
+		if d.current.Ctx == ctxColl {
 			d.backup() // unread collection item, to be parsed on next iteration
 
 			d.bnodeN++
@@ -256,7 +256,7 @@ func parseSubject(d *ttlDecoder) parseFn {
 		d.current.Subj = Blank{id: fmt.Sprintf("_:b%d", d.bnodeN)}
 		d.pushContext()
 		d.current.Pred = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
-		d.current.Ctx = ctxCollection
+		d.current.Ctx = ctxColl
 		return parseObject
 	case tokenError:
 		d.errorf("%d:%d: syntax error: %v", tok.line, tok.col, tok.text)
@@ -396,7 +396,7 @@ func parseObject(d *ttlDecoder) parseFn {
 		d.current.Subj = d.current.Obj.(Subject)
 		d.current.Pred = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"}
 		d.current.Obj = nil
-		d.current.Ctx = ctxCollection
+		d.current.Ctx = ctxColl
 		d.pushContext()
 		return nil
 	case tokenError:
@@ -591,9 +591,10 @@ type context int
 
 const (
 	ctxTop context = iota
-	ctxCollection
+	ctxColl
 	ctxList
-	ctxBag
+	ctxBag // TODO ctxColl?  why need to differentiate?
+	ctxSeq // ctxColl?
 )
 
 // TODO remove when done
@@ -603,7 +604,7 @@ func (ctx context) String() string {
 		return "top context"
 	case ctxList:
 		return "list"
-	case ctxCollection:
+	case ctxColl:
 		return "collection"
 
 	default:
