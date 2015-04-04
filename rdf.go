@@ -105,27 +105,27 @@ var (
 
 	// Time and date:
 
-	xsdDate          = IRI{str: "http://www.w3.org/2001/XMLSchema#date"}
-	xsdTime          = IRI{str: "http://www.w3.org/2001/XMLSchema#time"}
-	xsdDateTime      = IRI{str: "http://www.w3.org/2001/XMLSchema#dateTime"} // time.Time
-	xsdDateTimeStamp = IRI{str: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
+	//xsdDate = IRI{str: "http://www.w3.org/2001/XMLSchema#date"}
+	//xsdTime          = IRI{str: "http://www.w3.org/2001/XMLSchema#time"}
+	xsdDateTime = IRI{str: "http://www.w3.org/2001/XMLSchema#dateTime"} // time.Time
+	//xsdDateTimeStamp = IRI{str: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
 
 	// Recurring and partial dates:
 
-	xsdYear              = IRI{str: "http://www.w3.org/2001/XMLSchema#gYear"}
-	xsdMonth             = IRI{str: "http://www.w3.org/2001/XMLSchema#gMonth"}
-	xsdDay               = IRI{str: "http://www.w3.org/2001/XMLSchema#gDay"}
-	xsdYearMonth         = IRI{str: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
-	xsdDuration          = IRI{str: "http://www.w3.org/2001/XMLSchema#Duration"}
-	xsdYearMonthDuration = IRI{str: "http://www.w3.org/2001/XMLSchema#yearMonthDuration"}
-	xsdDayTimeDuration   = IRI{str: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
+	//xsdYear              = IRI{str: "http://www.w3.org/2001/XMLSchema#gYear"}
+	//xsdMonth             = IRI{str: "http://www.w3.org/2001/XMLSchema#gMonth"}
+	//xsdDay               = IRI{str: "http://www.w3.org/2001/XMLSchema#gDay"}
+	//xsdYearMonth         = IRI{str: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
+	//xsdDuration          = IRI{str: "http://www.w3.org/2001/XMLSchema#Duration"}
+	//xsdYearMonthDuration = IRI{str: "http://www.w3.org/2001/XMLSchema#yearMonthDuration"}
+	//xsdDayTimeDuration   = IRI{str: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
 
 	// Limited-range integer numbers
 
-	xsdByte  = IRI{str: "http://www.w3.org/2001/XMLSchema#byte"}  // []byte
-	xsdShort = IRI{str: "http://www.w3.org/2001/XMLSchema#short"} // int16
-	xsdInt   = IRI{str: "http://www.w3.org/2001/XMLSchema#int"}   // int32
-	xsdLong  = IRI{str: "http://www.w3.org/2001/XMLSchema#long"}  // int64
+	xsdByte = IRI{str: "http://www.w3.org/2001/XMLSchema#byte"} // []byte
+	//xsdShort = IRI{str: "http://www.w3.org/2001/XMLSchema#short"} // int16
+	xsdInt = IRI{str: "http://www.w3.org/2001/XMLSchema#int"} // int32
+	//xsdLong  = IRI{str: "http://www.w3.org/2001/XMLSchema#long"}  // int64
 
 	// Various
 
