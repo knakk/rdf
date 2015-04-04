@@ -37,7 +37,6 @@ type evalCtx struct {
 	Lang string
 	LiN  int
 	NS   []string
-	Ctx  context // TODO maybe we can do without this
 }
 
 // rdfXMLDecoder decodes Triples from an XML stream.
@@ -966,8 +965,6 @@ func resolve(iri string, s string) string {
 		}
 		return iri[:i] + s
 	}
-
-	return iri + s
 }
 
 func iriFragmentIdx(s string) int {
