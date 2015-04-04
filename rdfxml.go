@@ -507,7 +507,7 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 				panic(fmt.Errorf("disallowed as property element name: rdf:%s", elem.Name.Local))
 			default:
 				if n := isLn(elem.Name.Local); n != "" {
-					d.current.Pred = IRI{str: fmt.Sprintf("http://www.w3.org/1999/02/22-rdf-syntax-ns#_%d", n)}
+					d.current.Pred = IRI{str: fmt.Sprintf("http://www.w3.org/1999/02/22-rdf-syntax-ns#_%s", n)}
 				}
 				// Default case, rdf name space
 				d.current.Pred = IRI{str: elem.Name.Space + elem.Name.Local}
