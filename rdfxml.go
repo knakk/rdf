@@ -712,26 +712,6 @@ outer:
 	return nil
 }
 
-func parseXMLCharData(d *rdfXMLDecoder) parseXMLFn {
-	switch elem := d.tok.(type) {
-	case xml.CharData:
-		d.parseObjLiteral(string(elem))
-
-		// We have a full triple:
-		d.triples = append(d.triples, d.current)
-
-		// Parse the closing of the containg property element before returning
-		d.nextState = parseXMLPropElemOrNodeEnd
-		d.nextXMLToken()
-		return parseXMLPropElemEnd
-	case xml.Comment:
-		d.nextXMLToken()
-		return parseXMLCharData
-	default:
-		panic(fmt.Errorf("parseXMLCharData: unexpected %v", elem))
-	}
-}
-
 // parseObjLiteral parses the object from the given character data,
 // making sure it get's the in-scope xml:lang and correct datatype.
 func (d *rdfXMLDecoder) parseObjLiteral(data string) {
@@ -891,7 +871,6 @@ func (d *rdfXMLDecoder) pushContext() {
 	// Reset li-counter and subject of current context
 	// Base and Lang are inherited and doesn't have to be cleared TODO hm?
 	d.ctx.LiN = 0
-	//d.ctx.Subj = nil // TODO not necessary - But its more explicit
 }
 
 // popContext restores the next context on the stack as the current context.
