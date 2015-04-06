@@ -141,8 +141,17 @@ func parseXMLTopElem(d *rdfXMLDecoder) parseXMLFn {
 		// to prefix mapping in case of any parseType="Literal".
 		d.storePrefixNS(elem)
 
+		// Store top-level base
 		if as := attrXML(elem, "base"); as != nil {
 			d.base = as[0].Value
+		}
+
+		// Store top-level prefix and namespaces
+		if as := attrXMLNS(elem); as != nil {
+			d.ns = append(d.ns, "INFO-URI/", "info")
+			for _, a := range as {
+				d.ns = append(d.ns, a.Value, a.Name.Local)
+			}
 		}
 
 		if elem.Name.Space != rdfNS || elem.Name.Local != "RDF" {
@@ -174,7 +183,7 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 				// most common to least common (I belive, TODO gather statistics?)
 
 				if as := attrRDF(elem, "about"); as != nil {
-					d.current.Subj = IRI{str: resolve(d.ctx.Base, as[0].Value)}
+					d.current.Subj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
 				}
 
 				if as := attrRDF(elem, "ID"); as != nil {
@@ -183,7 +192,7 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 					}
 
 					// http://www.w3.org/TR/rdf-syntax-grammar/#section-Syntax-ID-xml-base
-					d.current.Subj = IRI{str: resolve(d.ctx.Base, "#"+as[0].Value)}
+					d.current.Subj = IRI{str: d.resolve(d.ctx.Base, "#"+as[0].Value)}
 				}
 
 				if as := attrRDF(elem, "nodeID"); as != nil {
@@ -195,7 +204,7 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 
 				if as := attrRDF(elem, "type"); as != nil {
 					d.current.Pred = rdfType
-					d.current.Obj = IRI{str: resolve(d.ctx.Base, as[0].Value)}
+					d.current.Obj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
 					d.triples = append(d.triples, d.current)
 
 					d.nextState = parseXMLPropElemOrNodeEnd
@@ -256,12 +265,12 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 		// http://www.w3.org/TR/rdf-syntax-grammar/#section-Syntax-typed-nodes
 
 		if as := attrRDF(elem, "about"); as != nil {
-			d.current.Subj = IRI{str: resolve(d.ctx.Base, as[0].Value)}
+			d.current.Subj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
 		}
 
 		if as := attrRDF(elem, "ID"); as != nil {
 			// http://www.w3.org/TR/rdf-syntax-grammar/#section-Syntax-ID-xml-base
-			d.current.Subj = IRI{str: resolve(d.ctx.Base, "#"+as[0].Value)}
+			d.current.Subj = IRI{str: d.resolve(d.ctx.Base, "#"+as[0].Value)}
 		}
 
 		if d.current.Subj == nil {
@@ -575,7 +584,7 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 			if a := attrRDF(elem, "nodeID"); a != nil {
 				panic(errors.New("A property element cannot have both rdf:resource and rdf:nodeID"))
 			}
-			d.current.Obj = IRI{str: resolve(d.ctx.Base, as[0].Value)}
+			d.current.Obj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
 
 			// We have a full triple
 			d.triples = append(d.triples, d.current)
@@ -612,7 +621,7 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 		}
 
 		if a := attrRDF(elem, "datatype"); a != nil {
-			d.dt = &IRI{str: resolve(d.ctx.Base, a[0].Value)}
+			d.dt = &IRI{str: d.resolve(d.ctx.Base, a[0].Value)}
 		} else {
 			// Only check for xml:lang if datatype not found
 			// TODO or error if both?
@@ -813,7 +822,7 @@ parseLiteral:
 
 func (d *rdfXMLDecoder) reifyCheck() {
 	if d.reifyID != "" {
-		iri := IRI{str: resolve(d.ctx.Base, d.reifyID)}
+		iri := IRI{str: d.resolve(d.ctx.Base, d.reifyID)}
 		d.triples = append(d.triples,
 			Triple{
 				Subj: iri,
@@ -855,7 +864,26 @@ func (d *rdfXMLDecoder) getPrefix(ns string) string {
 		}
 	}
 
-	panic(fmt.Errorf("no prefix found for name space: %s", ns))
+	panic(fmt.Errorf("no prefix found for name space: %q", ns))
+}
+
+// getNS returns the in-scope name space for the prefix.
+func (d *rdfXMLDecoder) getNS(prefix string) string {
+	// First check for context local declarations
+	for i := 0; i < len(d.ctx.NS); i += 2 {
+		if d.ctx.NS[i+1] == prefix {
+			return d.ctx.NS[i]
+		}
+	}
+
+	// Check in top-level declarations
+	for i := 0; i < len(d.ns); i += 2 {
+		if d.ns[i+1] == prefix {
+			return d.ns[i]
+		}
+	}
+
+	panic(fmt.Errorf("no name space found for prefix: %q", prefix))
 }
 
 // storePrefixNS stores any name space prefixes declared to the element context.
@@ -864,7 +892,7 @@ func (d *rdfXMLDecoder) getPrefix(ns string) string {
 func (d *rdfXMLDecoder) storePrefixNS(elem xml.StartElement) {
 	if as := attrXMLNS(elem); as != nil {
 		for _, a := range as {
-			d.ctx.NS = append(d.ns, a.Value, a.Name.Local)
+			d.ctx.NS = append(d.ctx.NS, a.Value, a.Name.Local)
 		}
 	}
 	if as := attrXML(elem, "base"); as != nil {
@@ -926,35 +954,45 @@ func (d *rdfXMLDecoder) nextXMLToken() {
 	}
 }
 
-func resolve(iri string, s string) string {
-	// TODO resolve should also check if s is a prefix:suffix, so it
-	// must have knowledge of namespace prefixes.
-	if !isRelative(s) {
-		return s
+func (d *rdfXMLDecoder) resolve(base string, path string) string {
+	for i := 0; i < len(path); {
+		r, w := utf8.DecodeRuneInString(path[i:])
+		i += w
+		if r == ':' {
+			if strings.HasPrefix(path[i:], "//") {
+				// scheme found; it means the path is not relative
+				return path
+			}
+			if i < len(path) {
+				// URI is composed of prefix:suffix
+				return d.getNS(path[:i-1]) + path[i:]
+			}
+			break
+		}
 	}
-	if len(iri) == 0 {
-		return s
+	if len(base) == 0 {
+		return path
 	}
-	if len(s) == 0 {
-		return iri[:iriFragmentIdx(iri)]
+	if len(path) == 0 {
+		return base[:iriFragmentIdx(base)]
 	}
-	switch s[0] {
+	switch path[0] {
 	case '#':
-		return iri[:iriFragmentIdx(iri)] + s
+		return base[:iriFragmentIdx(base)] + path
 	case '/':
-		if len(s) > 1 && s[1] == '/' {
-			return iri[:iriSchemeEnd(iri)] + s
+		if len(path) > 1 && path[1] == '/' {
+			return base[:iriSchemeEnd(base)] + path
 		}
-		return iri[:iriHostEnd(iri)] + s
+		return base[:iriHostEnd(base)] + path
 	case '.':
-		numLevels := len(strings.Split(s, "../"))
-		return iri[:iriSlashIdx(iri, numLevels)] + strings.TrimLeft(s, "../")
+		numLevels := len(strings.Split(path, "../"))
+		return base[:iriSlashIdx(base, numLevels)] + strings.TrimLeft(path, "../")
 	default:
-		i := iriLastSlashIdx(iri)
-		if iri[i-1] != '/' {
-			return iri + "/" + s
+		i := iriLastSlashIdx(base)
+		if base[i-1] != '/' {
+			return base + "/" + path
 		}
-		return iri[:i] + s
+		return base[:i] + path
 	}
 }
 
@@ -1055,11 +1093,6 @@ func iriSlashIdx(s string, n int) int {
 		}
 	}
 	return i
-}
-
-func isRelative(iri string) bool {
-	// TODO implement properly detecting any shceme, see TTL-parser
-	return !strings.HasPrefix(iri, "http://")
 }
 
 // isLn checks if string matches ^_[1-9]\d*$, and returns the
