@@ -9,7 +9,7 @@ import (
 func TestRDFXMLExamples(t *testing.T) {
 	for i, test := range rdfxmlExamples {
 		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
-		dec.SetBase(IRI{str: "http://www.w3.org/2013/RDFXMLTests/" + test.file})
+		dec.SetOption(Base, IRI{str: "http://www.w3.org/2013/RDFXMLTests/" + test.file})
 		ts, err := dec.DecodeAll()
 		if err != nil {
 			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err, test.nt)
@@ -32,7 +32,7 @@ func TestRDFXMLExamples(t *testing.T) {
 func TestRDFXML(t *testing.T) {
 	for i, test := range rdfxmlTestSuite {
 		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
-		dec.SetBase(IRI{str: "http://www.w3.org/2013/RDFXMLTests/" + test.file})
+		dec.SetOption(Base, IRI{str: "http://www.w3.org/2013/RDFXMLTests/" + test.file})
 		ts, err := dec.DecodeAll()
 		if test.err == "TODO" {
 			continue

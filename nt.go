@@ -99,8 +99,13 @@ func (d *ntDecoder) DecodeAll() ([]Triple, error) {
 	return ts, nil
 }
 
-// SetBase does nothing, but is needed to implement the TripleDecoder interface.
-func (d *ntDecoder) SetBase(i IRI) {}
+// SetOption sets a ParseOption to the give value
+func (d *ntDecoder) SetOption(o ParseOption, v interface{}) error {
+	switch o {
+	default:
+		return fmt.Errorf("N-Triples decoder doesn't support option: %v", o)
+	}
+}
 
 // Parsing functions:
 

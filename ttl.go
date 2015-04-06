@@ -37,9 +37,19 @@ func newTTLDecoder(r io.Reader) *ttlDecoder {
 	}
 }
 
-// SetBase sets the base IRI of the decoder, to be used resolving relative IRIs.
-func (d *ttlDecoder) SetBase(i IRI) {
-	d.base = i
+// SetOption sets a ParseOption to the give value
+func (d *ttlDecoder) SetOption(o ParseOption, v interface{}) error {
+	switch o {
+	case Base:
+		iri, ok := v.(IRI)
+		if !ok {
+			return fmt.Errorf("ParseOption \"Base\" must be an IRI.")
+		}
+		d.base = iri
+	default:
+		return fmt.Errorf("RDF/XML decoder doesn't support option: %v", o)
+	}
+	return nil
 }
 
 // Decode parses a Turtle document, and returns the next valid triple, or an error.

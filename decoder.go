@@ -6,6 +6,14 @@ import (
 	"runtime"
 )
 
+// A ParseOption allows to customize the behaviour of decoders.
+type ParseOption int
+
+// Options which can configure the decoders.
+const (
+	Base ParseOption = iota // Base IRI to resolve relative IRIs against.
+)
+
 // TripleDecoder parses RDF documents (serializations of an RDF graph).
 //
 // For streaming parsing, use the Decode() method to decode a single Triple
@@ -19,10 +27,9 @@ type TripleDecoder interface {
 	// triples, or an error.
 	DecodeAll() ([]Triple, error)
 
-	// SetBase sets the base IRI which will be used for resolving relative IRIs.
-	// For formats that doesn't allow relative IRIs (N-Triples), this is a no-op.
-	// TODO strip #fragment in implementations? - check w3.org spec.
-	SetBase(IRI)
+	// SetOption sets a parsing option to the given value. Not all options
+	// are supported by all decoders.
+	SetOption(ParseOption, interface{}) error
 }
 
 // NewTripleDecoder returns a new TripleDecoder capable of parsing triples

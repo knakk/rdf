@@ -70,9 +70,19 @@ func newRDFXMLDecoder(r io.Reader) *rdfXMLDecoder {
 	return &rdfXMLDecoder{dec: xml.NewDecoder(r), nextState: parseXMLTopElem}
 }
 
-// SetBase sets the base IRI of the decoder, to be used resolving relative IRIs.
-func (d *rdfXMLDecoder) SetBase(i IRI) {
-	d.ctx.Base = i.str
+// SetOption sets a ParseOption to the give value
+func (d *rdfXMLDecoder) SetOption(o ParseOption, v interface{}) error {
+	switch o {
+	case Base:
+		iri, ok := v.(IRI)
+		if !ok {
+			return fmt.Errorf("ParseOption \"Base\" must be an IRI.")
+		}
+		d.ctx.Base = iri.str
+	default:
+		return fmt.Errorf("RDF/XML decoder doesn't support option: %v", o)
+	}
+	return nil
 }
 
 // Decode parses a RDF/XML document, and returns the next available triple,
