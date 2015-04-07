@@ -315,7 +315,7 @@ func parseXMLPropElemOrNodeEnd(d *rdfXMLDecoder) parseXMLFn {
 	case xml.StartElement:
 		// The element node has more property elements.
 
-		if elem.Name.Space == rdfNS && (elem.Name.Local == "li" || isLn(elem.Name.Local) != "") {
+		if elem.Name.Space == rdfNS && (elem.Name.Local == "li" || isLn(elem.Name.Local)) {
 			// We're in a rdf:Bag, TODO and/or rdf:XXX?
 			return parseXMLPropElem
 		}
@@ -522,8 +522,8 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 			case "Description", "RDF", "ID", "about", "bagID", "parseType", "resource", "nodeID", "aboutEach", "aboutEachPrefix":
 				panic(fmt.Errorf("disallowed as property element name: rdf:%s", elem.Name.Local))
 			default:
-				if n := isLn(elem.Name.Local); n != "" {
-					d.current.Pred = IRI{str: fmt.Sprintf("http://www.w3.org/1999/02/22-rdf-syntax-ns#_%s", n)}
+				if isLn(elem.Name.Local) {
+					d.current.Pred = IRI{str: fmt.Sprintf("http://www.w3.org/1999/02/22-rdf-syntax-ns#_%s", elem.Name.Local[1:])}
 				}
 				// Default case, rdf name space
 				d.current.Pred = IRI{str: elem.Name.Space + elem.Name.Local}
@@ -1092,22 +1092,25 @@ func iriSlashIdx(s string, n int) int {
 	return i
 }
 
-// isLn checks if string matches ^_[1-9]\d*$, and returns the
-// digits part of the match, otherwise empty string.
-// TODO make this a boolean function, the number can be extracted with s[1:] by caller
-func isLn(s string) string {
+// isLn checks if string matches ^_[1-9]\d*$
+func isLn(s string) bool {
+	if len(s) < 2 {
+		return false
+	}
 	if s[0] != '_' {
-		return ""
+		return false
 	}
 	if s[1] < '1' || s[1] > '9' {
-		return ""
+		return false
 	}
-	for _, r := range s[2:] {
-		if r < '0' || r > '9' {
-			return ""
+	if len(s) > 2 {
+		for _, r := range s[2:] {
+			if r < '0' || r > '9' {
+				return false
+			}
 		}
 	}
-	return s[1:]
+	return true
 }
 
 // attrRDF looks for a attribute in the rdf namespace with the given
@@ -1175,7 +1178,7 @@ func attrRest(e xml.StartElement) []xml.Attr {
 			case "aboutEach", "aboutEachPrefix", "bagID":
 				panic(fmt.Errorf("deprecated: rdf:%s", a.Name.Local))
 			default:
-				if ln := isLn(a.Name.Local); ln != "" {
+				if isLn(a.Name.Local) {
 					continue
 				}
 				as = append(as, a)
