@@ -133,7 +133,7 @@ func parseXMLTopElem(d *rdfXMLDecoder) parseXMLFn {
 	switch elem := d.tok.(type) {
 	case xml.StartElement:
 		// Store the top-level element, so we know we are done
-		// parsing when we reach the corresponding closing tag=TODO!
+		// parsing when we reach the corresponding closing tag.
 		d.topElem = elem.Name.Space + elem.Name.Local
 
 		// Store prefix and namespaces. Go's XML encoder provides the
@@ -178,9 +178,6 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 			switch elem.Name.Local {
 			case "Description":
 				d.storePrefixNS(elem)
-
-				// Check for rdf:about, rdf:ID, rdf:nodeID, xml:lang or no attributes, in the order of
-				// most common to least common (I belive, TODO gather statistics?)
 
 				if as := attrRDF(elem, "about"); as != nil {
 					d.current.Subj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
@@ -1096,7 +1093,7 @@ func iriSlashIdx(s string, n int) int {
 }
 
 // isLn checks if string matches ^_[1-9]\d*$, and returns the
-// digits part of tje match, otherwise empty string.
+// digits part of the match, otherwise empty string.
 // TODO make this a boolean function, the number can be extracted with s[1:] by caller
 func isLn(s string) string {
 	if s[0] != '_' {
