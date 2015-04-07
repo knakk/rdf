@@ -471,7 +471,7 @@ ns1:45U8QJGZSQKDH8N	a	ns0:Work .`,
 func BenchmarkDecodeTTL(b *testing.B) {
 	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer> ."
 	for n := 0; n < b.N; n++ {
-		dec := NewTripleDecoder(bytes.NewBufferString(input), FormatTTL)
+		dec := NewTripleDecoder(bytes.NewBufferString(input), Turtle)
 		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 		}
 	}
@@ -480,7 +480,7 @@ func BenchmarkDecodeTTL(b *testing.B) {
 func benchmarkTTLEx(i int, b *testing.B) {
 	input := ttlBenchInputs[i]
 	for n := 0; n < b.N; n++ {
-		dec := NewTripleDecoder(bytes.NewBufferString(input), FormatTTL)
+		dec := NewTripleDecoder(bytes.NewBufferString(input), Turtle)
 		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 			if err != nil {
 				b.Fatal(err)
@@ -521,13 +521,13 @@ func BenchmarkTTLEx29(b *testing.B) { benchmarkTTLEx(28, b) }
 
 func TestEncodingTTL(t *testing.T) {
 	for i, ex := range ttlBenchInputs {
-		dec := NewTripleDecoder(bytes.NewBufferString(ex), FormatTTL)
+		dec := NewTripleDecoder(bytes.NewBufferString(ex), Turtle)
 		triples, err := dec.DecodeAll()
 		if err != nil {
 			t.Fatal(err)
 		}
 		var buf bytes.Buffer
-		enc := NewTripleEncoder(&buf, FormatTTL)
+		enc := NewTripleEncoder(&buf, Turtle)
 		err = enc.EncodeAll(triples)
 		if err != nil {
 			t.Fatal(err)
@@ -543,7 +543,7 @@ func TestEncodingTTL(t *testing.T) {
 }
 func TestTTL(t *testing.T) {
 	for _, test := range ttlTestSuite {
-		dec := NewTripleDecoder(bytes.NewBufferString(test.input), FormatTTL)
+		dec := NewTripleDecoder(bytes.NewBufferString(test.input), Turtle)
 		triples, err := dec.DecodeAll()
 		if err != nil {
 			if test.errWant == "" {

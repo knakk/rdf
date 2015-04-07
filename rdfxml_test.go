@@ -8,61 +8,61 @@ import (
 
 func TestRDFXMLExamples(t *testing.T) {
 	for i, test := range rdfxmlExamples {
-		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
+		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), RDFXML)
 		dec.SetOption(Base, IRI{str: "http://www.w3.org/2013/RDFXMLTests/" + test.file})
 		ts, err := dec.DecodeAll()
 		if err != nil {
-			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err, test.nt)
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(NTriples) => %v, want %q", i, test.rdfxml, err, test.nt)
 			continue
 		}
 
 		var b bytes.Buffer
-		enc := NewTripleEncoder(&b, FormatNT)
+		enc := NewTripleEncoder(&b, NTriples)
 		err = enc.EncodeAll(ts)
 		enc.Close()
 		if err != nil {
-			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err, test.nt)
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(NTriples) => %v, want %q", i, test.rdfxml, err, test.nt)
 		}
 		if b.String() != test.nt {
-			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %v", i, test.rdfxml, b.String(), test.nt)
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(NTriples) => %v, want %v", i, test.rdfxml, b.String(), test.nt)
 		}
 	}
 }
 
 func TestRDFXML(t *testing.T) {
 	for i, test := range rdfxmlTestSuite {
-		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), FormatRDFXML)
+		dec := NewTripleDecoder(bytes.NewBufferString(test.rdfxml), RDFXML)
 		dec.SetOption(Base, IRI{str: "http://www.w3.org/2013/RDFXMLTests/" + test.file})
 		ts, err := dec.DecodeAll()
 		if test.err == "TODO" {
 			continue
 		}
 		if test.err != "" && err == nil {
-			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => <no error>, want %q", i, test.rdfxml, test.err)
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(NTriples) => <no error>, want %q", i, test.rdfxml, test.err)
 			continue
 		}
 
 		if test.err != "" && err != nil {
 			if !strings.HasSuffix(err.Error(), test.err) {
-				t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %s, want %q", i, test.rdfxml, err, test.err)
+				t.Fatalf("[%d] parseRDFXML(%s).Serialize(NTriples) => %s, want %q", i, test.rdfxml, err, test.err)
 			}
 			continue
 		}
 
 		if test.err == "" && err != nil {
-			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err, test.nt)
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(NTriples) => %v, want %q", i, test.rdfxml, err, test.nt)
 			continue
 		}
 
 		var b bytes.Buffer
-		enc := NewTripleEncoder(&b, FormatNT)
+		enc := NewTripleEncoder(&b, NTriples)
 		err = enc.EncodeAll(ts)
 		enc.Close()
 		if err != nil {
-			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %q", i, test.rdfxml, err, test.nt)
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(NTriples) => %v, want %q", i, test.rdfxml, err, test.nt)
 		}
 		if b.String() != test.nt {
-			t.Fatalf("[%d] parseRDFXML(%s).Serialize(FormatNT) => %v, want %v", i, test.rdfxml, b.String(), test.nt)
+			t.Fatalf("[%d] parseRDFXML(%s).Serialize(NTriples) => %v, want %v", i, test.rdfxml, b.String(), test.nt)
 		}
 	}
 }

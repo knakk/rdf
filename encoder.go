@@ -45,12 +45,12 @@ func (e *TripleEncoder) Encode(t Triple) error {
 		return ErrEncoderClosed
 	}
 	switch e.format {
-	case FormatNT:
+	case NTriples:
 		_, err := e.w.w.Write([]byte(t.Serialize(e.format)))
 		if err != nil {
 			return err
 		}
-	case FormatTTL:
+	case Turtle:
 		var s, p, o string
 
 		// object is allways rendered the same
@@ -126,14 +126,14 @@ func (e *TripleEncoder) EncodeAll(ts []Triple) error {
 		return ErrEncoderClosed
 	}
 	switch e.format {
-	case FormatNT:
+	case NTriples:
 		for _, t := range ts {
 			_, err := e.w.w.Write([]byte(t.Serialize(e.format)))
 			if err != nil {
 				return err
 			}
 		}
-	case FormatTTL:
+	case Turtle:
 		// Sort triples by Subject, then Predicate, to maximize predicate and object lists.
 		sort.Sort(bySubjectThenPred(triples(ts)))
 
@@ -236,7 +236,7 @@ func (e *TripleEncoder) prefixify(t Term) string {
 		first, rest := t.(IRI).Split()
 		if first == "" {
 			// cannot split into prefix and namespace
-			return t.Serialize(FormatTTL)
+			return t.Serialize(Turtle)
 		}
 
 		rest = escapeLocal(rest)
@@ -262,7 +262,7 @@ func (e *TripleEncoder) prefixify(t Term) string {
 		default:
 			first, rest := t.(Literal).DataType.Split()
 			if first == "" {
-				return t.Serialize(FormatTTL)
+				return t.Serialize(Turtle)
 			}
 			rest = escapeLocal(rest)
 
@@ -280,7 +280,7 @@ func (e *TripleEncoder) prefixify(t Term) string {
 			return fmt.Sprintf("\"%s\"^^%s:%s", t.Serialize(formatInternal), prefix, rest)
 		}
 	}
-	return t.Serialize(FormatTTL)
+	return t.Serialize(Turtle)
 }
 
 func escapeLocal(rest string) string {
@@ -321,7 +321,7 @@ func (t bySubjectThenPred) Less(i, j int) bool {
 	// todo implement custom comparestring function wich returns -1 0 1 for less, equal, greater
 	// https://groups.google.com/forum/#!topic/golang-nuts/5mMdKvkxWxo
 	// see also bytes.Compare
-	p, q := t[i].Subj.Serialize(FormatNT), t[j].Subj.Serialize(FormatNT)
+	p, q := t[i].Subj.Serialize(NTriples), t[j].Subj.Serialize(NTriples)
 	switch {
 	case p < q:
 		return true
@@ -329,7 +329,7 @@ func (t bySubjectThenPred) Less(i, j int) bool {
 		return false
 	default:
 		// subjects are equal, continue by comparing predicates
-		return t[i].Pred.Serialize(FormatNT) < t[j].Pred.Serialize(FormatNT)
+		return t[i].Pred.Serialize(NTriples) < t[j].Pred.Serialize(NTriples)
 	}
 }
 

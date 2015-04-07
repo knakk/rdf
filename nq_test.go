@@ -13,7 +13,7 @@ var defaultGraph = Blank{id: "_:defaultGraph"}
 func BenchmarkDecodeNQ(b *testing.B) {
 	input := "#comment\n<http://example/s> <http://example/p> \"123\"^^<http://www.w3.org/2001/XMLSchema#integer> <http://example/g>"
 	for n := 0; n < b.N; n++ {
-		dec := NewQuadDecoder(bytes.NewBufferString(input), FormatNQ)
+		dec := NewQuadDecoder(bytes.NewBufferString(input), NQuads)
 		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 		}
 	}
@@ -21,7 +21,7 @@ func BenchmarkDecodeNQ(b *testing.B) {
 
 func TestNQ(t *testing.T) {
 	for _, test := range nqTestSuite {
-		dec := NewQuadDecoder(bytes.NewBufferString(test.input), FormatNQ)
+		dec := NewQuadDecoder(bytes.NewBufferString(test.input), NQuads)
 		quads, err := dec.DecodeAll()
 		if test.errWant != "" && err == nil {
 			t.Errorf("parseNQ(%s) => <no error>, want %q", test.input, test.errWant)

@@ -52,7 +52,7 @@
 //    if err != nil {
 //    	// handle err
 //    }
-//    dec := rdf.NewTripleDecoder(f, rdf.FormatTTL)
+//    dec := rdf.NewTripleDecoder(f, rdf.Turtle)
 //    for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
 //    	// do something with triple ..
 //    }
@@ -140,14 +140,14 @@ type Format int
 const (
 	// Triple serialization:
 
-	FormatNT     Format = iota // N-Triples
-	FormatTTL                  // Turtle
-	FormatRDFXML               // RDF/XML
+	NTriples Format = iota
+	Turtle
+	RDFXML
 	// TODO: JSON-LD
 
 	// Quad serialization:
 
-	FormatNQ // N-Quads
+	NQuads // N-Quads
 	// TODO: Format TriG
 
 	// Internal formats
@@ -302,9 +302,9 @@ func (l Literal) Serialize(f Format) string {
 		switch f {
 		case formatInternal:
 			return l.str
-		case FormatNT, FormatNQ:
+		case NTriples, NQuads:
 			return fmt.Sprintf("\"%s\"^^%s", escapeLiteral(l.str), l.DataType.Serialize(f))
-		case FormatTTL:
+		case Turtle:
 			switch l.DataType {
 			case xsdInteger, xsdDecimal, xsdBoolean, xsdDouble:
 				return l.str

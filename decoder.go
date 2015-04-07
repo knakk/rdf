@@ -36,11 +36,11 @@ type TripleDecoder interface {
 // from the given io.Reader in the given serialization format.
 func NewTripleDecoder(r io.Reader, f Format) TripleDecoder {
 	switch f {
-	case FormatNT:
+	case NTriples:
 		return newNTDecoder(r)
-	case FormatRDFXML:
+	case RDFXML:
 		return newRDFXMLDecoder(r)
-	case FormatTTL:
+	case Turtle:
 		return newTTLDecoder(r)
 	default:
 		panic(fmt.Errorf("Decoder for serialization format %v not implemented", f))
