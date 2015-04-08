@@ -2,9 +2,37 @@ package rdf
 
 import (
 	"bytes"
+	"io"
 	"strings"
 	"testing"
 )
+
+func benchmarkRDFXMLEx(i int, b *testing.B) {
+	input := rdfxmlExamples[i].rdfxml
+	for n := 0; n < b.N; n++ {
+		dec := NewTripleDecoder(bytes.NewBufferString(input), RDFXML)
+		b.StartTimer()
+		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	}
+}
+
+func BenchmarkRDFXMLEx1(b *testing.B)  { benchmarkRDFXMLEx(0, b) }
+func BenchmarkRDFXMLEx2(b *testing.B)  { benchmarkRDFXMLEx(1, b) }
+func BenchmarkRDFXMLEx3(b *testing.B)  { benchmarkRDFXMLEx(2, b) }
+func BenchmarkRDFXMLEx4(b *testing.B)  { benchmarkRDFXMLEx(3, b) }
+func BenchmarkRDFXMLEx5(b *testing.B)  { benchmarkRDFXMLEx(4, b) }
+func BenchmarkRDFXMLEx6(b *testing.B)  { benchmarkRDFXMLEx(5, b) }
+func BenchmarkRDFXMLEx7(b *testing.B)  { benchmarkRDFXMLEx(6, b) }
+func BenchmarkRDFXMLEx8(b *testing.B)  { benchmarkRDFXMLEx(7, b) }
+func BenchmarkRDFXMLEx9(b *testing.B)  { benchmarkRDFXMLEx(8, b) }
+func BenchmarkRDFXMLEx10(b *testing.B) { benchmarkRDFXMLEx(9, b) }
+func BenchmarkRDFXMLEx11(b *testing.B) { benchmarkRDFXMLEx(10, b) }
+func BenchmarkRDFXMLEx12(b *testing.B) { benchmarkRDFXMLEx(11, b) }
+func BenchmarkRDFXMLEx13(b *testing.B) { benchmarkRDFXMLEx(12, b) }
 
 func TestRDFXMLExamples(t *testing.T) {
 	for i, test := range rdfxmlExamples {
