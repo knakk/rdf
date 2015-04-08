@@ -539,18 +539,6 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 
 		if as := attrRDF(elem, "parseType"); as != nil {
 			switch as[0].Value {
-			case "Literal":
-				if as := attrRDF(elem, "resource"); as != nil {
-					// TODO find a more generic way to check for attributes which
-					// doesn't go together
-					panic(errors.New("cannot have both rdf:parseType=\"Literal\" and rdf:resource"))
-				}
-				// The inner tokens and character data are stored as an XML literal
-				d.parseXMLLiteral(elem)
-				d.triples = append(d.triples, d.current)
-
-				d.nextState = parseXMLPropElemOrNodeEnd
-				return nil
 			case "Resource":
 				// Omitting rdf:Decsription for blank node
 				// http://www.w3.org/TR/rdf-syntax-grammar/#section-Syntax-parsetype-resource
@@ -571,8 +559,20 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 				// we're in a collection, to know previous and next nodes and so on, so we
 				// parse all items in one go in the followeing state function:
 				return parseXMLColl
-			default:
-				panic(fmt.Errorf("parseXMLPropElem TODO parseType=%s", as[0].Value))
+			default: // case "Literal"
+				// All rdf:parseType attribute values other than the strings "Resource",
+				// "Literal" or "Collection" are treated as if the value was "Literal".
+				if as := attrRDF(elem, "resource"); as != nil {
+					// TODO find a more generic way to check for attributes which
+					// doesn't go together
+					panic(errors.New("cannot have both rdf:parseType=\"Literal\" and rdf:resource"))
+				}
+				// The inner tokens and character data are stored as an XML literal
+				d.parseXMLLiteral(elem)
+				d.triples = append(d.triples, d.current)
+
+				d.nextState = parseXMLPropElemOrNodeEnd
+				return nil
 			}
 		}
 
