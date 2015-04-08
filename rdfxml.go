@@ -148,7 +148,6 @@ func parseXMLTopElem(d *rdfXMLDecoder) parseXMLFn {
 
 		// Store top-level prefix and namespaces
 		if as := attrXMLNS(elem); as != nil {
-			d.ns = append(d.ns, "INFO-URI/", "info")
 			for _, a := range as {
 				d.ns = append(d.ns, a.Value, a.Name.Local)
 			}
