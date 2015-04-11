@@ -1,78 +1,41 @@
-// Package rdf introduces data structures for representing RDF resources,
-// and includes functions for parsing and serialization of RDF data.
+// Package rdf provides functionality for working with RDF resources, including
+// parsing and serialization of the various RDF formats.
+//
+// Data model
+//
+// The package adhers to the RDF data model as described in http://www.w3.org/TR/rdf11-concepts/.
 //
 // Data structures
 //
-// RDF is a graph-based data model, where the graph is encoded as a set
-// of triples. A triple consist of a subject, predicate and an object.
-// In the case of multigraphs, the data is represented by quads. A quad
-// includes the named graph (also called context) in addition to the triple.
+// TODO.
 //
-// The fundamental semantic entities are IRIs, Blank nodes and Literals, collectively
-// known as RDF Terms. The package provides constructors for creating RDF Terms,
-// ensuring that a given term conforms to the RDF 1.1 standards:
+// Encoding and decoding
 //
-//    myiri, err := rdf.NewIRI("an invalid iri")
-//    if err != nil {
-//    	// space character not allowed in IRIs
-//    }
+// The package aims to support all the RDF serialization formats standardized by W3C. Currently the following are implemented:
+//  Format     | Decode | Encode
+//  -----------|--------|--------
+//  RDF/XML    | x      | -
+//  N-Triples  | x      | x
+//  N-Quads    | x      | x
+//  Turtle     | x      | x
+//  TriG       | -      | -
+//  JSON-LD    | -      | -
 //
-// There are 3 functions to create a Literal.
-//
-// NewLiteral() will infer the datatype from the given value:
-//
-//    l1, _ := rdf.NewLiteral(3.14)     // l1 will be stored as a Go float with datatype IRI xsd:Double
-//    l2, _ := rdf.NewLiteral("abc")    // l2 will be stored as a Go string with datatype IRI xsd:String
-//    l3, _ := rdf.NewLiteral(false)    // l3 will be stored as a Go bool with datatype IRI xsd:Boolean
-//    ...etc
-//
-//    l4, err := rdf.NewLiteral(struct{a string}{"aA"})
-//    if err != nil {
-//    	// cannot infer datatype of compisite values, like structs and maps.
-//    }
-//
-// NewLangLiteral() is used to create a language tagged literal. The dataype will be xsd:String:
-//
-//    l5, _ := rdf.NewLangLiteral("bonjour", "fr")
-//    l6, err := rdf.NewLangLiteral("hei", "123-")
-//    if err != nil {
-//    	// will fail on invalid language tags
-//    }
-//
-//
-// Parsing
-//
-// The package currently includes parsers for N-Triples, N-Quads and Turtle.
-//
-// They parsers are implemented as streaming decoders, consuming an io.Reader
+// The parsers are implemented as streaming decoders, consuming an io.Reader
 // and emitting triples/quads as soon as they are available. Simply call
 // Decode() until the reader is exhausted and emits io.EOF:
 //
 //    f, err := os.Open("mytriples.ttl")
 //    if err != nil {
-//    	// handle err
+//        // handle error
 //    }
 //    dec := rdf.NewTripleDecoder(f, rdf.Turtle)
 //    for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
-//    	// do something with triple ..
+//        // do something with triple ..
 //    }
 //
-// Parsers for RDFXML, JSON-LD and TriG are planned.
-//
-// RDF literals will get converted into corresponding Go types based on the XSD datatypes, according to the following mapping:
-//
-//    datatype IRI   Go type
-//    --------------------------
-//    xsd:string     string
-//    xsd:boolean    bool
-//    xsd:integer    int
-//    xsd:long       int
-//    xsd:decimal    float64
-//    xsd:double     float64
-//    xsd:float      float64
-//    xsd:byte       []byte
-//    xsd:dateTime   time.Time
-// Any other datatypes will be stored as a string.
+// The encoders work similarily.
+// For a complete working example, see the rdf2rdf application, which converts between different serialization formats using the decoders and encoders of the rdf package: https://github.com/knakk/rdf2rdf.
 package rdf
 
 import (
