@@ -11,7 +11,6 @@ func benchmarkRDFXMLEx(i int, b *testing.B) {
 	input := rdfxmlExamples[i].rdfxml
 	for n := 0; n < b.N; n++ {
 		dec := NewTripleDecoder(bytes.NewBufferString(input), RDFXML)
-		b.StartTimer()
 		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 			if err != nil {
 				b.Fatal(err)
