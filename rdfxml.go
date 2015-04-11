@@ -473,7 +473,15 @@ second:
 				panic(fmt.Errorf("parseXMLCharDataOrElemNode second: TODO rdf:!Description"))
 			}
 		} else {
-			panic(fmt.Errorf("parseXMLCharDataOrElemNode second: TODO not rdf name space"))
+			if as := attrRDF(elem, "about"); as != nil {
+				d.current.Obj = IRI{str: as[0].Value}
+				d.triples = append(d.triples, d.current)
+
+				d.current.Subj = d.current.Obj.(Subject)
+				d.nextState = parseXMLPropElemOrNodeEnd
+				return nil
+			}
+			panic(fmt.Errorf("parseXMLCharDataOrElemNode second: TODO not rdf name space, not rdf:about"))
 		}
 	case xml.EndElement:
 		// The closing of the property element; it meanst hat charData
