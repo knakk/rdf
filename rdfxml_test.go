@@ -7,8 +7,203 @@ import (
 	"testing"
 )
 
-func benchmarkRDFXMLEx(i int, b *testing.B) {
-	input := rdfxmlExamples[i].rdfxml
+func BenchmarkDecodeRDFXML(b *testing.B) {
+	input := `<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xml:base="http://www.gutenberg.org/"
+  xmlns:cc="http://web.resource.org/cc/"
+  xmlns:pgterms="http://www.gutenberg.org/2009/pgterms/"
+  xmlns:dcam="http://purl.org/dc/dcam/"
+  xmlns:dcterms="http://purl.org/dc/terms/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+  <pgterms:ebook rdf:about="ebooks/1401">
+    <dcterms:license rdf:resource="license"/>
+    <dcterms:publisher>Project Gutenberg</dcterms:publisher>
+    <dcterms:hasFormat>
+      <pgterms:file rdf:about="http://www.gutenberg.org/ebooks/1401.epub.noimages">
+        <dcterms:isFormatOf rdf:resource="ebooks/1401"/>
+        <dcterms:extent rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">245821</dcterms:extent>
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="Nb46390c65b94400cb3c45afb7036fb76">
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">application/epub+zip</rdf:value>
+          </rdf:Description>
+        </dcterms:format>
+        <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-07-30T09:25:34.452918</dcterms:modified>
+      </pgterms:file>
+    </dcterms:hasFormat>
+    <dcterms:hasFormat>
+      <pgterms:file rdf:about="http://www.gutenberg.org/files/1401/1401-h/1401-h.htm">
+        <dcterms:isFormatOf rdf:resource="ebooks/1401"/>
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="Nf1374551f7d7427eb919455f56f9ebf3">
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">text/html; charset=iso-8859-1</rdf:value>
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+          </rdf:Description>
+        </dcterms:format>
+        <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-07-29T09:31:34</dcterms:modified>
+        <dcterms:extent rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">661872</dcterms:extent>
+      </pgterms:file>
+    </dcterms:hasFormat>
+    <pgterms:downloads rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">183</pgterms:downloads>
+    <dcterms:subject>
+      <rdf:Description rdf:nodeID="Nb52def5a42284aeb89f3b9353b37f44b">
+        <dcam:memberOf rdf:resource="http://purl.org/dc/terms/LCSH"/>
+        <rdf:value>Tarzan (Fictitious character) -- Fiction</rdf:value>
+      </rdf:Description>
+    </dcterms:subject>
+    <dcterms:type>
+      <rdf:Description rdf:nodeID="Nb9fcaa2b8fdf431fb0bc5a2c369e4680">
+        <rdf:value>Text</rdf:value>
+        <dcam:memberOf rdf:resource="http://purl.org/dc/terms/DCMIType"/>
+      </rdf:Description>
+    </dcterms:type>
+    <dcterms:subject>
+      <rdf:Description rdf:nodeID="Nb307a550edb3499ba2eb148af1f11280">
+        <rdf:value>Fantasy fiction</rdf:value>
+        <dcam:memberOf rdf:resource="http://purl.org/dc/terms/LCSH"/>
+      </rdf:Description>
+    </dcterms:subject>
+    <dcterms:hasFormat>
+      <pgterms:file rdf:about="http://www.gutenberg.org/ebooks/1401.plucker">
+        <dcterms:isFormatOf rdf:resource="ebooks/1401"/>
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="N001c92dd22ee4517a16e0cf46137df26">
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">application/prs.plucker</rdf:value>
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+          </rdf:Description>
+        </dcterms:format>
+        <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-07-30T09:25:42.164430</dcterms:modified>
+        <dcterms:extent rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">361242</dcterms:extent>
+      </pgterms:file>
+    </dcterms:hasFormat>
+    <dcterms:hasFormat>
+      <pgterms:file rdf:about="http://www.gutenberg.org/files/1401/1401.txt">
+        <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-07-29T09:31:40</dcterms:modified>
+        <dcterms:isFormatOf rdf:resource="ebooks/1401"/>
+        <dcterms:extent rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">636082</dcterms:extent>
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="N278115d13cca4a2ca64950e9c20fdf48">
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">text/plain; charset=us-ascii</rdf:value>
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+          </rdf:Description>
+        </dcterms:format>
+      </pgterms:file>
+    </dcterms:hasFormat>
+    <dcterms:hasFormat>
+      <pgterms:file rdf:about="http://www.gutenberg.org/ebooks/1401.qioo">
+        <dcterms:isFormatOf rdf:resource="ebooks/1401"/>
+        <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-07-30T09:25:33.573357</dcterms:modified>
+        <dcterms:extent rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">294903</dcterms:extent>
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="Nb6f86e1bda1c4c6b9d04b1b736240fa7">
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">application/x-qioo-ebook</rdf:value>
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+          </rdf:Description>
+        </dcterms:format>
+      </pgterms:file>
+    </dcterms:hasFormat>
+    <dcterms:subject>
+      <rdf:Description rdf:nodeID="N62d27de7b67d4bb2a7deaaf573728d88">
+        <rdf:value>Adventure stories</rdf:value>
+        <dcam:memberOf rdf:resource="http://purl.org/dc/terms/LCSH"/>
+      </rdf:Description>
+    </dcterms:subject>
+    <dcterms:title>Tarzan the Untamed</dcterms:title>
+    <dcterms:hasFormat>
+      <pgterms:file rdf:about="http://www.gutenberg.org/files/1401/1401.zip">
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="N376fc5f5c83442fdbb282837c5a6f548">
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">application/zip</rdf:value>
+          </rdf:Description>
+        </dcterms:format>
+        <dcterms:isFormatOf rdf:resource="ebooks/1401"/>
+        <dcterms:extent rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">232967</dcterms:extent>
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="N56bb3cef5fce45aabf0dfd6ea08e6bd2">
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">text/plain; charset=us-ascii</rdf:value>
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+          </rdf:Description>
+        </dcterms:format>
+        <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-07-29T09:32:04</dcterms:modified>
+      </pgterms:file>
+    </dcterms:hasFormat>
+    <dcterms:creator>
+      <pgterms:agent rdf:about="2009/agents/48">
+        <pgterms:name>Burroughs, Edgar Rice</pgterms:name>
+        <pgterms:birthdate rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1875</pgterms:birthdate>
+        <pgterms:deathdate rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1950</pgterms:deathdate>
+        <pgterms:webpage rdf:resource="http://en.wikipedia.org/wiki/Edgar_Rice_Burroughs"/>
+      </pgterms:agent>
+    </dcterms:creator>
+    <dcterms:subject>
+      <rdf:Description rdf:nodeID="N50cc1255b7ef484cbe22f3d63a00fdaf">
+        <dcam:memberOf rdf:resource="http://purl.org/dc/terms/LCC"/>
+        <rdf:value>PS</rdf:value>
+      </rdf:Description>
+    </dcterms:subject>
+    <dcterms:language>
+      <rdf:Description rdf:nodeID="N891b552e92d24ac5b201c7354e5cc5c8">
+        <rdf:value rdf:datatype="http://purl.org/dc/terms/RFC4646">en</rdf:value>
+      </rdf:Description>
+    </dcterms:language>
+    <dcterms:rights>Public domain in the USA.</dcterms:rights>
+    <dcterms:hasFormat>
+      <pgterms:file rdf:about="http://www.gutenberg.org/ebooks/1401.txt.utf-8">
+        <dcterms:isFormatOf rdf:resource="ebooks/1401"/>
+        <dcterms:extent rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">636054</dcterms:extent>
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="Nbd9fc4e881e24448b5595cf9069a3d1e">
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">text/plain</rdf:value>
+          </rdf:Description>
+        </dcterms:format>
+        <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-07-30T09:25:32.973525</dcterms:modified>
+      </pgterms:file>
+    </dcterms:hasFormat>
+    <dcterms:hasFormat>
+      <pgterms:file rdf:about="http://www.gutenberg.org/ebooks/1401.kindle.noimages">
+        <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-07-30T09:25:38.741381</dcterms:modified>
+        <dcterms:extent rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1014124</dcterms:extent>
+        <dcterms:isFormatOf rdf:resource="ebooks/1401"/>
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="N44904e6d853f43b9926ddc60463d45ad">
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">application/x-mobipocket-ebook</rdf:value>
+          </rdf:Description>
+        </dcterms:format>
+      </pgterms:file>
+    </dcterms:hasFormat>
+    <dcterms:hasFormat>
+      <pgterms:file rdf:about="http://www.gutenberg.org/files/1401/1401-h.zip">
+        <dcterms:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2012-07-29T09:32:04</dcterms:modified>
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="N3339d80d716845ebb8a1ed3c977f22da">
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">text/html; charset=iso-8859-1</rdf:value>
+          </rdf:Description>
+        </dcterms:format>
+        <dcterms:extent rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">235966</dcterms:extent>
+        <dcterms:isFormatOf rdf:resource="ebooks/1401"/>
+        <dcterms:format>
+          <rdf:Description rdf:nodeID="Ncc2c14b838514a1ca95b06778018e522">
+            <dcam:memberOf rdf:resource="http://purl.org/dc/terms/IMT"/>
+            <rdf:value rdf:datatype="http://purl.org/dc/terms/IMT">application/zip</rdf:value>
+          </rdf:Description>
+        </dcterms:format>
+      </pgterms:file>
+    </dcterms:hasFormat>
+    <dcterms:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#date">1998-07-01</dcterms:issued>
+  </pgterms:ebook>
+  <cc:Work rdf:about="">
+    <cc:license rdf:resource="http://www.gnu.org/licenses/gpl.html"/>
+  </cc:Work>
+  <rdf:Description rdf:about="http://en.wikipedia.org/wiki/Edgar_Rice_Burroughs">
+    <dcterms:description>Wikipedia</dcterms:description>
+  </rdf:Description>
+</rdf:RDF>`
+	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		dec := NewTripleDecoder(bytes.NewBufferString(input), RDFXML)
 		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
@@ -17,21 +212,8 @@ func benchmarkRDFXMLEx(i int, b *testing.B) {
 			}
 		}
 	}
+	b.SetBytes(int64(len(input)))
 }
-
-func BenchmarkRDFXMLEx1(b *testing.B)  { benchmarkRDFXMLEx(0, b) }
-func BenchmarkRDFXMLEx2(b *testing.B)  { benchmarkRDFXMLEx(1, b) }
-func BenchmarkRDFXMLEx3(b *testing.B)  { benchmarkRDFXMLEx(2, b) }
-func BenchmarkRDFXMLEx4(b *testing.B)  { benchmarkRDFXMLEx(3, b) }
-func BenchmarkRDFXMLEx5(b *testing.B)  { benchmarkRDFXMLEx(4, b) }
-func BenchmarkRDFXMLEx6(b *testing.B)  { benchmarkRDFXMLEx(5, b) }
-func BenchmarkRDFXMLEx7(b *testing.B)  { benchmarkRDFXMLEx(6, b) }
-func BenchmarkRDFXMLEx8(b *testing.B)  { benchmarkRDFXMLEx(7, b) }
-func BenchmarkRDFXMLEx9(b *testing.B)  { benchmarkRDFXMLEx(8, b) }
-func BenchmarkRDFXMLEx10(b *testing.B) { benchmarkRDFXMLEx(9, b) }
-func BenchmarkRDFXMLEx11(b *testing.B) { benchmarkRDFXMLEx(10, b) }
-func BenchmarkRDFXMLEx12(b *testing.B) { benchmarkRDFXMLEx(11, b) }
-func BenchmarkRDFXMLEx13(b *testing.B) { benchmarkRDFXMLEx(12, b) }
 
 func TestRDFXMLExamples(t *testing.T) {
 	for i, test := range rdfxmlExamples {

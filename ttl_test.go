@@ -468,47 +468,22 @@ ns4:45U8QJGZSQKDH8N	ns1:creator	"Wil Wheaton"@en ;
 ns1:45U8QJGZSQKDH8N	a	ns0:Work .`,
 }
 
-func benchmarkTTLEx(i int, b *testing.B) {
-	input := ttlBenchInputs[i]
+func BenchmarkDecodeTTL(b *testing.B) {
+	var bf bytes.Buffer
+	for _, i := range ttlBenchInputs {
+		bf.WriteString(i)
+	}
+	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
-		dec := NewTripleDecoder(bytes.NewBufferString(input), Turtle)
+		dec := NewTripleDecoder(bytes.NewReader(bf.Bytes()), Turtle)
 		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 			if err != nil {
 				b.Fatal(err)
 			}
 		}
 	}
+	b.SetBytes(int64(len(bf.Bytes())))
 }
-
-func BenchmarkTTLEx1(b *testing.B)  { benchmarkTTLEx(0, b) }
-func BenchmarkTTLEx2(b *testing.B)  { benchmarkTTLEx(1, b) }
-func BenchmarkTTLEx3(b *testing.B)  { benchmarkTTLEx(2, b) }
-func BenchmarkTTLEx4(b *testing.B)  { benchmarkTTLEx(3, b) }
-func BenchmarkTTLEx5(b *testing.B)  { benchmarkTTLEx(4, b) }
-func BenchmarkTTLEx6(b *testing.B)  { benchmarkTTLEx(5, b) }
-func BenchmarkTTLEx7(b *testing.B)  { benchmarkTTLEx(6, b) }
-func BenchmarkTTLEx8(b *testing.B)  { benchmarkTTLEx(7, b) }
-func BenchmarkTTLEx9(b *testing.B)  { benchmarkTTLEx(8, b) }
-func BenchmarkTTLEx10(b *testing.B) { benchmarkTTLEx(9, b) }
-func BenchmarkTTLEx11(b *testing.B) { benchmarkTTLEx(10, b) }
-func BenchmarkTTLEx12(b *testing.B) { benchmarkTTLEx(11, b) }
-func BenchmarkTTLEx13(b *testing.B) { benchmarkTTLEx(12, b) }
-func BenchmarkTTLEx14(b *testing.B) { benchmarkTTLEx(13, b) }
-func BenchmarkTTLEx15(b *testing.B) { benchmarkTTLEx(14, b) }
-func BenchmarkTTLEx16(b *testing.B) { benchmarkTTLEx(15, b) }
-func BenchmarkTTLEx17(b *testing.B) { benchmarkTTLEx(16, b) }
-func BenchmarkTTLEx18(b *testing.B) { benchmarkTTLEx(17, b) }
-func BenchmarkTTLEx19(b *testing.B) { benchmarkTTLEx(18, b) }
-func BenchmarkTTLEx20(b *testing.B) { benchmarkTTLEx(19, b) }
-func BenchmarkTTLEx21(b *testing.B) { benchmarkTTLEx(20, b) }
-func BenchmarkTTLEx22(b *testing.B) { benchmarkTTLEx(21, b) }
-func BenchmarkTTLEx23(b *testing.B) { benchmarkTTLEx(22, b) }
-func BenchmarkTTLEx24(b *testing.B) { benchmarkTTLEx(23, b) }
-func BenchmarkTTLEx25(b *testing.B) { benchmarkTTLEx(24, b) }
-func BenchmarkTTLEx26(b *testing.B) { benchmarkTTLEx(25, b) }
-func BenchmarkTTLEx27(b *testing.B) { benchmarkTTLEx(26, b) }
-func BenchmarkTTLEx28(b *testing.B) { benchmarkTTLEx(27, b) }
-func BenchmarkTTLEx29(b *testing.B) { benchmarkTTLEx(28, b) }
 
 func TestEncodingTTL(t *testing.T) {
 	for i, ex := range ttlBenchInputs {

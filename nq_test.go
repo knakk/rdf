@@ -17,6 +17,7 @@ func BenchmarkDecodeNQ(b *testing.B) {
 		for _, err := dec.Decode(); err != io.EOF; _, err = dec.Decode() {
 		}
 	}
+	b.SetBytes(int64(len(input)))
 }
 
 func TestNQ(t *testing.T) {
