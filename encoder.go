@@ -345,15 +345,48 @@ func (ew *errWriter) write(buf []byte) {
 	_, ew.err = ew.w.Write(buf)
 }
 
-/*
-func (e *QuadEncoder) Encode(q Quad) err {
-	return nil
+// QuadEncoder serializes RDF Quads. Currently only supports N-Quads.
+type QuadEncoder struct {
+	w *errWriter
 }
-func (e *QuadEncoder) EncodeAll(qs []Quad) err {
+
+// NewQuadEncoder returns a new QuadEncoder on the given writer. The only supported
+// format is NQuads.
+func NewQuadEncoder(w io.Writer, f Format) *QuadEncoder {
+	if f != NQuads {
+		panic("NewQuadEncoder: only N-Quads format supported ATM")
+	}
+	return &QuadEncoder{
+		w: &errWriter{w: bufio.NewWriter(w)},
+	}
+}
+
+// Encode encodes a Quad.
+func (e *QuadEncoder) Encode(q Quad) error {
+	_, err := e.w.w.Write([]byte(q.Serialize(NQuads)))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (e *QuadEncoder) Close() err {
+// EncodeAll encodes all quads.
+func (e *QuadEncoder) EncodeAll(qs []Quad) error {
+	if e.w == nil {
+		return ErrEncoderClosed
+	}
+	for _, q := range qs {
+		_, err := e.w.w.Write([]byte(q.Serialize(NQuads)))
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
-*/
+
+// Close closes the encoder and flushes the underlying buffering writer.
+func (e *QuadEncoder) Close() error {
+	err := e.w.w.Flush()
+	e.w = nil
+	return err
+}

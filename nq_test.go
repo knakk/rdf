@@ -1706,3 +1706,38 @@ _:s<http://example/p>_:bnode1.`, "", []Quad{
 		},
 	}},
 }
+
+func TestEncodeNQuads(t *testing.T) {
+	input := `<http://one.example/subject1> <http://one.example/predicate1> <http://one.example/object1> <http://example.org/graph3> . # comments here
+# or on a line by themselves
+_:subject1 <http://an.example/predicate1> "object1" <http://example.org/graph1> .
+_:subject2 <http://an.example/predicate2> "object2" <http://example.org/graph5> .
+<http://one.example/subject2> <http://one.example/predicate3> "xyz" . # use default graph
+`
+	dec := NewQuadDecoder(bytes.NewBufferString(input), NQuads)
+	quads, err := dec.DecodeAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var out bytes.Buffer
+	enc := NewQuadEncoder(&out, NQuads)
+	if err := enc.EncodeAll(quads); err != nil {
+		t.Fatal(err)
+	}
+	enc.Close()
+
+	dec = NewQuadDecoder(&out, NQuads)
+	quads2, err := dec.DecodeAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(quads) != len(quads2) {
+		t.Fatal("N-Quads decode-encode-decode roundtrip failed")
+	}
+	for i, q := range quads {
+		if !QuadsEqual(q, quads2[i]) {
+			t.Fatal("N-Quads decode-encode-decode roundtrip failed")
+		}
+	}
+}

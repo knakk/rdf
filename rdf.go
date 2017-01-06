@@ -462,6 +462,38 @@ type Quad struct {
 	Ctx Context
 }
 
+// Serialize serializes the Quad in the given format (assumed to be NQuads atm).
+func (q Quad) Serialize(f Format) string {
+	var s, o, g string
+	switch term := q.Subj.(type) {
+	case IRI:
+		s = term.Serialize(f)
+	case Blank:
+		s = term.Serialize(f)
+	}
+	switch term := q.Obj.(type) {
+	case IRI:
+		o = term.Serialize(f)
+	case Literal:
+		o = term.Serialize(f)
+	case Blank:
+		o = term.Serialize(f)
+	}
+	switch term := q.Ctx.(type) {
+	case IRI:
+		g = term.Serialize(f)
+	case Blank:
+		g = term.Serialize(f)
+	}
+	return fmt.Sprintf(
+		"%s %s %s %s .\n",
+		s,
+		q.Pred.(IRI).Serialize(f),
+		o,
+		g,
+	)
+}
+
 // TermsEqual returns true if two Terms are equal, or false if they are not.
 func TermsEqual(a, b Term) bool {
 	if a.Type() != b.Type() {
