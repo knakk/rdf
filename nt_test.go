@@ -322,8 +322,6 @@ func TestNT(t *testing.T) {
 	}
 }
 
-var empty = []Triple{Triple{}}
-
 // ntTestSuite is a representation of the official W3C test suite for N-Triples
 // which is found at: http://www.w3.org/2013/N-TriplesTests/
 var ntTestSuite = []struct {
@@ -831,21 +829,21 @@ var ntTestSuite = []struct {
 	# Test file with a variety of legal N-Triples
 	#
 	# Dave Beckett - http://purl.org/net/dajobe/
-	# 
+	#
 	# $Id: test.nt,v 1.7 2003/10/06 15:52:19 dbeckett2 Exp $
-	# 
+	#
 	#####################################################################
 
 	# comment lines
 	  	  	   # comment line after whitespace
 	# empty blank line, then one with spaces and tabs
 
-	         	
+
 	<http://example.org/resource1> <http://example.org/property> <http://example.org/resource2> .
 	_:anon <http://example.org/property> <http://example.org/resource2> .
 	<http://example.org/resource2> <http://example.org/property> _:anon .
 	# spaces and tabs throughout:
-	 	 <http://example.org/resource3> 	 <http://example.org/property>	 <http://example.org/resource2> 	.	 
+	 	 <http://example.org/resource3> 	 <http://example.org/property>	 <http://example.org/resource2> 	.
 
 	# line ending with CR NL (ASCII 13, ASCII 10)
 	<http://example.org/resource4> <http://example.org/property> <http://example.org/resource2> .

@@ -15,6 +15,28 @@ import (
 const (
 	rdfNS = `http://www.w3.org/1999/02/22-rdf-syntax-ns#`
 	xmlNS = `http://www.w3.org/XML/1998/namespace`
+
+	// XML elements
+	elAbout           = "about"
+	elAboutEach       = "aboutEach"
+	elAboutEachPrefix = "aboutEachPrefix"
+	elAlt             = "Alt"
+	elBag             = "Bag"
+	elBagID           = "bagID"
+	elBase            = "base"
+	elCollection      = "Collection"
+	elDataType        = "datatype"
+	elDescription     = "Description"
+	elID              = "ID"
+	elLang            = "lang"
+	elLi              = "li"
+	elNodeID          = "nodeID"
+	elParseType       = "parseType"
+	elRDF             = "RDF"
+	elResource        = "resource"
+	elSeq             = "Seq"
+	elType            = "type"
+	elXMLNS           = "xmlns"
 )
 
 var (
@@ -142,7 +164,7 @@ func parseXMLTopElem(d *rdfXMLDecoder) parseXMLFn {
 		d.storePrefixNS(elem)
 
 		// Store top-level base
-		if as := attrXML(elem, "base"); as != nil {
+		if as := attrXML(elem, elBase); as != nil {
 			d.base = as[0].Value
 		}
 
@@ -153,7 +175,7 @@ func parseXMLTopElem(d *rdfXMLDecoder) parseXMLFn {
 			}
 		}
 
-		if elem.Name.Space != rdfNS || elem.Name.Local != "RDF" {
+		if elem.Name.Space != rdfNS || elem.Name.Local != elRDF {
 			// When there is only one top-level node element,
 			// rdf:RDF can be omitted.
 			return parseXMLNodeElem
@@ -175,15 +197,15 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 	case xml.StartElement:
 		if elem.Name.Space == rdfNS {
 			switch elem.Name.Local {
-			case "Description":
+			case elDescription:
 				d.storePrefixNS(elem)
 
-				if as := attrRDF(elem, "about"); as != nil {
+				if as := attrRDF(elem, elAbout); as != nil {
 					d.current.Subj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
 				}
 
-				if as := attrRDF(elem, "ID"); as != nil {
-					if a := attrRDF(elem, "nodeID"); a != nil {
+				if as := attrRDF(elem, elID); as != nil {
+					if a := attrRDF(elem, elNodeID); a != nil {
 						panic(errors.New("A node element cannot have both rdf:ID and rdf:nodeID"))
 					}
 
@@ -191,14 +213,14 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 					d.current.Subj = IRI{str: d.resolve(d.ctx.Base, "#"+as[0].Value)}
 				}
 
-				if as := attrRDF(elem, "nodeID"); as != nil {
-					if a := attrRDF(elem, "about"); a != nil {
+				if as := attrRDF(elem, elNodeID); as != nil {
+					if a := attrRDF(elem, elAbout); a != nil {
 						panic(errors.New("A node element cannot have both rdf:about and rdf:nodeID"))
 					}
 					d.current.Subj = Blank{id: fmt.Sprintf("_:%s", as[0].Value)}
 				}
 
-				if as := attrRDF(elem, "type"); as != nil {
+				if as := attrRDF(elem, elType); as != nil {
 					d.current.Pred = rdfType
 					d.current.Obj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
 					d.triples = append(d.triples, d.current)
@@ -209,7 +231,7 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 					// TODO what if as := attrRest(elem); as != nil ?
 				}
 
-				if l := attrXML(elem, "lang"); l != nil {
+				if l := attrXML(elem, elLang); l != nil {
 					d.ctx.Lang = l[0].Value
 				}
 
@@ -244,12 +266,12 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 				// property element
 				d.nextXMLToken()
 				return parseXMLPropElem
-			case "Bag", "Seq", "Alt":
+			case elBag, elSeq, elAlt:
 				d.storePrefixNS(elem)
 				d.pushContext() // TODO explain why?
 
 				// Handled as typed node element below
-			case "li", "RDF", "ID", "bagID", "about", "parseType", "resource", "nodeID", "aboutEach", "aboutEachPrefix":
+			case elLi, elRDF, elID, elBagID, elAbout, elParseType, elResource, elNodeID, elAboutEach, elAboutEachPrefix:
 				panic(fmt.Errorf("disallowed as node element name: rdf:%s", elem.Name.Local))
 			default:
 				// all other local names are valid as node element name
@@ -260,11 +282,11 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 		// when the element is a typed node element.
 		// http://www.w3.org/TR/rdf-syntax-grammar/#section-Syntax-typed-nodes
 
-		if as := attrRDF(elem, "about"); as != nil {
+		if as := attrRDF(elem, elAbout); as != nil {
 			d.current.Subj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
 		}
 
-		if as := attrRDF(elem, "ID"); as != nil {
+		if as := attrRDF(elem, elID); as != nil {
 			// http://www.w3.org/TR/rdf-syntax-grammar/#section-Syntax-ID-xml-base
 			d.current.Subj = IRI{str: d.resolve(d.ctx.Base, "#"+as[0].Value)}
 		}
@@ -314,7 +336,7 @@ func parseXMLPropElemOrNodeEnd(d *rdfXMLDecoder) parseXMLFn {
 	case xml.StartElement:
 		// The element node has more property elements.
 
-		if elem.Name.Space == rdfNS && (elem.Name.Local == "li" || isLn(elem.Name.Local)) {
+		if elem.Name.Space == rdfNS && (elem.Name.Local == elLi || isLn(elem.Name.Local)) {
 			// We're in a rdf:Bag, TODO and/or rdf:XXX?
 			return parseXMLPropElem
 		}
@@ -374,7 +396,7 @@ first:
 
 		if elem.Name.Space == rdfNS {
 			switch elem.Name.Local {
-			case "Description":
+			case elDescription:
 				// A new element
 				if len(elem.Attr) == 0 {
 					// Element is a blank node
@@ -424,7 +446,7 @@ second:
 
 		if elem.Name.Space == rdfNS {
 			switch elem.Name.Local {
-			case "Description":
+			case elDescription:
 				// A new element
 
 				d.storePrefixNS(elem)
@@ -449,7 +471,7 @@ second:
 					return nil
 				}
 
-				if as := attrRDF(elem, "nodeID"); as != nil {
+				if as := attrRDF(elem, elNodeID); as != nil {
 					d.current.Obj = Blank{id: fmt.Sprintf("_:%s", as[0].Value)}
 					d.triples = append(d.triples, d.current)
 					d.reifyCheck()
@@ -473,7 +495,7 @@ second:
 				panic(fmt.Errorf("parseXMLCharDataOrElemNode second: TODO rdf:!Description"))
 			}
 		} else {
-			if as := attrRDF(elem, "about"); as != nil {
+			if as := attrRDF(elem, elAbout); as != nil {
 				d.current.Obj = IRI{str: as[0].Value}
 				d.triples = append(d.triples, d.current)
 
@@ -523,10 +545,10 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 
 		if elem.Name.Space == rdfNS {
 			switch elem.Name.Local {
-			case "li":
+			case elLi:
 				d.ctx.LiN++
 				d.current.Pred = IRI{str: fmt.Sprintf("http://www.w3.org/1999/02/22-rdf-syntax-ns#_%d", d.ctx.LiN)}
-			case "Description", "RDF", "ID", "about", "bagID", "parseType", "resource", "nodeID", "aboutEach", "aboutEachPrefix":
+			case elDescription, elRDF, elID, elAbout, elBagID, elParseType, elResource, elNodeID, elAboutEach, elAboutEachPrefix:
 				panic(fmt.Errorf("disallowed as property element name: rdf:%s", elem.Name.Local))
 			default:
 				if isLn(elem.Name.Local) {
@@ -540,12 +562,12 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 			d.current.Pred = IRI{str: elem.Name.Space + elem.Name.Local}
 		}
 
-		if a := attrRDF(elem, "ID"); a != nil {
+		if a := attrRDF(elem, elID); a != nil {
 			// Store ID to be used to create the IRI for reified statements (in parseXMLPropElemEnd)
 			d.reifyID = "#" + a[0].Value
 		}
 
-		if as := attrRDF(elem, "parseType"); as != nil {
+		if as := attrRDF(elem, elParseType); as != nil {
 			switch as[0].Value {
 			case "Resource":
 				// Omitting rdf:Decsription for blank node
@@ -561,7 +583,7 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 				d.nextXMLToken()
 				return parseXMLPropElemOrNodeEnd
 				//return nil
-			case "Collection":
+			case elCollection:
 				// http://www.w3.org/TR/rdf-syntax-grammar/#section-Syntax-parsetype-Collection
 				// If we emit triple by triple, we have to keep track of more state to know
 				// we're in a collection, to know previous and next nodes and so on, so we
@@ -570,7 +592,7 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 			default: // case "Literal"
 				// All rdf:parseType attribute values other than the strings "Resource",
 				// "Literal" or "Collection" are treated as if the value was "Literal".
-				if as := attrRDF(elem, "resource"); as != nil {
+				if as := attrRDF(elem, elResource); as != nil {
 					// TODO find a more generic way to check for attributes which
 					// doesn't go together
 					panic(errors.New("cannot have both rdf:parseType=\"Literal\" and rdf:resource"))
@@ -584,8 +606,8 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 			}
 		}
 
-		if as := attrRDF(elem, "resource"); as != nil {
-			if a := attrRDF(elem, "nodeID"); a != nil {
+		if as := attrRDF(elem, elResource); as != nil {
+			if a := attrRDF(elem, elNodeID); a != nil {
 				panic(errors.New("A property element cannot have both rdf:resource and rdf:nodeID"))
 			}
 			d.current.Obj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
@@ -611,7 +633,7 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 			return parseXMLPropElemEnd // this will return nil, without changing d.nextState
 		}
 
-		if as := attrRDF(elem, "nodeID"); as != nil {
+		if as := attrRDF(elem, elNodeID); as != nil {
 			// predicate is pointing to a blank node,
 			// create it and return
 
@@ -624,12 +646,12 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 			return nil
 		}
 
-		if a := attrRDF(elem, "datatype"); a != nil {
+		if a := attrRDF(elem, elDataType); a != nil {
 			d.dt = &IRI{str: d.resolve(d.ctx.Base, a[0].Value)}
 		} else {
 			// Only check for xml:lang if datatype not found
 			// TODO or error if both?
-			if l := attrXML(elem, "lang"); l != nil {
+			if l := attrXML(elem, elLang); l != nil {
 				// store as in-scope lang
 				d.lang = l[0].Value
 			}
@@ -693,8 +715,8 @@ outer:
 
 		switch elem := d.tok.(type) {
 		case xml.StartElement:
-			if elem.Name.Space == rdfNS && elem.Name.Local == "Description" {
-				if a := attrRDF(elem, "about"); a != nil {
+			if elem.Name.Space == rdfNS && elem.Name.Local == elDescription {
+				if a := attrRDF(elem, elAbout); a != nil {
 					if first {
 						d.current.Pred = rdfFirst
 						d.current.Obj = IRI{str: a[0].Value}
@@ -899,7 +921,7 @@ func (d *rdfXMLDecoder) storePrefixNS(elem xml.StartElement) {
 			d.ctx.NS = append(d.ctx.NS, a.Value, a.Name.Local)
 		}
 	}
-	if as := attrXML(elem, "base"); as != nil {
+	if as := attrXML(elem, elBase); as != nil {
 		d.ctx.Base = as[0].Value
 	}
 }
@@ -1129,14 +1151,14 @@ func attrRDF(e xml.StartElement, lname string) []xml.Attr {
 		if a.Name.Space == rdfNS {
 			switch a.Name.Local {
 			case lname:
-				if lname == "nodeID" || lname == "ID" {
+				if lname == elNodeID || lname == elID {
 					if !rgxpNCName.MatchString(a.Value) {
 						panic(fmt.Errorf("rdf:%s is not a valid XML NCName: %q", a.Name.Local, a.Value))
 					}
 					as = append(as, a)
 				}
 				as = append(as, a)
-			case "li":
+			case elLi:
 				panic(fmt.Errorf("unexpected as attribute: rdf:%s", a.Name.Local))
 			default:
 				// continue
@@ -1149,7 +1171,7 @@ func attrRDF(e xml.StartElement, lname string) []xml.Attr {
 func attrXMLNS(e xml.StartElement) []xml.Attr {
 	var as []xml.Attr
 	for _, a := range e.Attr {
-		if a.Name.Space == "xmlns" {
+		if a.Name.Space == elXMLNS {
 			as = append(as, a)
 		}
 	}
@@ -1174,15 +1196,15 @@ func attrRest(e xml.StartElement) []xml.Attr {
 	for _, a := range e.Attr {
 		if a.Name.Space == rdfNS {
 			switch a.Name.Local {
-			case "about", "parseType", "resource", "datatype", "li", "type":
+			case elAbout, elParseType, elResource, elDataType, elLi, elType:
 				continue
-			case "ID", "nodeID":
+			case elID, elNodeID:
 				// validate as NCName:
 				if !rgxpNCName.MatchString(a.Value) {
 					panic(fmt.Errorf("rdf:%s is not a valid XML NCName: %q", a.Name.Local, a.Value))
 				}
 				continue
-			case "aboutEach", "aboutEachPrefix", "bagID":
+			case elAboutEach, elAboutEachPrefix, elBagID:
 				panic(fmt.Errorf("deprecated: rdf:%s", a.Name.Local))
 			default:
 				if isLn(a.Name.Local) {
@@ -1192,7 +1214,7 @@ func attrRest(e xml.StartElement) []xml.Attr {
 				continue
 			}
 		}
-		if a.Name.Space == xmlNS || a.Name.Local == "xmlns" || a.Name.Space == "" {
+		if a.Name.Space == xmlNS || a.Name.Local == elXMLNS || a.Name.Space == "" {
 			continue
 		}
 		as = append(as, a)
@@ -1206,22 +1228,22 @@ func attrRestWithLn(e xml.StartElement) []xml.Attr {
 	for _, a := range e.Attr {
 		if a.Name.Space == rdfNS {
 			switch a.Name.Local {
-			case "about", "parseType", "resource", "datatype", "li", "type":
+			case elAbout, elParseType, elResource, elDataType, elLi, elType:
 				continue
-			case "ID", "nodeID":
+			case elID, elNodeID:
 				// validate as NCName:
 				if !rgxpNCName.MatchString(a.Value) {
 					panic(fmt.Errorf("rdf:%s is not a valid XML NCName: %q", a.Name.Local, a.Value))
 				}
 				continue
-			case "aboutEach", "aboutEachPrefix", "bagID":
+			case elAboutEach, elAboutEachPrefix, elBagID:
 				panic(fmt.Errorf("deprecated: rdf:%s", a.Name.Local))
 			default:
 				as = append(as, a)
 				continue
 			}
 		}
-		if a.Name.Space == xmlNS || a.Name.Local == "xmlns" {
+		if a.Name.Space == xmlNS || a.Name.Local == elXMLNS {
 			continue
 		}
 		as = append(as, a)

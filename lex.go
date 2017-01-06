@@ -78,12 +78,12 @@ type lexer struct {
 
 	input    []byte     // the input being scanned (should not inlcude newlines)
 	lineMode bool       // true when lexing line-based formats (N-Triples & N-Quads)
+	unEsc    bool       // true when current token needs to be unescaped
 	state    stateFn    // the next lexing function to enter
 	line     int        // the current line number
 	pos      int        // the current position in input
 	width    int        // width of the last rune read from input
 	start    int        // start of current token
-	unEsc    bool       // true when current token needs to be unescaped
 	tokens   chan token // channel of scanned tokens
 }
 
@@ -239,7 +239,7 @@ func (l *lexer) ignore() {
 // true if a minimum number of runes where consumed.
 func (l *lexer) acceptRunMin(valid []byte, num int) bool {
 	c := 0
-	for bytes.IndexRune(valid, l.next()) >= 0 {
+	for bytes.ContainsRune(valid, l.next()) {
 		c++
 	}
 	l.backup()
@@ -291,8 +291,8 @@ func (l *lexer) acceptCaseInsensitive(s string) bool {
 
 // nextToken returns the next token from the input.
 func (l *lexer) nextToken() token {
-	token := <-l.tokens
-	return token
+	tok := <-l.tokens
+	return tok
 }
 
 func (l *lexer) feed(overwrite bool) bool {

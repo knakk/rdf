@@ -603,8 +603,6 @@ const (
 	ctxTop context = iota
 	ctxColl
 	ctxList
-	ctxBag // TODO ctxColl?  why need to differentiate?
-	ctxSeq // ctxColl?
 )
 
 // TODO remove when done

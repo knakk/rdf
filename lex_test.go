@@ -261,7 +261,7 @@ two
 		},
 		{`#comment
 		  <s><p><o>.#comment
-		  # comment	
+		  # comment
 
 		  <s><p2> "yo"
 		  ####
@@ -374,9 +374,7 @@ two
 	for _, tt := range lexTests {
 		lex := newLexer(strings.NewReader(tt.in))
 		res := []testToken{}
-		for _, t := range collect(lex) {
-			res = append(res, t)
-		}
+		res = append(res, collect(lex)...)
 
 		if !equalTokens(tt.want, res) {
 			t.Fatalf("lexing %q, got:\n\t%v\nexpected:\n\t%v", tt.in, res, tt.want)
