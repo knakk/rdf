@@ -459,8 +459,8 @@ ns2:9780596802189\.EBOOK	ns1:type	ns0:EBOOK ;
 @prefix ns4:	<http://books.example.com/works/> .
 ns4:45U8QJGZSQKDH8N	ns1:creator	"Wil Wheaton"@en ;
 	ns1:title	"Just a Geek"@en ;
-	ns3:realization	ns2:9780596802189\.EBOOK ,
-			ns2:9780596007683\.BOOK ;
+	ns3:realization	ns2:9780596007683\.BOOK ,
+			ns2:9780596802189\.EBOOK ;
 	a	ns3:Work .`,
 
 	`@prefix ns0:	<http://purl.org/vocab/frbr/core#> .
