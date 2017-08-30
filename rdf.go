@@ -269,7 +269,7 @@ func (l Literal) Serialize(f Format) string {
 			return fmt.Sprintf("\"%s\"^^%s", escapeLiteral(l.str), l.DataType.Serialize(f))
 		case Turtle:
 			switch l.DataType {
-			case xsdInteger, xsdDecimal, xsdBoolean, xsdDouble:
+			case xsdInt, xsdDecimal, xsdBoolean, xsdDouble:
 				return l.str
 			case xsdDateTime:
 				return fmt.Sprintf("\"%s\"^^%s", l.str, l.DataType.Serialize(f))

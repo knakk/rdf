@@ -291,7 +291,7 @@ func escapeLocal(rest string) string {
 		if int(r) <= 126 && int(r) >= 33 {
 			// only bother to check if rune is in range
 			switch r {
-			case '_', '~', '.', '-', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=', '/', '?', '#', '@', '%':
+			case '~', '.', '-', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=', '/', '?', '#', '@', '%':
 				b.WriteRune('\\')
 				b.WriteRune(r)
 			default:
