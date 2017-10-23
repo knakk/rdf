@@ -239,8 +239,6 @@ func (e *TripleEncoder) prefixify(t Term) string {
 			return t.Serialize(Turtle)
 		}
 
-		rest = escapeLocal(rest)
-
 		prefix, ok := e.ns[first]
 		if !ok {
 			prefix = fmt.Sprintf("ns%d", e.nsCount)
@@ -264,7 +262,6 @@ func (e *TripleEncoder) prefixify(t Term) string {
 			if first == "" {
 				return t.Serialize(Turtle)
 			}
-			rest = escapeLocal(rest)
 
 			prefix, ok := e.ns[first]
 			if !ok {
