@@ -354,16 +354,16 @@ _:b	ns0:knows	_:c ;
 	ns0:name	"Bob" .
 _:c	ns0:name	"Eve" .`,
 
-	`@prefix ns0:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix ns1:	<http://example.org/> .
-ns1:foosubject	ns1:foopredicate2	ns0:nil ;
-	ns1:foopredicate	_:b1 .
-_:b1	ns0:first	ns1:fooa ;
-	ns0:rest	_:b2 .
-_:b2	ns0:first	ns1:foob ;
-	ns0:rest	_:b3 .
-_:b3	ns0:first	ns1:fooc ;
-	ns0:rest	ns0:nil .`,
+	`@prefix rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ns0:	<http://example.org/> .
+ns0:foosubject	ns0:foopredicate2	rdf:nil ;
+	ns0:foopredicate	_:b1 .
+_:b1	rdf:first	ns0:fooa ;
+	rdf:rest	_:b2 .
+_:b2	rdf:first	ns0:foob ;
+	rdf:rest	_:b3 .
+_:b3	rdf:first	ns0:fooc ;
+	rdf:rest	rdf:nil .`,
 
 	`@prefix ns0:	<http://example.org/stuff/1.0/> .
 @prefix ns1:	<http://www.w3.org/TR/> .
@@ -376,67 +376,67 @@ _:b1	ns0:homePage	ns3: .`,
 
 	`@prefix ns0:	<http://example.org/stuff/1.0/> .
 ns0:a	ns0:b	_:b1 .
-@prefix ns1:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-_:b1	ns1:first	"apple" ;
-	ns1:rest	_:b2 .
-_:b2	ns1:first	"banana" ;
-	ns1:rest	ns1:nil .`,
+@prefix rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b1	rdf:first	"apple" ;
+	rdf:rest	_:b2 .
+_:b2	rdf:first	"banana" ;
+	rdf:rest	rdf:nil .`,
 
 	`@prefix ns0:	<http://example.org/stuff/1.0/> .
 ns0:a	ns0:b	_:b1 .
-@prefix ns1:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-_:b1	ns1:first	"apple" ;
-	ns1:rest	_:b2 .
-_:b2	ns1:first	"banana" ;
-	ns1:rest	ns1:nil .`,
+@prefix rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b1	rdf:first	"apple" ;
+	rdf:rest	_:b2 .
+_:b2	rdf:first	"banana" ;
+	rdf:rest	rdf:nil .`,
 
 	`@prefix ns0:	<http://example.org/stuff/1.0/> .
 ns0:a	ns0:b	"The first line\nThe second line\n  more" .`,
 
 	`@prefix ns0:	<http://example.org/stuff/1.0/> .
 _:b1	ns0:p	"w" .
-@prefix ns1:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-_:b1	ns1:first	1 ;
-	ns1:rest	_:b2 .
-_:b2	ns1:first	2.0 ;
-	ns1:rest	_:b3 .
-_:b3	ns1:first	3E1 ;
-	ns1:rest	ns1:nil .`,
+@prefix rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b1	rdf:first	1 ;
+	rdf:rest	_:b2 .
+_:b2	rdf:first	2.0 ;
+	rdf:rest	_:b3 .
+_:b3	rdf:first	3E1 ;
+	rdf:rest	rdf:nil .`,
 
 	`@prefix ns0:	<http://example.org/stuff/1.0/> .
 _:b0	ns0:p	"w" .
-@prefix ns1:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-_:b0	ns1:first	1 ;
-	ns1:rest	_:b1 .
-_:b1	ns1:first	2.0 ;
-	ns1:rest	_:b2 .
-_:b2	ns1:first	3E1 ;
-	ns1:rest	ns1:nil .`,
+@prefix rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b0	rdf:first	1 ;
+	rdf:rest	_:b1 .
+_:b1	rdf:first	2.0 ;
+	rdf:rest	_:b2 .
+_:b2	rdf:first	3E1 ;
+	rdf:rest	rdf:nil .`,
 
 	`@prefix ns0:	<http://example.org/stuff/1.0/> .
 _:b1	ns0:p2	ns0:q2 .
-@prefix ns1:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-_:b1	ns1:first	1 ;
-	ns1:rest	_:b2 .
-_:b2	ns1:first	_:b3 ;
-	ns1:rest	_:b4 .
+@prefix rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b1	rdf:first	1 ;
+	rdf:rest	_:b2 .
+_:b2	rdf:first	_:b3 ;
+	rdf:rest	_:b4 .
 _:b3	ns0:p	ns0:q .
-_:b4	ns1:first	_:b5 ;
-	ns1:rest	ns1:nil .
-_:b5	ns1:first	2 ;
-	ns1:rest	ns1:nil .`,
+_:b4	rdf:first	_:b5 ;
+	rdf:rest	rdf:nil .
+_:b5	rdf:first	2 ;
+	rdf:rest	rdf:nil .`,
 
-	`@prefix ns0:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-_:b0	ns0:first	1 ;
-	ns0:rest	_:b1 .
-_:b1	ns0:first	_:b2 ;
-	ns0:rest	_:b3 .
-@prefix ns1:	<http://example.org/stuff/1.0/> .
-_:b2	ns1:p	ns1:q .
-_:b3	ns0:first	_:b4 ;
-	ns0:rest	ns0:nil .
-_:b4	ns0:first	2 ;
-	ns0:rest	ns0:nil .`,
+	`@prefix rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+_:b0	rdf:first	1 ;
+	rdf:rest	_:b1 .
+_:b1	rdf:first	_:b2 ;
+	rdf:rest	_:b3 .
+@prefix ns0:	<http://example.org/stuff/1.0/> .
+_:b2	ns0:p	ns0:q .
+_:b3	rdf:first	_:b4 ;
+	rdf:rest	rdf:nil .
+_:b4	rdf:first	2 ;
+	rdf:rest	rdf:nil .`,
 
 	`@prefix ns0:	<http://xmlns.com/foaf/0.1/> .
 @prefix ns1:	<http://www.w3.org/People/Eric/ericP-foaf.rdf#> .
@@ -494,7 +494,12 @@ func TestEncodingTTL(t *testing.T) {
 		}
 		var buf bytes.Buffer
 		enc := NewTripleEncoder(&buf, Turtle)
+
+		//test custom namespace as well
+		enc.Namespaces["http://www.w3.org/1999/02/22-rdf-syntax-ns#"] = "rdf"
+
 		err = enc.EncodeAll(triples)
+
 		if err != nil {
 			t.Fatal(err)
 		}

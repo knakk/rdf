@@ -20,22 +20,26 @@ var ErrEncoderClosed = errors.New("Encoder is closed and cannot encode anymore")
 // In either case; when done serializing, Close() must be called, to ensure
 // that all writes are persisted, since the Encoder uses buffered IO.
 type TripleEncoder struct {
-	format        Format            // Serialization format.
-	w             *errWriter        // Buffered writer. Set to nil when Encoder is closed.
-	ns            map[string]string // IRI->prefix mappings.
-	nsCount       int               // Counter to generate unique namespace prefixes
-	curSubj       Subject           // Keep track of current subject, to enable encoding of predicate lists.
-	curPred       Predicate         // Keep track of current subject, to enable encoding of object list.
-	OpenStatement bool              // True when triple statement hasn't been closed (i.e. in a predicate/object list)
+	format             Format            // Serialization format.
+	w                  *errWriter        // Buffered writer. Set to nil when Encoder is closed.
+	Namespaces         map[string]string // IRI->prefix custom mappings.
+	ns                 map[string]string // IRI->prefix mappings.
+	nsCount            int               // Counter to generate unique namespace prefixes
+	curSubj            Subject           // Keep track of current subject, to enable encoding of predicate lists.
+	curPred            Predicate         // Keep track of current subject, to enable encoding of object list.
+	OpenStatement      bool              // True when triple statement hasn't been closed (i.e. in a predicate/object list)
+	GenerateNamespaces bool              // True to auto generate namespaces, false if you give it some custom namespaces and do not want generated ones
 }
 
 // NewTripleEncoder returns a new TripleEncoder capable of serializing into the
 // given io.Writer in the given serialization format.
 func NewTripleEncoder(w io.Writer, f Format) *TripleEncoder {
 	return &TripleEncoder{
-		format: f,
-		w:      &errWriter{w: bufio.NewWriter(w)},
-		ns:     make(map[string]string),
+		format:             f,
+		w:                  &errWriter{w: bufio.NewWriter(w)},
+		Namespaces:         make(map[string]string),
+		ns:                 make(map[string]string),
+		GenerateNamespaces: true,
 	}
 }
 
@@ -241,13 +245,22 @@ func (e *TripleEncoder) prefixify(t Term) string {
 
 		prefix, ok := e.ns[first]
 		if !ok {
-			prefix = fmt.Sprintf("ns%d", e.nsCount)
+			custom, ok := e.Namespaces[first]
+			if ok {
+				//we have a custom namespace specified, use that
+				prefix = custom
+			} else {
+				if !e.GenerateNamespaces {
+					return t.Serialize(Turtle)
+				}
+				prefix = fmt.Sprintf("ns%d", e.nsCount)
+				e.nsCount++
+			}
 			e.ns[first] = prefix
 			if e.OpenStatement {
 				e.w.write([]byte(" .\n"))
 			}
 			e.w.write([]byte(fmt.Sprintf("@prefix %s:\t<%s> .\n", prefix, first)))
-			e.nsCount++
 			e.OpenStatement = false
 		}
 		return fmt.Sprintf("%s:%s", prefix, rest)
@@ -265,13 +278,22 @@ func (e *TripleEncoder) prefixify(t Term) string {
 
 			prefix, ok := e.ns[first]
 			if !ok {
-				prefix = fmt.Sprintf("ns%d", e.nsCount)
+				custom, ok := e.Namespaces[first]
+				if ok {
+					//we have a custom namespace specified, use that
+					prefix = custom
+				} else {
+					if !e.GenerateNamespaces {
+						return t.Serialize(Turtle)
+					}
+					prefix = fmt.Sprintf("ns%d", e.nsCount)
+					e.nsCount++
+				}
 				e.ns[first] = prefix
 				if e.OpenStatement {
 					e.w.write([]byte(" .\n"))
 				}
 				e.w.write([]byte(fmt.Sprintf("@prefix %s:\t<%s> .\n", prefix, first)))
-				e.nsCount++
 				e.OpenStatement = false
 			}
 			return fmt.Sprintf("\"%s\"^^%s:%s", t.Serialize(formatInternal), prefix, rest)
