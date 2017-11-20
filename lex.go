@@ -942,8 +942,10 @@ func lexPrefixLabel(l *lexer) stateFn {
 	l.next()
 	l.ignore()
 
-	if l.peek() == '#' {
+	p := l.peek()
+	if p == '#' || isWhitespace(p) {
 		// emit empty IRI suffix, easier than dealing with special case in parser
+		// empty suffix is also valid as per https://dvcs.w3.org/hg/rdf/raw-file/default/rdf-turtle/index.html#grammar-production-PN_LOCAL
 		l.emit(tokenIRISuffix)
 		return lexAny
 	}

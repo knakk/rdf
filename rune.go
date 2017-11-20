@@ -13,6 +13,7 @@ var (
 	badIRIRunes    = [...]rune{' ', '<', '"', '{', '}', '|', '^', '`'}
 	badIRIRunesEsc = [...]rune{' ', '<', '"', '{', '}', '|', '^', '`', '>'}
 	okAfterRDFType = [...]rune{' ', '\t', '<', '"', '\''}
+	whitespace     = [...]rune{' ', '\t', '\r', '\n'}
 	pnTab          = []rune{
 		'A', 'Z',
 		'a', 'z',
@@ -103,6 +104,15 @@ func isPnLocalFirst(r rune) bool {
 
 func isPnLocalMid(r rune) bool {
 	return check(r, plTab)
+}
+
+func isWhitespace(r rune) bool {
+	for _, w := range whitespace {
+		if r == w {
+			return true
+		}
+	}
+	return false
 }
 
 const (

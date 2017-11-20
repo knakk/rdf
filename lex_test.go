@@ -294,6 +294,13 @@ two
 			{tokenIRIAbs, "http://a.example/o"},
 			{tokenEOF, ""}},
 		},
+		{`p:	<http://a.example/p> <http://a.example/o>`, []testToken{
+			{tokenPrefixLabel, "p"},
+			{tokenIRISuffix, ""},
+			{tokenIRIAbs, "http://a.example/p"},
+			{tokenIRIAbs, "http://a.example/o"},
+			{tokenEOF, ""}},
+		},
 		{"@base <http:/a.org/>.", []testToken{
 			{tokenBase, "base"},
 			{tokenIRIAbs, "http:/a.org/"},
