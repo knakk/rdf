@@ -22,7 +22,7 @@ var ErrEncoderClosed = errors.New("Encoder is closed and cannot encode anymore")
 type TripleEncoder struct {
 	format        Format            // Serialization format.
 	w             *errWriter        // Buffered writer. Set to nil when Encoder is closed.
-	ns            map[string]string // IRI->prefix mappings.
+	Namespaces    map[string]string // IRI->prefix mappings.
 	nsCount       int               // Counter to generate unique namespace prefixes
 	curSubj       Subject           // Keep track of current subject, to enable encoding of predicate lists.
 	curPred       Predicate         // Keep track of current subject, to enable encoding of object list.
@@ -33,9 +33,9 @@ type TripleEncoder struct {
 // given io.Writer in the given serialization format.
 func NewTripleEncoder(w io.Writer, f Format) *TripleEncoder {
 	return &TripleEncoder{
-		format: f,
-		w:      &errWriter{w: bufio.NewWriter(w)},
-		ns:     make(map[string]string),
+		format:     f,
+		w:          &errWriter{w: bufio.NewWriter(w)},
+		Namespaces: make(map[string]string),
 	}
 }
 
@@ -239,10 +239,10 @@ func (e *TripleEncoder) prefixify(t Term) string {
 			return t.Serialize(Turtle)
 		}
 
-		prefix, ok := e.ns[first]
+		prefix, ok := e.Namespaces[first]
 		if !ok {
 			prefix = fmt.Sprintf("ns%d", e.nsCount)
-			e.ns[first] = prefix
+			e.Namespaces[first] = prefix
 			if e.OpenStatement {
 				e.w.write([]byte(" .\n"))
 			}
@@ -263,10 +263,10 @@ func (e *TripleEncoder) prefixify(t Term) string {
 				return t.Serialize(Turtle)
 			}
 
-			prefix, ok := e.ns[first]
+			prefix, ok := e.Namespaces[first]
 			if !ok {
 				prefix = fmt.Sprintf("ns%d", e.nsCount)
-				e.ns[first] = prefix
+				e.Namespaces[first] = prefix
 				if e.OpenStatement {
 					e.w.write([]byte(" .\n"))
 				}

@@ -507,6 +507,7 @@ func TestEncodingTTL(t *testing.T) {
 		}
 	}
 }
+
 func TestTTL(t *testing.T) {
 	for _, test := range ttlTestSuite {
 		dec := NewTripleDecoder(bytes.NewBufferString(test.input), Turtle)
@@ -5711,4 +5712,28 @@ _:b.0 :p :o . # Contains dot, ends with digit`, "", []Triple{
 			Obj:  IRI{str: "http://www.w3.org/2013/TurtleTests/o"},
 		},
 	}},
+}
+
+func TestCustomNameSpaces(t *testing.T) {
+	var out bytes.Buffer
+	enc := NewTripleEncoder(&out, Turtle)
+	enc.Namespaces["http://purl.org/dc/elements/1.1/"] = "dc"
+	if err := enc.EncodeAll([]Triple{
+		Triple{
+			Subj: IRI{str: "http://example.org/book"},
+			Pred: IRI{str: "http://purl.org/dc/elements/1.1/title"},
+			Obj:  Literal{str: "abc", DataType: xsdString},
+		},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	enc.Close()
+
+	want := `@prefix ns0:	<http://example.org/> .
+ns0:book	dc:title	"abc" .`
+
+	if got := out.String(); got != want {
+		t.Errorf("got %s; want %s", got, want)
+	}
+
 }
