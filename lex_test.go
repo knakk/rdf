@@ -175,6 +175,14 @@ two
 			{tokenLiteral3, "one\ntwo\n3"},
 			{tokenEOF, ""}},
 		},
+		{`"""a"b""c"""`, []testToken{
+			{tokenLiteral3, `a"b""c`},
+			{tokenEOF, ""}},
+		},
+		{`'''a'b''c'''`, []testToken{
+			{tokenLiteral3, `a'b''c`},
+			{tokenEOF, ""}},
+		},
 		{`"æøå üçgen こんにちは" # comments text`, []testToken{
 			{tokenLiteral, "æøå üçgen こんにちは"},
 			{tokenEOF, ""}},
