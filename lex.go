@@ -688,11 +688,17 @@ outer:
 			// reached end of Literal
 			if quoteCount == 3 {
 				// Triple-quoted strings can contain quotes, as long as not 3 in a row.
-				if l.next() != quote {
-					break
+				q2 := l.next()
+				if q2 != quote {
+					l.backup() // back to q2
+					r = l.next()
+					continue
 				}
-				if l.next() != quote {
-					break
+				q3 := l.next()
+				if q3 != quote {
+					l.backup() // back to q3
+					r = l.next()
+					continue
 				}
 			}
 			l.pos -= quoteCount
