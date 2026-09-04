@@ -581,6 +581,14 @@ var ntTestSuite = []struct {
 		},
 	}},
 
+	{`<http://example/\u30022> <http://example/p> "x\u30022" .`, "", []Triple{
+		Triple{
+			Subj: IRI{str: "http://example/。2"},
+			Pred: IRI{str: "http://example/p"},
+			Obj:  Literal{str: "x。2", DataType: xsdString},
+		},
+	}},
+
 	//<#nt-syntax-bad-uri-01> rdf:type rdft:TestNTriplesNegativeSyntax ;
 	//   mf:name    "nt-syntax-bad-uri-01" ;
 	//   rdfs:comment "Bad IRI : space (negative test) ;

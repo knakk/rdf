@@ -235,15 +235,15 @@ func (l *lexer) ignore() {
 	l.start = l.pos
 }
 
-// acceptRunMin consumes a run of runes from the valid set, returning
-// true if a minimum number of runes where consumed.
-func (l *lexer) acceptRunMin(valid []byte, num int) bool {
-	c := 0
-	for bytes.ContainsRune(valid, l.next()) {
-		c++
+// acceptRun consumes exactly num runes from the valid set.
+func (l *lexer) acceptRun(valid []byte, num int) bool {
+	for i := 0; i < num; i++ {
+		if !bytes.ContainsRune(valid, l.next()) {
+			l.backup()
+			return false
+		}
 	}
-	l.backup()
-	return c >= num
+	return true
 }
 
 // acceptExact consumes the given string in l.input and returns true,
@@ -554,7 +554,7 @@ func _lexIRI(l *lexer) (stateFn, bool) {
 			switch esc {
 			case 'u':
 				l.next() // cosume 'u'
-				if !l.acceptRunMin(hex, 4) {
+				if !l.acceptRun(hex, 4) {
 					return l.errorf("bad IRI: insufficent hex digits in unicode escape"), false
 				}
 				// Ensure that escaped character is not in badIRIRunes.
@@ -568,7 +568,7 @@ func _lexIRI(l *lexer) (stateFn, bool) {
 				l.unEsc = true
 			case 'U':
 				l.next() // cosume 'U'
-				if !l.acceptRunMin(hex, 8) {
+				if !l.acceptRun(hex, 8) {
 					return l.errorf("bad IRI: insufficent hex digits in unicode escape"), false
 				}
 				// Ensure that escaped character is not in badIRIRunes.
@@ -670,12 +670,12 @@ outer:
 			case 't', 'b', 'n', 'r', 'f', '"', '\'', '\\':
 				l.unEsc = true
 			case 'u':
-				if !l.acceptRunMin(hex, 4) {
+				if !l.acceptRun(hex, 4) {
 					return l.errorf("bad literal: insufficent hex digits in unicode escape")
 				}
 				l.unEsc = true
 			case 'U':
-				if !l.acceptRunMin(hex, 8) {
+				if !l.acceptRun(hex, 8) {
 					return l.errorf("bad literal: insufficent hex digits in unicode escape")
 				}
 				l.unEsc = true
@@ -993,7 +993,7 @@ outerLoop:
 
 		// - ('%' hex hex)
 		if r == '%' {
-			if !l.acceptRunMin(hex, 2) {
+			if !l.acceptRun(hex, 2) {
 				return l.errorf("invalid hex escape sequence")
 			}
 		}
