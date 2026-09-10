@@ -227,6 +227,9 @@ func (l *lexer) emit(typ tokenType) {
 		l.start = l.pos
 		return
 	}
+	if l.start > l.pos {
+		l.start = l.pos
+	}
 	l.tokens <- token{
 		typ:  typ,
 		line: l.line,
