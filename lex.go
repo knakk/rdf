@@ -799,7 +799,7 @@ func lexNumber(l *lexer) stateFn {
 					l.backup()
 					break outer
 				}
-				l.errorf("bad literal: illegal number syntax (number followed by %q)", r)
+				return l.errorf("bad literal: illegal number syntax (number followed by %q)", r)
 			}
 		}
 
