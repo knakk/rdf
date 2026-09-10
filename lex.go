@@ -90,7 +90,7 @@ type lexer struct {
 func newLexer(r io.Reader) *lexer {
 	l := lexer{
 		rdr:    bufio.NewReader(r),
-		tokens: make(chan token),
+		tokens: make(chan token, 1024),
 	}
 	go l.run()
 	return &l
@@ -99,7 +99,7 @@ func newLexer(r io.Reader) *lexer {
 func newLineLexer(r io.Reader) *lexer {
 	l := lexer{
 		rdr:      bufio.NewReader(r),
-		tokens:   make(chan token),
+		tokens:   make(chan token, 1024),
 		lineMode: true,
 	}
 	go l.run()
@@ -108,6 +108,9 @@ func newLineLexer(r io.Reader) *lexer {
 
 // next returns the next rune in the input.
 func (l *lexer) next() rune {
+	if l.pos < 0 {
+		l.pos = 0
+	}
 	if l.pos >= len(l.input) {
 		l.width = 0
 		return eof
@@ -149,6 +152,10 @@ func unescapeNumericString(s string) string {
 		switch r[i] {
 		case '\\':
 			i++
+			if i >= len(r) {
+				buf.WriteRune('\\')
+				break
+			}
 			var c byte
 			switch r[i] {
 			case 't':
@@ -219,6 +226,9 @@ func (l *lexer) emit(typ tokenType) {
 		// Don't emit EOL tokens in linemode
 		l.start = l.pos
 		return
+	}
+	if l.start > l.pos {
+		l.start = l.pos
 	}
 	l.tokens <- token{
 		typ:  typ,
@@ -799,7 +809,7 @@ func lexNumber(l *lexer) stateFn {
 					l.backup()
 					break outer
 				}
-				l.errorf("bad literal: illegal number syntax (number followed by %q)", r)
+				return l.errorf("bad literal: illegal number syntax (number followed by %q)", r)
 			}
 		}
 
