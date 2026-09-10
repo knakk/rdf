@@ -108,6 +108,9 @@ func newLineLexer(r io.Reader) *lexer {
 
 // next returns the next rune in the input.
 func (l *lexer) next() rune {
+	if l.pos < 0 {
+		l.pos = 0
+	}
 	if l.pos >= len(l.input) {
 		l.width = 0
 		return eof
