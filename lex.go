@@ -90,7 +90,7 @@ type lexer struct {
 func newLexer(r io.Reader) *lexer {
 	l := lexer{
 		rdr:    bufio.NewReader(r),
-		tokens: make(chan token),
+		tokens: make(chan token, 1024),
 	}
 	go l.run()
 	return &l
@@ -99,7 +99,7 @@ func newLexer(r io.Reader) *lexer {
 func newLineLexer(r io.Reader) *lexer {
 	l := lexer{
 		rdr:      bufio.NewReader(r),
-		tokens:   make(chan token),
+		tokens:   make(chan token, 1024),
 		lineMode: true,
 	}
 	go l.run()
