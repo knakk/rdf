@@ -152,6 +152,10 @@ func unescapeNumericString(s string) string {
 		switch r[i] {
 		case '\\':
 			i++
+			if i >= len(r) {
+				buf.WriteRune('\\')
+				break
+			}
 			var c byte
 			switch r[i] {
 			case 't':
